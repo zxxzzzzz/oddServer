@@ -5,7 +5,7 @@ import path from 'path';
 const server = restify.createServer();
 
 // 设置监听端口
-server.listen(8080, function () {
+server.listen(80, function () {
   console.log('%s listening at %s', server.name, server.url);
 });
 server.get(
