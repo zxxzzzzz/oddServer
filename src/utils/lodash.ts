@@ -1,4 +1,5 @@
 import { existsSync, writeFileSync } from 'fs';
+import path from 'path';
 import { delay } from 'src/api/utils.js';
 
 export function range(start: number, end?: number, step: number = 1): number[] {
@@ -110,9 +111,9 @@ export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, ta
     const end = performance.now(); // 记录结束时间
     const duration = end - start; // 计算执行时间
     if (!existsSync(`./cache/${tag}.csv`)) {
-      writeFileSync(`./cache/requestPerformance.csv`, `date, tag, duration\r\n`, { encoding: 'utf-8' });
+      writeFileSync(path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'), `date, tag, duration\n`, { encoding: 'utf-8' });
     }
-    writeFileSync(`./cache/requestPerformance.csv`, `${new Date().toISOString()}, ${tag}, ${duration}\r\n`, {
+    writeFileSync(path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'), `${new Date().toISOString()}, ${tag}, ${duration}\n`, {
       flag: 'a',
       encoding: 'utf-8',
     });

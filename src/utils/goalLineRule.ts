@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { BETTING_RESULT, GlobalOptions, GoalLine, GoalLineRule, Result, SinInfo } from 'src/type/index.js';
 import { range, uniqBy } from './index.js';
+import path from 'path';
 
 let GlobalGoalLineRuleList: GoalLineRule[] = [];
 
@@ -27,7 +28,7 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
   });
 
   writeFileSync(
-    './cache/goalLineRule.csv',
+    path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'),
     keys
       .map((key) => {
         if (key === 'jcGoalLine1') return '竞彩投注类型1';
@@ -40,11 +41,11 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
         if (key === 'hgResult2') return '皇冠比赛结果2';
         return key;
       })
-      .join(',') + '\r\n',
+      .join(',') + '\n',
     { encoding: 'utf-8' }
   );
   writeFileSync(
-    './cache/goalLineRule.csv',
+    path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'),
     uniqItemList
       .map((item) =>
         keys
@@ -64,15 +65,16 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
           })
           .join(',')
       )
-      .join('\r\n'),
+      .join('\n'),
     { flag: 'a', encoding: 'utf-8' }
   );
 };
 
 export const getGoalLineRuleList = () => {
   if (GlobalGoalLineRuleList?.length) return GlobalGoalLineRuleList;
-  const ruleList = readFileSync('./cache/goalLineRule.csv', { encoding: 'utf-8' })
-    .split('\r\n')
+  const ruleList = readFileSync(path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv') , { encoding: 'utf-8' })
+    .replace(/\r\n/g, '\n')
+    .split('\n')
     .slice(1)
     .map((line: string) => {
       const [jcGoalLine1, jcResult1, jcGoalLine2, jcResult2, hgGoalLine1, hgResult1, hgGoalLine2, hgResult2] = line.split(',').map((v) => {
@@ -98,7 +100,7 @@ export const getGoalLineRuleList = () => {
       } as GoalLineRule;
     });
   GlobalGoalLineRuleList = ruleList;
-  return ruleList.slice(0,1);
+  return ruleList;
 };
 
 
