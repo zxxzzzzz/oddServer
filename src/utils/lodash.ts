@@ -1,4 +1,5 @@
-import { existsSync, writeFileSync } from "fs";
+import { existsSync, writeFileSync } from 'fs';
+import { delay } from 'src/api/utils.js';
 
 export function range(start: number, end?: number, step: number = 1): number[] {
   if (end === undefined) {
@@ -20,7 +21,6 @@ export function range(start: number, end?: number, step: number = 1): number[] {
   }
   return result;
 }
-
 
 /**
  * 将数组分割成多个指定大小的子数组。
@@ -46,8 +46,6 @@ function chunk<T>(array: T[], size: number): T[][] {
   return result;
 }
 
-
-
 export function uniqBy<T, U>(array: T[], iteratee: (value: T) => U): T[] {
   if (!Array.isArray(array)) {
     throw new TypeError('Expected an array');
@@ -66,7 +64,6 @@ export function uniqBy<T, U>(array: T[], iteratee: (value: T) => U): T[] {
 
   return result;
 }
-
 
 export function maxBy<T>(array: T[], iteratee: (value: T) => number | string): T | undefined {
   if (array.length === 0) {
@@ -105,9 +102,8 @@ export function minBy<T>(array: T[], iteratee: (value: T) => number | string): T
   return minElement;
 }
 
-
-// 定义一个泛型高阶函数，可以处理任何类型的输入和输出
-export function asyncTimeFunction<T extends (...args: any[]) => any>(fn: T, tag: string): T {
+/**记录promise函数执行时间的包装函数 */
+export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, tag: string): T {
   return async function (...args: Parameters<T>): Promise<ReturnType<T>> {
     const start = performance.now(); // 记录开始时间
     const result = await fn(...args); // 调用原函数
@@ -122,4 +118,341 @@ export function asyncTimeFunction<T extends (...args: any[]) => any>(fn: T, tag:
     });
     return result;
   } as T;
+}
+
+/**先进先出的promise包装函数 */
+export function toFifoFunction<T extends (...args: any[]) => Promise<any>>(fn: T) {
+  const taskList: (() => Promise<any>)[] = [];
+  /**是否有任务正在进行 */
+  let isProcessing = false
+  return async function (...args: any[]) {
+    taskList.push(fn.bind(null, ...args));
+    while (taskList.length) {
+      await delay(100)
+      if(isProcessing) continue
+      const task = taskList.shift();
+      // 当前没任务了，说明肯定没任务在进行了
+      if(!task) {
+        isProcessing = false
+        return void 0
+      }
+      // task执行前，设置任务在进行
+      isProcessing = true
+      const re = await task();
+      // task执行后，设置任务没在进行
+      isProcessing = false
+      return re;
+    }
+  };
+}
+
+/**
+ * 从对象中移除满足条件的属性
+ *
+ * @param object - 要处理的对象
+ * @param predicate - 判断函数，返回 true 表示该属性应该被移除
+ * @returns 新的对象，不包含满足条件的属性
+ */
+function omitBy<T>(object: Record<string, T>, predicate: (value: T, key: string, object: Record<string, T>) => boolean): Record<string, T> {
+  const result: Record<string, T> = {};
+
+  for (const [key, value] of Object.entries(object)) {
+    if (!predicate(value, key, object)) {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * 求解二元一次方程组
+ *
+ * @param a1 - 第一个方程的 x 系数
+ * @param b1 - 第一个方程的 y 系数
+ * @param c1 - 第一个方程的常数项
+ * @param a2 - 第二个方程的 x 系数
+ * @param b2 - 第二个方程的 y 系数
+ * @param c2 - 第二个方程的常数项
+ * @returns 一个包含解 [x, y] 的数组，如果方程组无解或有无穷多解，则返回 null
+ */
+export function solveTwoVariableLinearEquations(op: {
+  a1: number;
+  b1: number;
+  c1: number;
+  a2: number;
+  b2: number;
+  c2: number;
+}): [number, number] | null {
+  const { a1, b1, c1, a2, b2, c2 } = op;
+  // 计算系数矩阵的行列式
+  const detA = a1 * b2 - a2 * b1;
+
+  // 检查行列式是否为零
+  if (detA === 0) {
+    return null; // 方程组无解或有无穷多解
+  }
+
+  // 计算 x 和 y 的行列式
+  const detAx = c1 * b2 - c2 * b1;
+  const detAy = a1 * c2 - a2 * c1;
+
+  // 计算 x 和 y
+  const x = detAx / detA;
+  const y = detAy / detA;
+
+  return [x, y];
+}
+
+/**
+ * 求解三元一次方程组
+ *
+ * @param a1 - 第一个方程的 x 系数
+ * @param b1 - 第一个方程的 y 系数
+ * @param c1 - 第一个方程的 z 系数
+ * @param d1 - 第一个方程的常数项
+ * @param a2 - 第二个方程的 x 系数
+ * @param b2 - 第二个方程的 y 系数
+ * @param c2 - 第二个方程的 z 系数
+ * @param d2 - 第二个方程的常数项
+ * @param a3 - 第三个方程的 x 系数
+ * @param b3 - 第三个方程的 y 系数
+ * @param c3 - 第三个方程的 z 系数
+ * @param d3 - 第三个方程的常数项
+ * @returns 一个包含解 [x, y, z] 的数组，如果方程组无解或有无穷多解，则返回 null
+ */
+export function solveThreeVariableLinearEquations(op: {
+  a1: number;
+  b1: number;
+  c1: number;
+  d1: number;
+  a2: number;
+  b2: number;
+  c2: number;
+  d2: number;
+  a3: number;
+  b3: number;
+  c3: number;
+  d3: number;
+}): [number, number, number] | null {
+  const { a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3 } = op;
+  // 将输入转换为矩阵形式
+  const A = [
+    [a1, b1, c1],
+    [a2, b2, c2],
+    [a3, b3, c3],
+  ];
+  const D = [d1, d2, d3];
+
+  // 检查输入是否合法
+  if (A.length !== 3 || A[0].length !== 3 || D.length !== 3) {
+    throw new Error('Input must be a 3x3 matrix and a 3-element vector.');
+  }
+
+  // 高斯消元法
+  for (let i = 0; i < 3; i++) {
+    // 找到当前列的最大值，进行部分选主元
+    let maxRow = i;
+    for (let j = i + 1; j < 3; j++) {
+      if (Math.abs(A[j][i]) > Math.abs(A[maxRow][i])) {
+        maxRow = j;
+      }
+    }
+
+    // 交换行
+    [A[i], A[maxRow]] = [A[maxRow], A[i]];
+    [D[i], D[maxRow]] = [D[maxRow], D[i]];
+
+    // 检查主元是否为零
+    if (A[i][i] === 0) {
+      return null; // 方程组无解或有无穷多解
+    }
+
+    // 消元
+    for (let j = i + 1; j < 3; j++) {
+      const factor = A[j][i] / A[i][i];
+      for (let k = i; k < 3; k++) {
+        A[j][k] -= factor * A[i][k];
+      }
+      D[j] -= factor * D[i];
+    }
+  }
+
+  // 回代求解
+  const x: [number, number, number] = [0, 0, 0];
+  for (let i = 2; i >= 0; i--) {
+    let sum = 0;
+    for (let j = i + 1; j < 3; j++) {
+      sum += A[i][j] * x[j];
+    }
+    x[i] = (D[i] - sum) / A[i][i];
+  }
+
+  return x;
+}
+
+/**
+ * 求解四元一次方程组
+ *
+ * @param a1 - 第一个方程的 x 系数
+ * @param b1 - 第一个方程的 y 系数
+ * @param c1 - 第一个方程的 z 系数
+ * @param d1 - 第一个方程的 w 系数
+ * @param e1 - 第一个方程的常数项
+ * @param a2 - 第二个方程的 x 系数
+ * @param b2 - 第二个方程的 y 系数
+ * @param c2 - 第二个方程的 z 系数
+ * @param d2 - 第二个方程的 w 系数
+ * @param e2 - 第二个方程的常数项
+ * @param a3 - 第三个方程的 x 系数
+ * @param b3 - 第三个方程的 y 系数
+ * @param c3 - 第三个方程的 z 系数
+ * @param d3 - 第三个方程的 w 系数
+ * @param e3 - 第三个方程的常数项
+ * @param a4 - 第四个方程的 x 系数
+ * @param b4 - 第四个方程的 y 系数
+ * @param c4 - 第四个方程的 z 系数
+ * @param d4 - 第四个方程的 w 系数
+ * @param e4 - 第四个方程的常数项
+ * @returns 一个包含解 [x, y, z, w] 的数组，如果方程组无解或有无穷多解，则返回 null
+ */
+export function solveFourVariableLinearEquations(op: {
+  a1: number;
+  b1: number;
+  c1: number;
+  d1: number;
+  e1: number;
+  a2: number;
+  b2: number;
+  c2: number;
+  d2: number;
+  e2: number;
+  a3: number;
+  b3: number;
+  c3: number;
+  d3: number;
+  e3: number;
+  a4: number;
+  b4: number;
+  c4: number;
+  d4: number;
+  e4: number;
+}): [number, number, number, number] | null {
+  const { a1, b1, c1, d1, e1, a2, b2, c2, d2, e2, a3, b3, c3, d3, e3, a4, b4, c4, d4, e4 } = op;
+
+  const isANone = a1 === 0 && a2 === 0 && a3 === 0 && a4 === 0;
+  const isBNone = b1 === 0 && b2 === 0 && b3 === 0 && b4 === 0;
+  const isCNone = c1 === 0 && c2 === 0 && c3 === 0 && c4 === 0;
+  const isDNone = d1 === 0 && d2 === 0 && d3 === 0 && d4 === 0;
+  const omitList = [isANone ? 'a' : '', isBNone ? 'b' : '', isCNone ? 'c' : '', isDNone ? 'd' : ''].filter((d) => d);
+  // 未知数数量
+  const validVariableList = [
+    { a: a1, b: b1, c: c1, d: d1, e: e1 },
+    { a: a2, b: b2, c: c2, d: d2, e: e2 },
+    { a: a3, b: b3, c: c3, d: d3, e: e3 },
+    { a: a4, b: b4, c: c4, d: d4, e: e4 },
+  ]
+    .map(({ a, b, c, d, e }) => {
+      if (a === 0 && b === 0 && c === 0 && d === 0) return void 0;
+      const ob = omitBy({ a, b, c, d, e }, (v, k) => omitList.includes(k));
+      return ['a', 'b', 'c', 'd', 'e'].map((k) => ob[k]).filter((v) => v !== void 0);
+    })
+    .filter((v): v is number[] => v !== void 0);
+  console.log(validVariableList);
+
+  if (validVariableList.length === 2) {
+    const reList = solveTwoVariableLinearEquations({
+      a1: validVariableList[0][0],
+      b1: validVariableList[0][1],
+      c1: validVariableList[0][2],
+
+      a2: validVariableList[1][0],
+      b2: validVariableList[1][1],
+      c2: validVariableList[1][2],
+    }) || [0, 0];
+    return [
+      isANone ? 0 : reList.shift() || 0,
+      isBNone ? 0 : reList.shift() || 0,
+      isCNone ? 0 : reList.shift() || 0,
+      isDNone ? 0 : reList.shift() || 0,
+    ];
+  }
+  if (validVariableList.length === 3) {
+    const reList = solveThreeVariableLinearEquations({
+      a1: validVariableList[0][0],
+      b1: validVariableList[0][1],
+      c1: validVariableList[0][2],
+      d1: validVariableList[0][3],
+
+      a2: validVariableList[1][0],
+      b2: validVariableList[1][1],
+      c2: validVariableList[1][2],
+      d2: validVariableList[1][3],
+
+      a3: validVariableList[2][0],
+      b3: validVariableList[2][1],
+      c3: validVariableList[2][2],
+      d3: validVariableList[2][3],
+    }) || [0, 0, 0];
+    return [
+      isANone ? 0 : reList.shift() || 0,
+      isBNone ? 0 : reList.shift() || 0,
+      isCNone ? 0 : reList.shift() || 0,
+      isDNone ? 0 : reList.shift() || 0,
+    ];
+  }
+  // 将输入转换为矩阵形式
+  const A = [
+    [a1, b1, c1, d1],
+    [a2, b2, c2, d2],
+    [a3, b3, c3, d3],
+    [a4, b4, c4, d4],
+  ];
+  const E = [e1, e2, e3, e4];
+
+  // 检查输入是否合法
+  if (A.length !== 4 || A[0].length !== 4 || E.length !== 4) {
+    throw new Error('Input must be a 4x4 matrix and a 4-element vector.');
+  }
+
+  // 高斯消元法
+  for (let i = 0; i < 4; i++) {
+    // 找到当前列的最大值，进行部分选主元
+    let maxRow = i;
+    for (let j = i + 1; j < 4; j++) {
+      if (Math.abs(A[j][i]) > Math.abs(A[maxRow][i])) {
+        maxRow = j;
+      }
+    }
+
+    // 交换行
+    [A[i], A[maxRow]] = [A[maxRow], A[i]];
+    [E[i], E[maxRow]] = [E[maxRow], E[i]];
+
+    // 检查主元是否为零
+    if (A[i][i] === 0) {
+      return null; // 方程组无解或有无穷多解
+    }
+
+    // 消元
+    for (let j = i + 1; j < 4; j++) {
+      const factor = A[j][i] / A[i][i];
+      for (let k = i; k < 4; k++) {
+        A[j][k] -= factor * A[i][k];
+      }
+      E[j] -= factor * E[i];
+    }
+  }
+
+  // 回代求解
+  const x: [number, number, number, number] = [0, 0, 0, 0];
+  for (let i = 3; i >= 0; i--) {
+    let sum = 0;
+    for (let j = i + 1; j < 4; j++) {
+      sum += A[i][j] * x[j];
+    }
+    x[i] = (E[i] - sum) / A[i][i];
+  }
+
+  return x;
 }

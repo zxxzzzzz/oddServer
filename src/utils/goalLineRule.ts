@@ -1,8 +1,73 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { GoalLineRule, SinInfo } from 'src/type/index.js';
-import { uniqBy } from './index.js';
+import { BETTING_RESULT, GlobalOptions, GoalLine, GoalLineRule, Result, SinInfo } from 'src/type/index.js';
+import { range, uniqBy } from './index.js';
 
 let GlobalGoalLineRuleList: GoalLineRule[] = [];
+
+export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
+  const allGoalLine = sinDataList.map((item) => {
+    return {
+      jcGoalLine1: item.data.JCgoalLine1,
+      jcResult1: item.data.JCTouz1,
+      jcGoalLine2: item.data.JCgoalLine2,
+      jcResult2: item.data.JCTouz2,
+      hgGoalLine1: item.data.HGgoalLine1,
+      hgResult1: item.data.HGTouz1,
+      hgGoalLine2: item.data.HGgoalLine2,
+      hgResult2: item.data.HGTouz2,
+    };
+  });
+  const oldGoalLineRuleList = getGoalLineRuleList();
+
+  const itemList = [...allGoalLine, ...oldGoalLineRuleList];
+  const keys = Object.keys(itemList[0]) as (keyof (typeof itemList)[0])[];
+  const uniqItemList = uniqBy(itemList, (item) => keys.map((key) => item[key]).join(',')).sort((a, b) => {
+    if (a.jcGoalLine1 === '-') return -1;
+    return parseFloat(a.jcGoalLine1) - parseFloat(b.jcGoalLine1);
+  });
+
+  writeFileSync(
+    './cache/goalLineRule.csv',
+    keys
+      .map((key) => {
+        if (key === 'jcGoalLine1') return '竞彩投注类型1';
+        if (key === 'jcGoalLine2') return '竞彩投注类型2';
+        if (key === 'jcResult1') return '竞彩比赛结果1';
+        if (key === 'jcResult2') return '竞彩比赛结果2';
+        if (key === 'hgGoalLine1') return '皇冠投注类型1';
+        if (key === 'hgGoalLine2') return '皇冠投注类型2';
+        if (key === 'hgResult1') return '皇冠比赛结果1';
+        if (key === 'hgResult2') return '皇冠比赛结果2';
+        return key;
+      })
+      .join(',') + '\r\n',
+    { encoding: 'utf-8' }
+  );
+  writeFileSync(
+    './cache/goalLineRule.csv',
+    uniqItemList
+      .map((item) =>
+        keys
+          .map((key) => {
+            const v = item[key];
+            if (['jcGoalLine1'].includes(key) && v === '-' && item.jcResult1 !== '-') return '胜平负';
+            if (['jcGoalLine2'].includes(key) && v === '-' && item.jcResult2 !== '-') return '胜平负';
+            if (['hgGoalLine1'].includes(key) && v === '-' && item.hgResult1 !== '-') return '独赢';
+            if (['hgGoalLine2'].includes(key) && v === '-' && item.hgResult2 !== '-') return '独赢';
+            if (v === 'a') return '负';
+            if (v === 'h') return '胜';
+            if (v === 'd') return '平';
+            if (v === 'J1') return '净1';
+            if (v === 'J2') return '净2';
+            if (v === 'J3') return '净3';
+            return v;
+          })
+          .join(',')
+      )
+      .join('\r\n'),
+    { flag: 'a', encoding: 'utf-8' }
+  );
+};
 
 export const getGoalLineRuleList = () => {
   if (GlobalGoalLineRuleList?.length) return GlobalGoalLineRuleList;
@@ -10,19 +75,17 @@ export const getGoalLineRuleList = () => {
     .split('\r\n')
     .slice(1)
     .map((line: string) => {
-      const [jcGoalLine1, jcResult1, jcGoalLine2, jcResult2, hgGoalLine1, hgResult1, hgGoalLine2, hgResult2] = line
-        .split(',')
-        .map((v) => {
-          if (v === '胜平负') return '-';
-          if (v === '独赢') return '-';
-          if (v === '负') return 'a';
-          if (v === '胜') return 'h';
-          if (v === '平') return 'd';
-          if (v === '净1') return 'J1';
-          if (v === '净2') return 'J2';
-          if (v === '净3') return 'J3';
-          return v;
-        });
+      const [jcGoalLine1, jcResult1, jcGoalLine2, jcResult2, hgGoalLine1, hgResult1, hgGoalLine2, hgResult2] = line.split(',').map((v) => {
+        if (v === '胜平负') return '-';
+        if (v === '独赢') return '-';
+        if (v === '负') return 'a';
+        if (v === '胜') return 'h';
+        if (v === '平') return 'd';
+        if (v === '净1') return 'J1';
+        if (v === '净2') return 'J2';
+        if (v === '净3') return 'J3';
+        return v;
+      });
       return {
         jcGoalLine1,
         jcResult1,
@@ -35,60 +98,164 @@ export const getGoalLineRuleList = () => {
       } as GoalLineRule;
     });
   GlobalGoalLineRuleList = ruleList;
-  return ruleList;
+  return ruleList.slice(0,1);
 };
 
 
-export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
-  const allGoalLine = sinDataList
-    .map((item) => {
-      return {
-        jcGoalLine1: item.data.JCgoalLine1,
-        jcResult1: item.data.JCTouz1,
-        jcGoalLine2: item.data.JCgoalLine2,
-        jcResult2: item.data.JCTouz2,
-        hgGoalLine1: item.data.HGgoalLine1,
-        hgResult1: item.data.HGTouz1,
-        hgGoalLine2: item.data.HGgoalLine2,
-        hgResult2: item.data.HGTouz2,
-      };
-    });
-    const oldGoalLineRuleList = getGoalLineRuleList()
 
-    const itemList = [...allGoalLine, ...oldGoalLineRuleList];
-    const keys = Object.keys(itemList[0]) as (keyof typeof itemList[0])[];
-    const uniqItemList = uniqBy(itemList, item => keys.map((key) => item[key]).join(',')).sort((a,b) => {
-      if(a.jcGoalLine1 === '-') return -1
-      return parseFloat(a.jcGoalLine1) - parseFloat(b.jcGoalLine1) 
-    });
- 
-  writeFileSync('./cache/goalLineRule.csv', keys.map((key)=>{
-    if(key === 'jcGoalLine1') return '竞彩投注类型1'
-    if(key === 'jcGoalLine2') return '竞彩投注类型2'
-    if(key === 'jcResult1') return '竞彩比赛结果1'
-    if(key === 'jcResult2') return '竞彩比赛结果2'
-    if(key === 'hgGoalLine1') return '皇冠投注类型1'
-    if(key === 'hgGoalLine2') return '皇冠投注类型2'
-    if(key === 'hgResult1') return '皇冠比赛结果1'
-    if(key === 'hgResult2') return '皇冠比赛结果2'
-    return key
-  }).join(',') + '\r\n', { encoding: 'utf-8' });
-  writeFileSync(
-    './cache/goalLineRule.csv',
-    uniqItemList.map((item) => keys.map((key) => {
-      const v = item[key]
-      if(['jcGoalLine1'].includes(key)&&v === '-' && item.jcResult1!=='-') return '胜平负'
-      if(['jcGoalLine2'].includes(key)&&v === '-' && item.jcResult2!=='-') return '胜平负'
-      if(['hgGoalLine1'].includes(key)&&v === '-' && item.hgResult1!=='-') return '独赢'
-      if(['hgGoalLine2'].includes(key)&&v === '-' && item.hgResult2!=='-') return '独赢'
-      if(v === 'a') return '负'
-      if(v === 'h') return '胜'
-      if(v === 'd') return '平'
-      if(v === 'J1') return '净1'
-      if(v === 'J2') return '净2'
-      if(v === 'J3') return '净3'
-      return v
-    }).join(',')).join('\r\n'),
-    { flag: 'a', encoding: 'utf-8' }
-  );
+/**把goal分割成一个二维数组，可以用来方便处理 x.25 x.75的情况 */
+function getGoalLineNumberList(goalLine: string) {
+  let goalLineList = [0, 0];
+  if (goalLine === '-') goalLineList = [0, 0];
+  if (['0', '1', '2', '3', '4', '5', '-1', '-2', '-3', '-4', '-5'].includes(goalLine)) {
+    goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
+  }
+  if (['0.25', '1.25', '2.25', '3.25', '4.25', '5.25', '-0.25', '-1.25', '-2.25', '-3.25', '-4.25', '-5.25'].includes(goalLine)) {
+    goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
+  }
+  if (['0.5', '1.5', '2.5', '3.5', '4.5', '5.5', '-0.5', '-1.5', '-2.5', '-3.5', '-4.5', '-5.5'].includes(goalLine)) {
+    goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
+  }
+  if (['0.75', '1.75', '2.75', '3.75', '4.75', '5.75', '-0.75', '-1.75', '-2.75', '-3.75', '-4.75', '-5.75'].includes(goalLine)) {
+    goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
+  }
+  return goalLineList as [number, number];
+}
+
+function getBettingResultByBettingList(betList: [BETTING_RESULT, BETTING_RESULT]) {
+  const winCount = betList.reduce((re, cur) => {
+    return re + (cur === BETTING_RESULT.win ? 1 : 0);
+  }, 0);
+  const loseCount = betList.reduce((re, cur) => {
+    return re + (cur === BETTING_RESULT.lose ? 1 : 0);
+  }, 0);
+  const refundCount = betList.reduce((re, cur) => {
+    return re + (cur === BETTING_RESULT.refund ? 1 : 0);
+  }, 0);
+  if (winCount === 2) return BETTING_RESULT.win;
+  if (winCount === 1 && loseCount === 1) return BETTING_RESULT.halfWinLose;
+  if (winCount === 1 && refundCount === 1) return BETTING_RESULT.halfWin;
+  if (loseCount === 2) return BETTING_RESULT.lose;
+  if (loseCount === 1 && refundCount === 1) return BETTING_RESULT.halfLose;
+  if (refundCount === 2) return BETTING_RESULT.refund;
+  return BETTING_RESULT.unableDetermine;
+}
+
+/**获取获胜的 主-客 的分差 */
+function getWinGoalList(item: { goalLine: string; result: 'h' | 'd' | 'a' | '-'; isJC: boolean }) {
+  if (item.result === '-') return [];
+  const goalLineNumberList = getGoalLineNumberList(item.goalLine);
+  const winGoalList = range(-10, 10).filter((i) => {
+    if (item.result === 'a' && item.goalLine === '-') return i < 0;
+    if (item.result === 'h' && item.goalLine === '-') return i > 0;
+    if (item.result === 'd' && item.goalLine === '-') return i === 0;
+    if (item.result === 'a') return goalLineNumberList.every((g) => i - g < 0);
+    if (item.result === 'h') return goalLineNumberList.every((g) => i - g > 0);
+    if (item.result === 'd') return goalLineNumberList.every((g) => i - g === 0);
+    return false;
+  });
+  return winGoalList;
+}
+
+function getBettingResult(
+  r1: { goalLine: string; result: 'h' | 'd' | 'a' | '-'; isJC: boolean },
+  r2: { goalLine: string; result: 'h' | 'd' | 'a' | '-'; isJC: boolean }
+) {
+  if (r1.result === '-' || r2.result === '-') return BETTING_RESULT.unableDetermine;
+  const winGoalList = getWinGoalList(r1);
+  if (!winGoalList?.length) return BETTING_RESULT.unableDetermine;
+  /**把0.25转化为[0,0.5]格式 ,1=>[1,1], 0.75=>[0.5,1] */
+  const r2GoalLineNumberList = getGoalLineNumberList(r2.goalLine);
+  if (r2.result === 'a') {
+    const betResultList = r2GoalLineNumberList.map((r2g) => {
+      // r2是jc时 平局算输掉
+      if (winGoalList.every((g) => g - r2g === 0 && r2.isJC)) return BETTING_RESULT.lose;
+      // goalLine是独赢的时候 平局算输掉
+      if (winGoalList.every((g) => g - r2g === 0 && r2.goalLine === '-')) return BETTING_RESULT.lose;
+      if (winGoalList.every((g) => g - r2g < 0)) return BETTING_RESULT.win;
+      if (winGoalList.every((g) => g - r2g === 0)) return BETTING_RESULT.refund;
+      if (winGoalList.every((g) => g - r2g > 0)) return BETTING_RESULT.lose;
+      return BETTING_RESULT.unableDetermine;
+    }) as [BETTING_RESULT, BETTING_RESULT];
+    return getBettingResultByBettingList(betResultList);
+  }
+  if (r2.result === 'h') {
+    const betResultList = r2GoalLineNumberList.map((r2g) => {
+      // r2是jc时 平局算输掉
+      if (winGoalList.every((g) => g - r2g === 0 && r2.isJC)) return BETTING_RESULT.lose;
+      // goalLine是独赢的时候 平局算输掉
+      if (winGoalList.every((g) => g - r2g === 0 && r2.goalLine === '-')) return BETTING_RESULT.lose;
+      if (winGoalList.every((g) => g - r2g > 0)) return BETTING_RESULT.win;
+      if (winGoalList.every((g) => g - r2g === 0)) return BETTING_RESULT.refund;
+      if (winGoalList.every((g) => g - r2g < 0)) return BETTING_RESULT.lose;
+      return BETTING_RESULT.unableDetermine;
+    }) as [BETTING_RESULT, BETTING_RESULT];
+    return getBettingResultByBettingList(betResultList);
+  }
+  if (r2.result === 'd') {
+    const betResultList = r2GoalLineNumberList.map((r2g) => {
+      // r2是jc时 平局算赢
+      if (winGoalList.every((g) => g - r2g === 0 && r2.isJC)) return BETTING_RESULT.win;
+      // goalLine是独赢的时候 平局算输掉
+      if (winGoalList.every((g) => g - r2g === 0 && r2.goalLine === '-')) return BETTING_RESULT.win;
+      if (winGoalList.every((g) => g - r2g > 0)) return BETTING_RESULT.win;
+      if (winGoalList.every((g) => g - r2g === 0)) return BETTING_RESULT.refund;
+      if (winGoalList.every((g) => g - r2g < 0)) return BETTING_RESULT.lose;
+      return BETTING_RESULT.unableDetermine;
+    }) as [BETTING_RESULT, BETTING_RESULT];
+    return getBettingResultByBettingList(betResultList);
+  }
+  return BETTING_RESULT.unableDetermine;
+}
+
+/**
+ * 获取四元一次方程的系数
+ * 获取方程系数 在r1的比赛结果下，获取r2的方程系数
+ * @param isJc  这个规则是否来自jc
+ * @returns
+ */
+export const getCoefficient = (
+  r1: { result: Result; goalLine: GoalLine; isJC: boolean },
+  r2: {
+    result: Result;
+    goalLine: GoalLine;
+    odds: number;
+    isJC: boolean;
+  },
+  op: GlobalOptions
+) => {
+  /**当前的状态 */
+  const { odds } = r2;
+  if (odds === 0 || r1.result === '-' || r2.result === '-') return 0;
+
+  const betResult = getBettingResult(r1, r2);
+  console.log(betResult, r1, r2);
+  if (betResult === BETTING_RESULT.win && r2.isJC) {
+    return odds - 1 + op.JCPoint;
+  }
+  if (betResult === BETTING_RESULT.lose && r2.isJC) {
+    return op.JCPoint - 1;
+  }
+  if (betResult === BETTING_RESULT.win && !r2.isJC) {
+    return odds - 1 + (odds - 1) * op.HGPoint;
+  }
+  if (betResult === BETTING_RESULT.lose && !r2.isJC) {
+    return op.HGPoint - 1;
+  }
+  if (betResult === BETTING_RESULT.halfLose && !r2.isJC) {
+    return (op.HGPoint - 1) * 0.5;
+  }
+  if (betResult === BETTING_RESULT.halfWin && !r2.isJC) {
+    return (odds - 1) * 0.5 + (odds - 1) * op.HGPoint * 0.5;
+  }
+  if (betResult === BETTING_RESULT.halfWinLose && !r2.isJC) {
+    return (odds - 1 + (odds - 1) * op.HGPoint) * 0.5 + (op.HGPoint - 1) * 0.5;
+  }
+  if (betResult === BETTING_RESULT.refund && !r2.isJC) {
+    return 0;
+  }
+  if (betResult === BETTING_RESULT.unableDetermine && !r2.isJC) {
+    return 0;
+  }
+  return 0;
 };

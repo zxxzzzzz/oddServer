@@ -1,4 +1,4 @@
-import { maxBy, minBy, asyncTimeFunction } from 'src/utils/index.js';
+import { maxBy, minBy, toAsyncTimeFunction, toFifoFunction } from 'src/utils/index.js';
 import { loginByAccount } from '../api/login.js';
 import { delay, uniqBy } from '../api/utils.js';
 import ping from 'ping';
@@ -46,7 +46,7 @@ const getAliveUrl = async () => {
  * @param op limitIdleAge 空闲时间限制。token大于空闲时间的才会被返回
  * @returns
  */
-export const getToken = asyncTimeFunction(async (op: { limitIdleAge: number } = { limitIdleAge: 10000 }) => {
+export const getToken = toAsyncTimeFunction(toFifoFunction(async (op: { limitIdleAge: number } = { limitIdleAge: 10000 }) => {
   while (isLogging) {
     await delay(10);
   }
@@ -82,7 +82,7 @@ export const getToken = asyncTimeFunction(async (op: { limitIdleAge: number } = 
   lastUseToken.lastUseTimestamp = new Date().valueOf();
   // console.log('token', lastUseToken.uid, new Date(lastUseToken.lastUseTimestamp).toISOString());
   return lastUseToken;
-}, 'getToken');
+}), 'getToken');
 /**获取有多少个有效账号token */
 export const getTokenCount = () => {
   return GlobalTokenList.length || 0;

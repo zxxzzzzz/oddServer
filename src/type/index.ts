@@ -4452,3 +4452,19 @@ export type SinInfo = {
     profitRate: `${number}%`;
   };
 };
+
+
+export enum BETTING_RESULT {
+  win = 'win',
+  lose = 'lose',
+  /**赢一半，另一半退还本金 */
+  halfWin = 'halfWin',
+  /*输一半 另一半退还本金 */
+  halfLose = 'halfLose',
+  /**半输半赢 */
+  halfWinLose = 'halfWinLose',
+  /**退还本金 */
+  refund = 'refund',
+  /**不能判断 */
+  unableDetermine = 'unableDetermine',
+}
