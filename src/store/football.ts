@@ -9,7 +9,7 @@ import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type
 import { getLeagueSameWeight, getRatioAvg, getSinData, getTeamSameWeight, maxBy, uniqBy } from '../utils/index.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { delay } from 'src/api/utils.js';
-import {ossClient} from '../api/oss.js';
+import { ossClient } from '../api/oss.js';
 
 // 联赛数据
 export const footballState: {
@@ -335,28 +335,41 @@ export function getSinInfoList(op: GlobalOptions, JCInfoList: JCInfo[], HGInfoLi
   return sinInfoList
 }
 
-async function updateToOss() {
+export async function updateFootballStateToOss() {
   const OSS_FILE_NAME = 'footballState.json';
   try {
     await ossClient.put(OSS_FILE_NAME, Buffer.from(JSON.stringify(footballState)));
+    console.log(new Date().toISOString(), 'oss updateHGInfoList');
   } catch (error) {
     console.log('put error', error);
   }
 }
 
+export async function updateFootballStateFromOss() {
+  const OSS_FILE_NAME = 'footballState.json';
+  try {
+    const res = await ossClient.get(OSS_FILE_NAME);
+    const content = res.content
+    if (!content) return
+    const ossFootballState = JSON.parse(content)
+    Object.entries(ossFootballState).forEach(([k, v]) => {
+      // @ts-expect-error
+      footballState[k] = v
+    })
+    console.log(new Date().toISOString(), 'update from oss');
+  } catch (error) {
+    console.log('put error', error);
+  }
+}
 
-(async () => {
-  if (existsSync('./cache/footballState.json')) {
+export async function updateFootballStateFromWeb() {
+  if (existsSync('./cache/footballState.json') && footballState.JCInfoListUpdateTimeStamp === 0) {
     const text = readFileSync('./cache/footballState.json', { encoding: 'utf-8' });
     const body = JSON.parse(text);
     Object.keys(footballState).forEach((key) => {
       footballState[key as keyof typeof footballState] = body[key];
     });
   }
-  // getToken()
-  setInterval(async () => {
-    await updateJCInfoList();
-    await updateHGInfoList({ limitMatchCount: 5 });
-    await updateToOss()
-  }, 1000);
-})();
+  await updateJCInfoList();
+  await updateHGInfoList({ limitMatchCount: 5 });
+}

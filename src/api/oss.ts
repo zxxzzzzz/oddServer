@@ -7,5 +7,5 @@ export const ossClient = new OSS({
   accessKeyId: 'LTAI5tNpSy9xc' + 'TEcAK7M7Uxu',
   accessKeySecret: 'xJw1QUVCmOs' + 'DT5ZHqJgMssUZTtalqo',
   bucket: 'footballc',
-  internal: true,
+  internal: false,
 });
