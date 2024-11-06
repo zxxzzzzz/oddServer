@@ -1,1 +1,692 @@
-{"JCInfoList":[{"matchId":"1027701","leagueAbbName":"亚冠","leagueAllName":"亚洲冠军联赛","leagueCode":"ACL","matchNumStr":"周一001","matchDate":"2024-11-04","matchTime":"22:00:00","matchTimeFormat":"2024-11-04 22:00:00","homeTeamAbbName":"迪拜连接","homeTeamAllName":"迪拜连接","awayTeamAbbName":"多哈萨德","awayTeamAllName":"多哈萨德","isSingle_had":"0","isSingle_hhad":"0","had_a":"2.82","had_h":"2.05","had_d":"3.50","hhad_a":"1.57","hhad_h":"4.20","hhad_d":"3.95","hhad_goalLine":"-1","hafu_aa":"4.85","hafu_ad":"14.00","hafu_ah":"21.00","hafu_da":"7.00","hafu_dd":"6.50","hafu_dh":"5.50","hafu_ha":"26.00","hafu_hd":"14.00","hafu_hh":"3.45","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"},{"matchId":"1027702","leagueAbbName":"意甲","leagueAllName":"意大利甲级联赛","leagueCode":"ISA","matchNumStr":"周一002","matchDate":"2024-11-05","matchTime":"01:30:00","matchTimeFormat":"2024-11-05 01:30:00","homeTeamAbbName":"帕尔马","homeTeamAllName":"帕尔马","awayTeamAbbName":"热那亚","awayTeamAllName":"热那亚","isSingle_had":"0","isSingle_hhad":"0","had_a":"4.45","had_h":"1.60","had_d":"3.57","hhad_a":"2.01","hhad_h":"3.08","hhad_d":"3.25","hhad_goalLine":"-1","hafu_aa":"7.50","hafu_ad":"15.00","hafu_ah":"24.00","hafu_da":"10.00","hafu_dd":"6.20","hafu_dh":"4.15","hafu_ha":"40.00","hafu_hd":"15.00","hafu_hh":"2.71","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"},{"matchId":"1027703","leagueAbbName":"意甲","leagueAllName":"意大利甲级联赛","leagueCode":"ISA","matchNumStr":"周一003","matchDate":"2024-11-05","matchTime":"03:45:00","matchTimeFormat":"2024-11-05 03:45:00","homeTeamAbbName":"拉齐奥","homeTeamAllName":"拉齐奥","awayTeamAbbName":"卡利亚里","awayTeamAllName":"卡利亚里","isSingle_had":"0","isSingle_hhad":"0","had_a":"6.50","had_h":"1.35","had_d":"4.25","hhad_a":"2.61","hhad_h":"2.22","hhad_d":"3.38","hhad_goalLine":"-1","hafu_aa":"11.50","hafu_ad":"20.00","hafu_ah":"25.00","hafu_da":"15.00","hafu_dd":"7.00","hafu_dh":"4.10","hafu_ha":"60.00","hafu_hd":"20.00","hafu_hh":"1.97","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"},{"matchId":"1027704","leagueAbbName":"英超","leagueAllName":"英格兰超级联赛","leagueCode":"EPL","matchNumStr":"周一004","matchDate":"2024-11-05","matchTime":"04:00:00","matchTimeFormat":"2024-11-05 04:00:00","homeTeamAbbName":"富勒姆","homeTeamAllName":"富勒姆","awayTeamAbbName":"布伦特","awayTeamAllName":"布伦特福德","isSingle_had":"0","isSingle_hhad":"0","had_a":"3.30","had_h":"1.87","had_d":"3.46","hhad_a":"1.70","hhad_h":"3.65","hhad_d":"3.75","hhad_goalLine":"-1","hafu_aa":"6.00","hafu_ad":"15.00","hafu_ah":"23.00","hafu_da":"7.60","hafu_dd":"6.40","hafu_dh":"4.40","hafu_ha":"30.00","hafu_hd":"15.00","hafu_hh":"3.20","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"},{"matchId":"1027705","leagueAbbName":"西甲","leagueAllName":"西班牙甲级联赛","leagueCode":"SFL","matchNumStr":"周一005","matchDate":"2024-11-05","matchTime":"04:00:00","matchTimeFormat":"2024-11-05 04:00:00","homeTeamAbbName":"塞尔塔","homeTeamAllName":"维戈塞尔塔","awayTeamAbbName":"赫塔费","awayTeamAllName":"赫塔费","isSingle_had":"0","isSingle_hhad":"0","had_a":"4.10","had_h":"1.88","had_d":"2.83","hhad_a":"1.70","hhad_h":"4.20","hhad_d":"3.30","hhad_goalLine":"-1","hafu_aa":"7.80","hafu_ad":"16.00","hafu_ah":"36.00","hafu_da":"9.00","hafu_dd":"3.80","hafu_dh":"3.95","hafu_ha":"55.00","hafu_hd":"16.00","hafu_hh":"3.60","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"},{"matchId":"1027746","leagueAbbName":"欧冠","leagueAllName":"欧洲冠军联赛","leagueCode":"UCL","matchNumStr":"周二003","matchDate":"2024-11-06","matchTime":"04:00:00","matchTimeFormat":"2024-11-06 04:00:00","homeTeamAbbName":"里尔","homeTeamAllName":"里尔","awayTeamAbbName":"尤文图斯","awayTeamAllName":"尤文图斯","isSingle_had":"1","isSingle_hhad":"0","had_a":"2.40","had_h":"2.60","had_d":"3.05","hhad_a":"5.55","hhad_h":"1.43","hhad_d":"4.00","hhad_goalLine":"+1","hafu_aa":"4.10","hafu_ad":"15.00","hafu_ah":"28.00","hafu_da":"5.90","hafu_dd":"5.10","hafu_dh":"6.00","hafu_ha":"27.00","hafu_hd":"15.00","hafu_hh":"4.50","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"},{"matchId":"1027747","leagueAbbName":"欧冠","leagueAllName":"欧洲冠军联赛","leagueCode":"UCL","matchNumStr":"周二004","matchDate":"2024-11-06","matchTime":"04:00:00","matchTimeFormat":"2024-11-06 04:00:00","homeTeamAbbName":"里斯本","homeTeamAllName":"里斯本竞技","awayTeamAbbName":"曼城","awayTeamAllName":"曼彻斯特城","isSingle_had":"0","isSingle_hhad":"0","had_a":"1.65","had_h":"3.85","had_d":"3.80","hhad_a":"2.93","hhad_h":"1.96","hhad_d":"3.60","hhad_goalLine":"+1","hafu_aa":"2.67","hafu_ad":"15.00","hafu_ah":"34.00","hafu_da":"4.85","hafu_dd":"6.70","hafu_dh":"9.10","hafu_ha":"21.00","hafu_hd":"15.00","hafu_hh":"6.50","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"},{"matchId":"1027759","leagueAbbName":"欧冠","leagueAllName":"欧洲冠军联赛","leagueCode":"UCL","matchNumStr":"周二005","matchDate":"2024-11-06","matchTime":"04:00:00","matchTimeFormat":"2024-11-06 04:00:00","homeTeamAbbName":"博洛尼亚","homeTeamAllName":"博洛尼亚","awayTeamAbbName":"摩纳哥","awayTeamAllName":"摩纳哥","isSingle_had":"0","isSingle_hhad":"0","had_a":"2.25","had_h":"2.74","had_d":"3.12","hhad_a":"4.90","hhad_h":"1.50","hhad_d":"3.88","hhad_goalLine":"+1","hafu_aa":"3.85","hafu_ad":"14.50","hafu_ah":"28.00","hafu_da":"5.65","hafu_dd":"5.45","hafu_dh":"6.45","hafu_ha":"26.00","hafu_hd":"14.50","hafu_hh":"4.60","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"},{"matchId":"1027748","leagueAbbName":"欧冠","leagueAllName":"欧洲冠军联赛","leagueCode":"UCL","matchNumStr":"周二006","matchDate":"2024-11-06","matchTime":"04:00:00","matchTimeFormat":"2024-11-06 04:00:00","homeTeamAbbName":"皇马","homeTeamAllName":"皇家马德里","awayTeamAbbName":"AC米兰","awayTeamAllName":"AC米兰","isSingle_had":"1","isSingle_hhad":"0","had_a":"6.40","had_h":"1.32","had_d":"4.65","hhad_a":"2.83","hhad_h":"1.97","hhad_d":"3.72","hhad_goalLine":"-1","hafu_aa":"12.00","hafu_ad":"19.00","hafu_ah":"22.00","hafu_da":"16.00","hafu_dd":"9.00","hafu_dh":"4.20","hafu_ha":"55.00","hafu_hd":"19.00","hafu_hh":"1.85","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"},{"matchId":"1027749","leagueAbbName":"欧冠","leagueAllName":"欧洲冠军联赛","leagueCode":"UCL","matchNumStr":"周二007","matchDate":"2024-11-06","matchTime":"04:00:00","matchTimeFormat":"2024-11-06 04:00:00","homeTeamAbbName":"利物浦","homeTeamAllName":"利物浦","awayTeamAbbName":"勒沃库森","awayTeamAllName":"勒沃库森","isSingle_had":"0","isSingle_hhad":"0","had_a":"4.28","had_h":"1.55","had_d":"4.00","hhad_a":"2.12","hhad_h":"2.63","hhad_d":"3.60","hhad_goalLine":"-1","hafu_aa":"7.65","hafu_ad":"15.50","hafu_ah":"19.00","hafu_da":"10.50","hafu_dd":"7.60","hafu_dh":"4.60","hafu_ha":"36.00","hafu_hd":"15.50","hafu_hh":"2.38","updateTime":"2024-11-04T13:13:09.168Z","createdAt":"2024-11-04T11:45:48.844Z","updatedAt":"2024-11-04T13:13:09.168Z"}],"HGInfoList":[{"matchId":"1027702","leagueAbbName":"意大利甲组联赛","leagueAllName":"意大利甲组联赛","leagueCode":"","matchNumStr":"","matchDate":"","matchTime":"","matchTimeFormat":"2024-11-04 13:30:00","homeTeamAbbName":"帕尔马","homeTeamAllName":"帕尔马","awayTeamAbbName":"热那亚","awayTeamAllName":"热那亚","had_a":"4.400","had_h":"1.790","had_d":"3.900","hhad_a1":"1.87","hhad_h1":"2.02","hhad_d1":"-","hhad_goalLine1":"-0.75","hhad_a2":"2.1100001","hhad_h2":"1.79","hhad_d2":"-","hhad_goalLine2":"-0.25","hhad_a3":"1.5899999","hhad_h3":"2.42","hhad_d3":"-","hhad_goalLine3":"-0.50","hhad_a4":"2.47","hhad_h4":"1.5799999","hhad_d4":"-","hhad_goalLine4":"-0.25","hhad_a5":"","hhad_h5":"","hhad_d5":"-","hhad_goalLine5":0,"hhad_a6":"","hhad_h6":"","hhad_d6":"-","hhad_goalLine6":0,"wm_h1":"3.600","wm_h2":"4.8","wm_h3":"9.5","wm_hov":"17.0","wm_a1":"5.5","wm_a2":"14.0","wm_a3":"46.0","wm_aov":"121.0","wm_0":"13.0","wm_n":"4.45","hhafu_goalLine1":"-0.25","hhafu_h1":"1.97","hhafu_a1":"1.9200001","hhafu_goalLine2":"-0.25","hhafu_h2":"2.47","hhafu_a2":"1.5699999","hhafu_goalLine3":0,"hhafu_h3":"0","hhafu_a3":"","hhafu_goalLine4":0,"hhafu_h4":"0","hhafu_a4":"","updateTime":"2024-11-04T13:13:12.688Z","createdAt":"2024-11-04T11:47:01.228Z","updatedAt":"2024-11-04T13:13:12.688Z"},{"matchId":"1027703","leagueAbbName":"意大利甲组联赛","leagueAllName":"意大利甲组联赛","leagueCode":"","matchNumStr":"","matchDate":"","matchTime":"","matchTimeFormat":"2024-11-04 15:45:00","homeTeamAbbName":"拉齐奥","homeTeamAllName":"拉齐奥","awayTeamAbbName":"卡利亚里","awayTeamAllName":"卡利亚里","had_a":"6.600","had_h":"1.500","had_d":"4.450","hhad_a1":"2.05","hhad_h1":"1.8399999","hhad_d1":"-","hhad_goalLine1":"-0.50","hhad_a2":"1.77","hhad_h2":"2.13","hhad_d2":"-","hhad_goalLine2":"-1.25","hhad_a3":"2.35","hhad_h3":"1.63","hhad_d3":"-","hhad_goalLine3":"-0.75","hhad_a4":"1.6","hhad_h4":"2.4","hhad_d4":"-","hhad_goalLine4":"-0.75","hhad_a5":"","hhad_h5":"","hhad_d5":"-","hhad_goalLine5":0,"hhad_a6":"","hhad_h6":"","hhad_d6":"-","hhad_goalLine6":0,"wm_h1":"3.5","wm_h2":"4.0","wm_h3":"6.9","wm_hov":"10.0","wm_a1":"7.8","wm_a2":"23.0","wm_a3":"86.0","wm_aov":"221.0","wm_0":"13.0","wm_n":"5.3","hhafu_goalLine1":"-0.25","hhafu_h1":"2.08","hhafu_a1":"1.81","hhafu_goalLine2":"-0.25","hhafu_h2":"1.7","hhafu_a2":"2.23","hhafu_goalLine3":0,"hhafu_h3":"0","hhafu_a3":"","hhafu_goalLine4":0,"hhafu_h4":"0","hhafu_a4":"","updateTime":"2024-11-04T13:13:14.004Z","createdAt":"2024-11-04T11:47:02.090Z","updatedAt":"2024-11-04T13:13:14.004Z"},{"matchId":"1027704","leagueAbbName":"英格兰超级联赛","leagueAllName":"英格兰超级联赛","leagueCode":"","matchNumStr":"","matchDate":"","matchTime":"","matchTimeFormat":"2024-11-04 16:00:00","homeTeamAbbName":"富勒姆","homeTeamAllName":"富勒姆","awayTeamAbbName":"布伦特福德","awayTeamAllName":"布伦特福德","had_a":"3.500","had_h":"2.050","had_d":"3.750","hhad_a1":"1.85","hhad_h1":"2.04","hhad_d1":"-","hhad_goalLine1":"-0.25","hhad_a2":"2.1100001","hhad_h2":"1.79","hhad_d2":"-","hhad_goalLine2":"-0.25","hhad_a3":"1.64","hhad_h3":"2.33","hhad_d3":"-","hhad_goalLine3":"-0.75","hhad_a4":"2.6100001","hhad_h4":"1.52","hhad_d4":"-","hhad_goalLine4":"0","hhad_a5":"","hhad_h5":"","hhad_d5":"-","hhad_goalLine5":0,"hhad_a6":"","hhad_h6":"","hhad_d6":"-","hhad_goalLine6":0,"wm_h1":"3.85","wm_h2":"5.5","wm_h3":"12.0","wm_hov":"23.0","wm_a1":"4.75","wm_a2":"10.5","wm_a3":"31.0","wm_aov":"81.0","wm_0":"13.5","wm_n":"4.15","hhafu_goalLine1":"-0.25","hhafu_h1":"2.1399999","hhafu_a1":"1.76","hhafu_goalLine2":"0","hhafu_h2":"1.6","hhafu_a2":"2.4","hhafu_goalLine3":0,"hhafu_h3":"0","hhafu_a3":"","hhafu_goalLine4":0,"hhafu_h4":"0","hhafu_a4":"","updateTime":"2024-11-04T13:13:13.587Z","createdAt":"2024-11-04T11:46:18.732Z","updatedAt":"2024-11-04T13:13:13.587Z"},{"matchId":"1027705","leagueAbbName":"西班牙甲组联赛","leagueAllName":"西班牙甲组联赛","leagueCode":"","matchNumStr":"","matchDate":"","matchTime":"","matchTimeFormat":"2024-11-04 16:00:00","homeTeamAbbName":"维戈塞尔塔","homeTeamAllName":"维戈塞尔塔","awayTeamAbbName":"赫塔费","awayTeamAllName":"赫塔费","had_a":"4.000","had_h":"2.120","had_d":"3.100","hhad_a1":"2.0700002","hhad_h1":"1.8199999","hhad_d1":"-","hhad_goalLine1":"-0.25","hhad_a2":"1.78","hhad_h2":"2.12","hhad_d2":"-","hhad_goalLine2":"-0.25","hhad_a3":"1.55","hhad_h3":"2.53","hhad_d3":"-","hhad_goalLine3":"-0.75","hhad_a4":"2.72","hhad_h4":"1.48","hhad_d4":"-","hhad_goalLine4":"0","hhad_a5":"","hhad_h5":"","hhad_d5":"-","hhad_goalLine5":0,"hhad_a6":"","hhad_h6":"","hhad_d6":"-","hhad_goalLine6":0,"wm_h1":"3.45","wm_h2":"6.0","wm_h3":"16.5","wm_hov":"46.0","wm_a1":"4.75","wm_a2":"14.5","wm_a3":"56.0","wm_aov":"181.0","wm_0":"6.2","wm_n":"4.45","hhafu_goalLine1":"-0.25","hhafu_h1":"2.28","hhafu_a1":"1.6700001","hhafu_goalLine2":"0","hhafu_h2":"1.55","hhafu_a2":"2.51","hhafu_goalLine3":0,"hhafu_h3":"0","hhafu_a3":"","hhafu_goalLine4":0,"hhafu_h4":"0","hhafu_a4":"","updateTime":"2024-11-04T13:13:14.610Z","createdAt":"2024-11-04T11:46:27.436Z","updatedAt":"2024-11-04T13:13:14.610Z"},{"matchId":"1027701","leagueAbbName":"欧洲冠军联赛","leagueAllName":"欧洲冠军联赛","leagueCode":"","matchNumStr":"","matchDate":"","matchTime":"","matchTimeFormat":"2024-11-05 13:45:00","homeTeamAbbName":"布拉迪斯拉发","homeTeamAllName":"布拉迪斯拉发","awayTeamAbbName":"萨格勒布戴拿模","awayTeamAllName":"萨格勒布戴拿模","had_a":"1.990","had_h":"3.700","had_d":"3.700","hhad_a1":"1.98","hhad_h1":"1.9","hhad_d1":"-","hhad_goalLine1":"0.25","hhad_a2":"1.72","hhad_h2":"2.19","hhad_d2":"-","hhad_goalLine2":"0.25","hhad_a3":"2.25","hhad_h3":"1.6800001","hhad_d3":"-","hhad_goalLine3":"0.75","hhad_a4":"1.5","hhad_h4":"2.6100001","hhad_d4":"-","hhad_goalLine4":"0","hhad_a5":"","hhad_h5":"","hhad_d5":"-","hhad_goalLine5":0,"hhad_a6":"","hhad_h6":"","hhad_d6":"-","hhad_goalLine6":0,"wm_h1":"4.950","wm_h2":"10.500","wm_h3":"29.000","wm_hov":"76.000","wm_a1":"3.900","wm_a2":"5.300","wm_a3":"11.000","wm_aov":"20.000","wm_0":"13.500","wm_n":"4.350","hhafu_goalLine1":"0.25","hhafu_h1":"1.79","hhafu_a1":"2.0900002","hhafu_goalLine2":"0","hhafu_h2":"2.47","hhafu_a2":"1.56","hhafu_goalLine3":0,"hhafu_h3":"0","hhafu_a3":"","hhafu_goalLine4":0,"hhafu_h4":"0","hhafu_a4":"","updateTime":"2024-11-04T13:13:11.448Z","createdAt":"2024-11-04T11:47:11.978Z","updatedAt":"2024-11-04T13:13:11.448Z"}],"HGLeagueList":[{"name":"欧洲冠军联赛","leagueId":"100822"},{"name":"欧洲联赛","leagueId":"100824"},{"name":"欧洲协会联赛","leagueId":"109306"},{"name":"英格兰超级联赛","leagueId":"100021"},{"name":"英格兰冠军联赛","leagueId":"100235"},{"name":"英格兰足总杯","leagueId":"100791"},{"name":"英格兰联赛锦标赛","leagueId":"100799"},{"name":"英格兰甲组联赛","leagueId":"100127"},{"name":"英格兰职业联赛U21","leagueId":"106155"},{"name":"英格兰北部西部甲组联赛","leagueId":"109048"},{"name":"英格兰伊斯米安中南部甲组联赛","leagueId":"109351"},{"name":"德国甲组联赛","leagueId":"100028"},{"name":"德国乙组联赛","leagueId":"100117"},{"name":"德国西部联赛","leagueId":"102622"},{"name":"德国女子甲组联赛","leagueId":"101326"},{"name":"西班牙甲组联赛","leagueId":"100030"},{"name":"西班牙乙组联赛","leagueId":"100064"},{"name":"意大利甲组联赛","leagueId":"100026"},{"name":"意大利乙组联赛","leagueId":"100065"},{"name":"意大利丙组联赛","leagueId":"107215"},{"name":"意大利青年春季甲组联赛U20","leagueId":"102297"},{"name":"日本J1联赛","leagueId":"100160"},{"name":"日本J2联赛","leagueId":"100712"},{"name":"法国甲组联赛","leagueId":"100032"},{"name":"法国乙组联赛","leagueId":"100078"},{"name":"巴西甲组联赛","leagueId":"100253"},{"name":"巴西乙组联赛","leagueId":"101553"},{"name":"荷兰甲组联赛","leagueId":"100049"},{"name":"荷兰乙组联赛","leagueId":"100265"},{"name":"埃及乙组联赛A","leagueId":"104969"},{"name":"阿尔巴尼亚超级联赛","leagueId":"103334"},{"name":"阿根廷职业联赛","leagueId":"100154"},{"name":"阿根廷全国联赛-附加赛","leagueId":"102368"},{"name":"阿根廷乙组曼特波里顿联赛","leagueId":"103373"},{"name":"亚足联冠军精英联赛","leagueId":"100845"},{"name":"澳大利亚甲组联赛","leagueId":"100710"},{"name":"奥地利甲组联赛","leagueId":"100110"},{"name":"奥地利乙组联赛","leagueId":"100267"},{"name":"比利时甲组联赛A","leagueId":"100111"},{"name":"保加利亚甲组联赛","leagueId":"101414"},{"name":"保加利亚乙组联赛","leagueId":"103242"},{"name":"哥伦比亚甲组联赛","leagueId":"101362"},{"name":"哥伦比亚乙组联赛-附加赛","leagueId":"103446"},{"name":"塞浦路斯甲组联赛","leagueId":"100116"},{"name":"捷克国家联赛","leagueId":"101426"},{"name":"丹麦超级联赛","leagueId":"100037"},{"name":"丹麦甲组联赛","leagueId":"100118"},{"name":"电竞足球-GT体育联赛(2 x 6分钟)","leagueId":"109480"},{"name":"厄瓜多尔甲组联赛","leagueId":"102964"},{"name":"希腊超级联赛甲组","leagueId":"100142"},{"name":"希腊超级联赛乙组","leagueId":"108981"},{"name":"匈牙利乙组联赛","leagueId":"101874"},{"name":"印度超级联赛","leagueId":"107242"},{"name":"印尼甲组联赛","leagueId":"104523"},{"name":"欧洲U17青年锦标赛外围赛","leagueId":"101805"},{"name":"以色列超级联赛","leagueId":"102744"},{"name":"以色列甲组联赛","leagueId":"102772"},{"name":"牙买加超级联赛","leagueId":"107916"},{"name":"约旦甲组联赛","leagueId":"103851"},{"name":"墨西哥超级联赛","leagueId":"100277"},{"name":"墨西哥甲组联赛","leagueId":"103166"},{"name":"北爱尔兰职业超级联赛U20","leagueId":"108168"},{"name":"挪威超级联赛","leagueId":"100080"},{"name":"巴拉圭甲组联赛","leagueId":"101355"},{"name":"波兰超级联赛","leagueId":"100076"},{"name":"波兰甲组联赛","leagueId":"101841"},{"name":"波兰乙组联赛","leagueId":"103238"},{"name":"葡萄牙超级联赛","leagueId":"100173"},{"name":"葡萄牙甲组联赛","leagueId":"100047"},{"name":"罗马尼亚甲组联赛","leagueId":"100103"},{"name":"沙特甲组联赛","leagueId":"102820"},{"name":"苏格兰超级联赛","leagueId":"100038"},{"name":"塞尔维亚超级联赛","leagueId":"102983"},{"name":"塞尔维亚甲组联赛","leagueId":"103786"},{"name":"斯洛文尼亚联赛U19","leagueId":"108288"},{"name":"斯洛文尼亚乙组联赛","leagueId":"103679"},{"name":"韩国K甲组联赛-附加赛","leagueId":"106747"},{"name":"瑞典超级联赛","leagueId":"100146"},{"name":"瑞典超级甲组联赛","leagueId":"100087"},{"name":"瑞士超级联赛","leagueId":"100189"},{"name":"泰国甲组联赛","leagueId":"102582"},{"name":"土耳其超级联赛","leagueId":"100123"},{"name":"土耳其甲组联赛","leagueId":"101743"},{"name":"乌克兰超级联赛","leagueId":"100081"},{"name":"美国职业大联盟-附加赛","leagueId":"101857"},{"name":"乌拉圭甲组联赛","leagueId":"102812"},{"name":"乌拉圭后备联赛","leagueId":"108181"}],"HGGameInfoList":[{"gameList":[{"ecid":"8762436","homeTeam":"富勒姆","awayTeam":"布伦特福德","more":"96"},{"ecid":"8790491","homeTeam":"布伦特福德","awayTeam":"伯恩茅斯","more":"75"},{"ecid":"8790496","homeTeam":"水晶宫","awayTeam":"富勒姆","more":"75"},{"ecid":"8790505","homeTeam":"西汉姆联","awayTeam":"埃弗顿","more":"75"},{"ecid":"8790523","homeTeam":"狼队","awayTeam":"南安普敦","more":"75"},{"ecid":"8790527","homeTeam":"布莱顿","awayTeam":"曼城","more":"75"},{"ecid":"8790538","homeTeam":"利物浦","awayTeam":"阿斯顿维拉","more":"74"},{"ecid":"8790549","homeTeam":"曼联","awayTeam":"莱斯特城","more":"75"},{"ecid":"8790568","homeTeam":"诺丁汉森林","awayTeam":"纽卡斯尔","more":"75"},{"ecid":"8790571","homeTeam":"托特纳姆热刺","awayTeam":"伊普斯维奇","more":"75"},{"ecid":"8790582","homeTeam":"切尔西","awayTeam":"阿森纳","more":"75"}],"updateTimestamp":1730725934462,"leagueId":"100021","JCLeagueName":"英格兰超级联赛"},{"gameList":[{"ecid":"8772843","homeTeam":"恩波利","awayTeam":"科木","more":"96"},{"ecid":"8772854","homeTeam":"帕尔马","awayTeam":"热那亚","more":"96"},{"ecid":"8772865","homeTeam":"拉齐奥","awayTeam":"卡利亚里","more":"96"},{"ecid":"8790980","homeTeam":"热那亚","awayTeam":"科木","more":"75"},{"ecid":"8790991","homeTeam":"莱切","awayTeam":"恩波利","more":"75"},{"ecid":"8790994","homeTeam":"威尼斯","awayTeam":"帕尔马","more":"75"},{"ecid":"8791013","homeTeam":"卡利亚里","awayTeam":"AC米兰","more":"75"},{"ecid":"8791023","homeTeam":"尤文图斯","awayTeam":"都灵","more":"75"},{"ecid":"8791027","homeTeam":"亚特兰大","awayTeam":"乌迪内斯","more":"75"},{"ecid":"8791038","homeTeam":"佛罗伦萨","awayTeam":"维罗纳","more":"75"},{"ecid":"8791057","homeTeam":"罗马","awayTeam":"博洛尼亚","more":"75"},{"ecid":"8791060","homeTeam":"蒙扎","awayTeam":"拉齐奥","more":"75"},{"ecid":"8791071","homeTeam":"国际米兰","awayTeam":"那不勒斯","more":"75"}],"updateTimestamp":1730725934546,"leagueId":"100026","JCLeagueName":"意大利甲级联赛"},{"gameList":[{"ecid":"8762671","homeTeam":"维戈塞尔塔","awayTeam":"赫塔费","more":"96"},{"ecid":"8790743","homeTeam":"巴列卡诺","awayTeam":"拉斯彭马斯","more":"75"},{"ecid":"8790746","homeTeam":"皇家马德里","awayTeam":"奥萨苏纳","more":"75"},{"ecid":"8790776","homeTeam":"比雷亚雷亚尔","awayTeam":"阿拉维斯","more":"75"},{"ecid":"8790788","homeTeam":"爱斯宾奴","awayTeam":"华伦西亚","more":"75"},{"ecid":"8790802","homeTeam":"皇家贝迪斯","awayTeam":"维戈塞尔塔","more":"75"},{"ecid":"8790821","homeTeam":"马略卡","awayTeam":"马德里竞技","more":"75"},{"ecid":"8790835","homeTeam":"巴拉多利德","awayTeam":"毕尔巴鄂竞技","more":"75"},{"ecid":"8790846","homeTeam":"皇家苏斯达","awayTeam":"巴塞罗那","more":"75"}],"updateTimestamp":1730725944234,"leagueId":"100030","JCLeagueName":"西班牙甲级联赛"},{"gameList":[{"ecid":"8773091","homeTeam":"PSV埃因霍温","awayTeam":"赫罗纳","more":"75"},{"ecid":"8773102","homeTeam":"布拉迪斯拉发","awayTeam":"萨格勒布戴拿模","more":"76"},{"ecid":"8773112","homeTeam":"皇家马德里","awayTeam":"AC米兰","more":"75"},{"ecid":"8773124","homeTeam":"利物浦","awayTeam":"勒沃库森","more":"76"},{"ecid":"8773134","homeTeam":"多特蒙德","awayTeam":"格拉茨风暴","more":"75"},{"ecid":"8773145","homeTeam":"里斯本竞技","awayTeam":"曼城","more":"76"},{"ecid":"8773160","homeTeam":"里尔","awayTeam":"尤文图斯","more":"76"},{"ecid":"8773172","homeTeam":"凯尔特人","awayTeam":"RB莱比锡","more":"76"},{"ecid":"8773194","homeTeam":"博洛尼亚","awayTeam":"摩纳哥","more":"76"},{"ecid":"8773199","homeTeam":"布鲁日","awayTeam":"阿斯顿维拉","more":"75"},{"ecid":"8773213","homeTeam":"顿涅茨克矿工","awayTeam":"年青人","more":"75"},{"ecid":"8773220","homeTeam":"拜仁慕尼黑","awayTeam":"本菲卡","more":"75"},{"ecid":"8773238","homeTeam":"巴黎圣日耳曼","awayTeam":"马德里竞技","more":"75"},{"ecid":"8773249","homeTeam":"国际米兰","awayTeam":"阿森纳","more":"75"},{"ecid":"8773260","homeTeam":"费耶诺德","awayTeam":"萨尔茨堡红牛","more":"75"},{"ecid":"8773271","homeTeam":"贝尔格莱德红星","awayTeam":"巴塞罗那","more":"75"},{"ecid":"8773282","homeTeam":"布拉格斯巴达","awayTeam":"布雷斯特","more":"75"},{"ecid":"8773293","homeTeam":"斯图加特","awayTeam":"亚特兰大","more":"76"}],"updateTimestamp":1730725935153,"leagueId":"100822","JCLeagueName":"亚洲冠军联赛"}],"HGLeagueListUpdateTimeStamp":1730725931143,"JCInfoListUpdateTimeStamp":1730725989168}
+{
+  "JCInfoList": [],
+  "HGInfoList": [],
+  "HGLeagueList": [
+    {
+      "name": "欧洲冠军联赛",
+      "leagueId": "100822"
+    },
+    {
+      "name": "欧洲联赛",
+      "leagueId": "100824"
+    },
+    {
+      "name": "欧洲协会联赛",
+      "leagueId": "109306"
+    },
+    {
+      "name": "英格兰超级联赛",
+      "leagueId": "100021"
+    },
+    {
+      "name": "英格兰冠军联赛",
+      "leagueId": "100235"
+    },
+    {
+      "name": "英格兰足总杯",
+      "leagueId": "100791"
+    },
+    {
+      "name": "英格兰联赛锦标赛",
+      "leagueId": "100799"
+    },
+    {
+      "name": "英格兰甲组联赛",
+      "leagueId": "100127"
+    },
+    {
+      "name": "英格兰职业联赛U21",
+      "leagueId": "106155"
+    },
+    {
+      "name": "英格兰北部西部甲组联赛",
+      "leagueId": "109048"
+    },
+    {
+      "name": "英格兰伊斯米安中南部甲组联赛",
+      "leagueId": "109351"
+    },
+    {
+      "name": "德国甲组联赛",
+      "leagueId": "100028"
+    },
+    {
+      "name": "德国乙组联赛",
+      "leagueId": "100117"
+    },
+    {
+      "name": "德国西部联赛",
+      "leagueId": "102622"
+    },
+    {
+      "name": "德国女子甲组联赛",
+      "leagueId": "101326"
+    },
+    {
+      "name": "西班牙甲组联赛",
+      "leagueId": "100030"
+    },
+    {
+      "name": "西班牙乙组联赛",
+      "leagueId": "100064"
+    },
+    {
+      "name": "意大利甲组联赛",
+      "leagueId": "100026"
+    },
+    {
+      "name": "意大利乙组联赛",
+      "leagueId": "100065"
+    },
+    {
+      "name": "意大利丙组联赛",
+      "leagueId": "107215"
+    },
+    {
+      "name": "意大利青年春季甲组联赛U20",
+      "leagueId": "102297"
+    },
+    {
+      "name": "日本J1联赛",
+      "leagueId": "100160"
+    },
+    {
+      "name": "日本J2联赛",
+      "leagueId": "100712"
+    },
+    {
+      "name": "法国甲组联赛",
+      "leagueId": "100032"
+    },
+    {
+      "name": "法国乙组联赛",
+      "leagueId": "100078"
+    },
+    {
+      "name": "巴西甲组联赛",
+      "leagueId": "100253"
+    },
+    {
+      "name": "巴西乙组联赛",
+      "leagueId": "101553"
+    },
+    {
+      "name": "荷兰甲组联赛",
+      "leagueId": "100049"
+    },
+    {
+      "name": "荷兰乙组联赛",
+      "leagueId": "100265"
+    },
+    {
+      "name": "埃及乙组联赛A",
+      "leagueId": "104969"
+    },
+    {
+      "name": "阿尔巴尼亚超级联赛",
+      "leagueId": "103334"
+    },
+    {
+      "name": "阿根廷职业联赛",
+      "leagueId": "100154"
+    },
+    {
+      "name": "阿根廷全国联赛-附加赛",
+      "leagueId": "102368"
+    },
+    {
+      "name": "阿根廷乙组曼特波里顿联赛",
+      "leagueId": "103373"
+    },
+    {
+      "name": "亚足联冠军精英联赛",
+      "leagueId": "100845"
+    },
+    {
+      "name": "澳大利亚甲组联赛",
+      "leagueId": "100710"
+    },
+    {
+      "name": "奥地利甲组联赛",
+      "leagueId": "100110"
+    },
+    {
+      "name": "奥地利乙组联赛",
+      "leagueId": "100267"
+    },
+    {
+      "name": "比利时甲组联赛A",
+      "leagueId": "100111"
+    },
+    {
+      "name": "保加利亚甲组联赛",
+      "leagueId": "101414"
+    },
+    {
+      "name": "保加利亚乙组联赛",
+      "leagueId": "103242"
+    },
+    {
+      "name": "哥伦比亚甲组联赛",
+      "leagueId": "101362"
+    },
+    {
+      "name": "哥伦比亚乙组联赛-附加赛",
+      "leagueId": "103446"
+    },
+    {
+      "name": "塞浦路斯甲组联赛",
+      "leagueId": "100116"
+    },
+    {
+      "name": "捷克国家联赛",
+      "leagueId": "101426"
+    },
+    {
+      "name": "丹麦超级联赛",
+      "leagueId": "100037"
+    },
+    {
+      "name": "丹麦甲组联赛",
+      "leagueId": "100118"
+    },
+    {
+      "name": "电竞足球-GT体育联赛(2 x 6分钟)",
+      "leagueId": "109480"
+    },
+    {
+      "name": "厄瓜多尔甲组联赛",
+      "leagueId": "102964"
+    },
+    {
+      "name": "希腊超级联赛甲组",
+      "leagueId": "100142"
+    },
+    {
+      "name": "希腊超级联赛乙组",
+      "leagueId": "108981"
+    },
+    {
+      "name": "匈牙利乙组联赛",
+      "leagueId": "101874"
+    },
+    {
+      "name": "印度超级联赛",
+      "leagueId": "107242"
+    },
+    {
+      "name": "印尼甲组联赛",
+      "leagueId": "104523"
+    },
+    {
+      "name": "欧洲U17青年锦标赛外围赛",
+      "leagueId": "101805"
+    },
+    {
+      "name": "以色列超级联赛",
+      "leagueId": "102744"
+    },
+    {
+      "name": "以色列甲组联赛",
+      "leagueId": "102772"
+    },
+    {
+      "name": "牙买加超级联赛",
+      "leagueId": "107916"
+    },
+    {
+      "name": "约旦甲组联赛",
+      "leagueId": "103851"
+    },
+    {
+      "name": "墨西哥超级联赛",
+      "leagueId": "100277"
+    },
+    {
+      "name": "墨西哥甲组联赛",
+      "leagueId": "103166"
+    },
+    {
+      "name": "北爱尔兰职业超级联赛U20",
+      "leagueId": "108168"
+    },
+    {
+      "name": "挪威超级联赛",
+      "leagueId": "100080"
+    },
+    {
+      "name": "巴拉圭甲组联赛",
+      "leagueId": "101355"
+    },
+    {
+      "name": "波兰超级联赛",
+      "leagueId": "100076"
+    },
+    {
+      "name": "波兰甲组联赛",
+      "leagueId": "101841"
+    },
+    {
+      "name": "波兰乙组联赛",
+      "leagueId": "103238"
+    },
+    {
+      "name": "葡萄牙超级联赛",
+      "leagueId": "100173"
+    },
+    {
+      "name": "葡萄牙甲组联赛",
+      "leagueId": "100047"
+    },
+    {
+      "name": "罗马尼亚甲组联赛",
+      "leagueId": "100103"
+    },
+    {
+      "name": "沙特甲组联赛",
+      "leagueId": "102820"
+    },
+    {
+      "name": "苏格兰超级联赛",
+      "leagueId": "100038"
+    },
+    {
+      "name": "塞尔维亚超级联赛",
+      "leagueId": "102983"
+    },
+    {
+      "name": "塞尔维亚甲组联赛",
+      "leagueId": "103786"
+    },
+    {
+      "name": "斯洛文尼亚联赛U19",
+      "leagueId": "108288"
+    },
+    {
+      "name": "斯洛文尼亚乙组联赛",
+      "leagueId": "103679"
+    },
+    {
+      "name": "韩国K甲组联赛-附加赛",
+      "leagueId": "106747"
+    },
+    {
+      "name": "瑞典超级联赛",
+      "leagueId": "100146"
+    },
+    {
+      "name": "瑞典超级甲组联赛",
+      "leagueId": "100087"
+    },
+    {
+      "name": "瑞士超级联赛",
+      "leagueId": "100189"
+    },
+    {
+      "name": "泰国甲组联赛",
+      "leagueId": "102582"
+    },
+    {
+      "name": "土耳其超级联赛",
+      "leagueId": "100123"
+    },
+    {
+      "name": "土耳其甲组联赛",
+      "leagueId": "101743"
+    },
+    {
+      "name": "乌克兰超级联赛",
+      "leagueId": "100081"
+    },
+    {
+      "name": "美国职业大联盟-附加赛",
+      "leagueId": "101857"
+    },
+    {
+      "name": "乌拉圭甲组联赛",
+      "leagueId": "102812"
+    },
+    {
+      "name": "乌拉圭后备联赛",
+      "leagueId": "108181"
+    }
+  ],
+  "HGGameInfoList": [
+    {
+      "gameList": [
+        {
+          "ecid": "8762436",
+          "homeTeam": "富勒姆",
+          "awayTeam": "布伦特福德",
+          "more": "96"
+        },
+        {
+          "ecid": "8790491",
+          "homeTeam": "布伦特福德",
+          "awayTeam": "伯恩茅斯",
+          "more": "75"
+        },
+        {
+          "ecid": "8790496",
+          "homeTeam": "水晶宫",
+          "awayTeam": "富勒姆",
+          "more": "75"
+        },
+        {
+          "ecid": "8790505",
+          "homeTeam": "西汉姆联",
+          "awayTeam": "埃弗顿",
+          "more": "75"
+        },
+        {
+          "ecid": "8790523",
+          "homeTeam": "狼队",
+          "awayTeam": "南安普敦",
+          "more": "75"
+        },
+        {
+          "ecid": "8790527",
+          "homeTeam": "布莱顿",
+          "awayTeam": "曼城",
+          "more": "75"
+        },
+        {
+          "ecid": "8790538",
+          "homeTeam": "利物浦",
+          "awayTeam": "阿斯顿维拉",
+          "more": "74"
+        },
+        {
+          "ecid": "8790549",
+          "homeTeam": "曼联",
+          "awayTeam": "莱斯特城",
+          "more": "75"
+        },
+        {
+          "ecid": "8790568",
+          "homeTeam": "诺丁汉森林",
+          "awayTeam": "纽卡斯尔",
+          "more": "75"
+        },
+        {
+          "ecid": "8790571",
+          "homeTeam": "托特纳姆热刺",
+          "awayTeam": "伊普斯维奇",
+          "more": "75"
+        },
+        {
+          "ecid": "8790582",
+          "homeTeam": "切尔西",
+          "awayTeam": "阿森纳",
+          "more": "75"
+        }
+      ],
+      "updateTimestamp": 1730725934462,
+      "leagueId": "100021",
+      "JCLeagueName": "英格兰超级联赛"
+    },
+    {
+      "gameList": [
+        {
+          "ecid": "8772843",
+          "homeTeam": "恩波利",
+          "awayTeam": "科木",
+          "more": "96"
+        },
+        {
+          "ecid": "8772854",
+          "homeTeam": "帕尔马",
+          "awayTeam": "热那亚",
+          "more": "96"
+        },
+        {
+          "ecid": "8772865",
+          "homeTeam": "拉齐奥",
+          "awayTeam": "卡利亚里",
+          "more": "96"
+        },
+        {
+          "ecid": "8790980",
+          "homeTeam": "热那亚",
+          "awayTeam": "科木",
+          "more": "75"
+        },
+        {
+          "ecid": "8790991",
+          "homeTeam": "莱切",
+          "awayTeam": "恩波利",
+          "more": "75"
+        },
+        {
+          "ecid": "8790994",
+          "homeTeam": "威尼斯",
+          "awayTeam": "帕尔马",
+          "more": "75"
+        },
+        {
+          "ecid": "8791013",
+          "homeTeam": "卡利亚里",
+          "awayTeam": "AC米兰",
+          "more": "75"
+        },
+        {
+          "ecid": "8791023",
+          "homeTeam": "尤文图斯",
+          "awayTeam": "都灵",
+          "more": "75"
+        },
+        {
+          "ecid": "8791027",
+          "homeTeam": "亚特兰大",
+          "awayTeam": "乌迪内斯",
+          "more": "75"
+        },
+        {
+          "ecid": "8791038",
+          "homeTeam": "佛罗伦萨",
+          "awayTeam": "维罗纳",
+          "more": "75"
+        },
+        {
+          "ecid": "8791057",
+          "homeTeam": "罗马",
+          "awayTeam": "博洛尼亚",
+          "more": "75"
+        },
+        {
+          "ecid": "8791060",
+          "homeTeam": "蒙扎",
+          "awayTeam": "拉齐奥",
+          "more": "75"
+        },
+        {
+          "ecid": "8791071",
+          "homeTeam": "国际米兰",
+          "awayTeam": "那不勒斯",
+          "more": "75"
+        }
+      ],
+      "updateTimestamp": 1730725934546,
+      "leagueId": "100026",
+      "JCLeagueName": "意大利甲级联赛"
+    },
+    {
+      "gameList": [
+        {
+          "ecid": "8762671",
+          "homeTeam": "维戈塞尔塔",
+          "awayTeam": "赫塔费",
+          "more": "96"
+        },
+        {
+          "ecid": "8790743",
+          "homeTeam": "巴列卡诺",
+          "awayTeam": "拉斯彭马斯",
+          "more": "75"
+        },
+        {
+          "ecid": "8790746",
+          "homeTeam": "皇家马德里",
+          "awayTeam": "奥萨苏纳",
+          "more": "75"
+        },
+        {
+          "ecid": "8790776",
+          "homeTeam": "比雷亚雷亚尔",
+          "awayTeam": "阿拉维斯",
+          "more": "75"
+        },
+        {
+          "ecid": "8790788",
+          "homeTeam": "爱斯宾奴",
+          "awayTeam": "华伦西亚",
+          "more": "75"
+        },
+        {
+          "ecid": "8790802",
+          "homeTeam": "皇家贝迪斯",
+          "awayTeam": "维戈塞尔塔",
+          "more": "75"
+        },
+        {
+          "ecid": "8790821",
+          "homeTeam": "马略卡",
+          "awayTeam": "马德里竞技",
+          "more": "75"
+        },
+        {
+          "ecid": "8790835",
+          "homeTeam": "巴拉多利德",
+          "awayTeam": "毕尔巴鄂竞技",
+          "more": "75"
+        },
+        {
+          "ecid": "8790846",
+          "homeTeam": "皇家苏斯达",
+          "awayTeam": "巴塞罗那",
+          "more": "75"
+        }
+      ],
+      "updateTimestamp": 1730725944234,
+      "leagueId": "100030",
+      "JCLeagueName": "西班牙甲级联赛"
+    },
+    {
+      "gameList": [
+        {
+          "ecid": "8773091",
+          "homeTeam": "PSV埃因霍温",
+          "awayTeam": "赫罗纳",
+          "more": "75"
+        },
+        {
+          "ecid": "8773102",
+          "homeTeam": "布拉迪斯拉发",
+          "awayTeam": "萨格勒布戴拿模",
+          "more": "76"
+        },
+        {
+          "ecid": "8773112",
+          "homeTeam": "皇家马德里",
+          "awayTeam": "AC米兰",
+          "more": "75"
+        },
+        {
+          "ecid": "8773124",
+          "homeTeam": "利物浦",
+          "awayTeam": "勒沃库森",
+          "more": "76"
+        },
+        {
+          "ecid": "8773134",
+          "homeTeam": "多特蒙德",
+          "awayTeam": "格拉茨风暴",
+          "more": "75"
+        },
+        {
+          "ecid": "8773145",
+          "homeTeam": "里斯本竞技",
+          "awayTeam": "曼城",
+          "more": "76"
+        },
+        {
+          "ecid": "8773160",
+          "homeTeam": "里尔",
+          "awayTeam": "尤文图斯",
+          "more": "76"
+        },
+        {
+          "ecid": "8773172",
+          "homeTeam": "凯尔特人",
+          "awayTeam": "RB莱比锡",
+          "more": "76"
+        },
+        {
+          "ecid": "8773194",
+          "homeTeam": "博洛尼亚",
+          "awayTeam": "摩纳哥",
+          "more": "76"
+        },
+        {
+          "ecid": "8773199",
+          "homeTeam": "布鲁日",
+          "awayTeam": "阿斯顿维拉",
+          "more": "75"
+        },
+        {
+          "ecid": "8773213",
+          "homeTeam": "顿涅茨克矿工",
+          "awayTeam": "年青人",
+          "more": "75"
+        },
+        {
+          "ecid": "8773220",
+          "homeTeam": "拜仁慕尼黑",
+          "awayTeam": "本菲卡",
+          "more": "75"
+        },
+        {
+          "ecid": "8773238",
+          "homeTeam": "巴黎圣日耳曼",
+          "awayTeam": "马德里竞技",
+          "more": "75"
+        },
+        {
+          "ecid": "8773249",
+          "homeTeam": "国际米兰",
+          "awayTeam": "阿森纳",
+          "more": "75"
+        },
+        {
+          "ecid": "8773260",
+          "homeTeam": "费耶诺德",
+          "awayTeam": "萨尔茨堡红牛",
+          "more": "75"
+        },
+        {
+          "ecid": "8773271",
+          "homeTeam": "贝尔格莱德红星",
+          "awayTeam": "巴塞罗那",
+          "more": "75"
+        },
+        {
+          "ecid": "8773282",
+          "homeTeam": "布拉格斯巴达",
+          "awayTeam": "布雷斯特",
+          "more": "75"
+        },
+        {
+          "ecid": "8773293",
+          "homeTeam": "斯图加特",
+          "awayTeam": "亚特兰大",
+          "more": "76"
+        }
+      ],
+      "updateTimestamp": 1730725935153,
+      "leagueId": "100822",
+      "JCLeagueName": "亚洲冠军联赛"
+    }
+  ],
+  "HGLeagueListUpdateTimeStamp": 1730725931143,
+  "JCInfoListUpdateTimeStamp": 1730725989168
+  }

@@ -4340,12 +4340,10 @@ export type JCInfo = {
 export type GlobalOptions = {
   /** HG返点*/
   HGPoint: number;
-  /** JC返点*/
-  JCPoint: number;
+  /** JC单返点*/
+  JCPointSin: number;
   /** JC投注*/
   JCBet: number;
-  /** JC单返点*/
-  JCPointSin: Number;
   /** JC串返点*/
   JCPointChuan: Number;
 };
@@ -4425,30 +4423,30 @@ export type SinInfo = {
     JCgoalLine2: GoalLine;
     HGgoalLine1: GoalLine;
     HGgoalLine2: GoalLine;
-    jcOdds1: `${number}` | '-' | number;
-    jcOdds2: `${number}` | '-' | number;
-    hgOdds1: `${number}` | '-' | number;
-    hgOdds2: `${number}` | '-' | number;
+    jcOdds1: number;
+    jcOdds2: number;
+    hgOdds1: number;
+    hgOdds2: number;
     JCTouz1: Result;
     JCTouz2: Result;
     HGTouz1: Result;
     HGTouz2: Result;
     method: string;
     matchTimeFormat: string;
-    jcBet1: `${number}` | number;
-    jcBet2: `${number}` | number;
-    hgBet1: `${number}` | number;
-    hgBet2: `${number}` | number;
-    JCPoint1: `${number}` | number;
-    JCPoint2: `${number}` | number;
-    HGPoint1: `${number}` | number;
-    HGPoint2: `${number}` | number;
-    jcAmount1: `${number}` | number;
-    jcAmount2: `${number}` | number;
-    hgAmount1: `${number}` | number;
-    hgAmount2: `${number}` | number;
+    jcBet1: number;
+    jcBet2: number;
+    hgBet1: number;
+    hgBet2: number;
+    JCPoint1: number;
+    JCPoint2: number;
+    HGPoint1: number;
+    HGPoint2: number;
+    jcAmount1: number;
+    jcAmount2: number;
+    hgAmount1: number;
+    hgAmount2: number;
     ret: `${number}%`;
-    profit: `${number}` | number;
+    profit: number;
     profitRate: `${number}%`;
   };
 };

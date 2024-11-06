@@ -110,10 +110,10 @@ export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, ta
     const result = await fn(...args); // 调用原函数
     const end = performance.now(); // 记录结束时间
     const duration = end - start; // 计算执行时间
-    if (!existsSync(`./cache/${tag}.csv`)) {
-      writeFileSync(path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'), `date, tag, duration\n`, { encoding: 'utf-8' });
+    if (!existsSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'))) {
+      writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `date, tag, duration\n`, { encoding: 'utf-8' });
     }
-    writeFileSync(path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'), `${new Date().toISOString()}, ${tag}, ${duration}\n`, {
+    writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `${new Date().toISOString()}, ${tag}, ${duration}\n`, {
       flag: 'a',
       encoding: 'utf-8',
     });

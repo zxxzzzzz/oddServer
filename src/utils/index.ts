@@ -249,7 +249,7 @@ export function getSinData(JCInfo: JCInfo, HGInfo: HGInfo, op: GlobalOptions) {
       /** 竞彩 中奖金额*/
       const jcAmount1Number = jcOdds1Number * op.JCBet;
       /** 竞彩 返利金额*/
-      const jcRebate1Number = op.JCBet * op.JCPoint;
+      const jcRebate1Number = op.JCBet * op.JCPointSin;
 
       // x=jc2 y=hg1 z=hg2 w=profit
 
@@ -371,7 +371,7 @@ export function getSinData(JCInfo: JCInfo, HGInfo: HGInfo, op: GlobalOptions) {
         d4,
         e4,
       }) || [0, 0, 0, 0];
-      const jcRebate2Number = op.JCPoint * jcBet2Number;
+      const jcRebate2Number = op.JCPointSin * jcBet2Number;
       const jcAmount2Number = jcBet2Number * jcOdds2Number;
       const hgRebate1Number = hgBet1Number * (hgOdds1Number - 1) * op.HGPoint;
       const hgAmount1Number = hgBet1Number * hgOdds1Number;

@@ -5,8 +5,8 @@ import {
   getHGGameMore,
 } from '../api/football.js';
 import { getToken } from './hgAccount.js';
-import { HGHhad, HGHhafu, HGInfo, JCInfo } from '../type/index.js';
-import { getLeagueSameWeight, getRatioAvg, getTeamSameWeight, maxBy, uniqBy } from '../utils/index.js';
+import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type/index.js';
+import { getLeagueSameWeight, getRatioAvg, getSinData, getTeamSameWeight, maxBy, uniqBy } from '../utils/index.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { delay } from 'src/api/utils.js';
 
@@ -73,13 +73,6 @@ const getHGLeagueToUpdate = async () => {
     footballState.HGLeagueListUpdateTimeStamp = nowTimestamp;
     const token = await getToken();
     try {
-      // console.log(
-      //   'update HGLeagueList time',
-      //   nowTimestamp,
-      //   footballState.HGLeagueListUpdateTimeStamp,
-      //   nowTimestamp - footballState.HGLeagueListUpdateTimeStamp,
-      //   nowTimestamp - footballState.HGLeagueListUpdateTimeStamp > 1000 * 60 * 10
-      // );
       const HGleagueItemList = await getHGLeagueListAllByToken(token.url, token.uid, token.ver);
       footballState.HGLeagueListUpdateTimeStamp = new Date().valueOf();
       footballState.HGLeagueList = HGleagueItemList;
@@ -188,6 +181,7 @@ const getHGMatchToUpdate = async (HGLeagueId: string, JCLeagueName: string) => {
     });
   return toUpdateHGMatchList;
 };
+
 /**
  *
  * @param op limitMatchCount 最多可以获取几场比赛
@@ -322,16 +316,30 @@ const updateHGInfoList = async (op: { limitMatchCount: number }) => {
   }
 };
 
+export function getSinInfoList(op: GlobalOptions, JCInfoList:JCInfo[], HGInfoList:HGInfo[]) {
+  const sinInfoList = (JCInfoList || []).filter(info => info.matchId !== '1027680').map((jcInfo) => {
+    const hgInfo = (HGInfoList || []).find(hg => hg.matchId === jcInfo.matchId)
+    if (hgInfo) {
+      return getSinData(jcInfo, hgInfo, op)
+    }
+    return void 0
+
+  }).filter((v):v is SinInfo[]  => !!v).flat()
+  return sinInfoList
+
+}
+
 (async () => {
-  if(existsSync('./cache/footballState.json')) {
+  if (existsSync('./cache/footballState.json')) {
     const text = readFileSync('./cache/footballState.json', { encoding: 'utf-8' });
     const body = JSON.parse(text);
     Object.keys(footballState).forEach((key) => {
       footballState[key as keyof typeof footballState] = body[key];
     });
   }
-  setInterval(async () => {
-    await updateJCInfoList();
-    await updateHGInfoList({ limitMatchCount: 5 });
-  }, 1000);
+  getToken()
+  // setInterval(async () => {
+  //   await updateJCInfoList();
+  //   await updateHGInfoList({ limitMatchCount: 5 });
+  // }, 1000);
 })();

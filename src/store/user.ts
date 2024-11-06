@@ -26,16 +26,18 @@ function updateAccount(sessionId: string, data: Partial<Omit<User, 'username'>>)
 }
 
 export function getAccountBySessionId(sessionId: string) {
-  const user = getAccountList().find((u) => u.pcsessionid === sessionId);
+  const user = getAccountList().find((u) => u.pcsessionid && u.pcsessionid === sessionId);
   return user;
 }
 
-function login(username: string, password: string) {
+export function login(username: string, password: string) {
   const user = getAccountList().find((u) => u.account === username && u.password === password);
   if (user) {
     const token = randomUUID();
-    updateAccount(token, { pcsessionid: token });
-    return token;
+    user.pcsessionid = token
+    user.lastlogintime = new Date().toISOString()
+    writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), JSON.stringify(GlobalUserInfo));
+    return user;
   }
 }
 

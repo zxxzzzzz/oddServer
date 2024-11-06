@@ -1,99 +1,132 @@
+import { getAccountBySessionId, login } from 'src/store/user.js';
 import { server } from './server.js';
+import { pickBy } from 'src/utils/lodash.js';
+import * as cookie from 'cookie';
 
 server.post('/api/users/login', (req, res, next) => {
+  const body = req.body
+  const account = body?.account
+  const password = body?.password
+  const userInfo = login(account, password)
+  if (!userInfo) {
+    res.send(400, {
+      "success": false,
+      "error": "请检查输入账号"
+    })
+    return
+  }
+  res.header('set-cookie', cookie.serialize('session_id', userInfo.pcsessionid, { maxAge: 60 * 60 * 24 * 3, httpOnly: true, path: '/' }))
   res.send({
     success: true,
-    data: {
-      id: '737',
-      uuid: 'fe8efcdc-a815-480a-96d9-406c6e497805',
-      account: 'xiaoz012',
-      password: null,
-      name: null,
-      identificationcard: null,
-      company: null,
-      companyinfo: null,
-      sex: 'beij003',
-      email: '5858',
-      wechat: null,
-      photosrc: null,
-      role: 'user',
-      pcsessionid: '639f4407-6290-4a4d-830e-e7eceae75d11',
-      phonesessionid: null,
-      phone: null,
-      lastlogintime: '2024-10-24T11:08:20.000Z',
-      vip: null,
-      viptime: '2024-11-04T15:59:59.000Z',
-      keywords: null,
-      createdAt: '2024-09-21T12:48:39.000Z',
-      updatedAt: '2024-10-24T11:08:20.251Z',
-    },
+    data: pickBy(userInfo, (v, k) => [
+      'id',
+      'uuid',
+      'account',
+      'password',
+      'name',
+      'identificationcard',
+      'company',
+      'companyinfo',
+      'sex',
+      'email',
+      'wechat',
+      'photosrc',
+      'role',
+      'pcsessionid',
+      'phonesessionid',
+      'phone',
+      'lastlogintime',
+      'vip',
+      'viptime',
+      'keywords',
+      'createdAt',
+      'updatedAt',
+    ].includes(k))
   });
   next();
 });
 ;
 server.get('/api/users/getme', (req, res, next) => {
+  const cookieObj = cookie.parse(req.header('cookie'))
+  const userInfo = getAccountBySessionId(cookieObj?.session_id || '')
+  if (!userInfo) {
+    res.send(400, {
+      "success": false,
+      "error": "请重新登录"
+    })
+    return
+  }
   res.send({
     success: true,
-    data: {
-      id: '737',
-      uuid: 'fe8efcdc-a815-480a-96d9-406c6e497805',
-      account: 'xiaoz012',
-      name: null,
-      identificationcard: null,
-      company: null,
-      companyinfo: null,
-      sex: 'beij003',
-      email: '5858',
-      wechat: null,
-      photosrc: null,
-      role: 'user',
-      pcsessionid: '639f4407-6290-4a4d-830e-e7eceae75d11',
-      phonesessionid: null,
-      phone: null,
-      lastlogintime: '2024-10-24T11:08:20.000Z',
-      vip: null,
-      viptime: '2024-11-04T15:59:59.000Z',
-      keywords: null,
-      createdAt: '2024-09-21T12:48:39.000Z',
-      updatedAt: '2024-10-24T11:08:20.000Z',
-    },
+    data: pickBy(userInfo, (v, k) => [
+      'id',
+      'uuid',
+      'account',
+      'name',
+      'identificationcard',
+      'company',
+      'companyinfo',
+      'sex',
+      'email',
+      'wechat',
+      'photosrc',
+      'role',
+      'pcsessionid',
+      'phonesessionid',
+      'phone',
+      'lastlogintime',
+      'vip',
+      'viptime',
+      'keywords',
+      'createdAt',
+      'updatedAt',
+    ].includes(k)),
   });
   next();
 });
 server.get('/api/userConfig/getMyConfig', (req, res, next) => {
+  const cookieObj = cookie.parse(req.header('cookie'))
+  const userInfo = getAccountBySessionId(cookieObj?.session_id || '')
+  if (!userInfo) {
+    res.send(400, {
+      "success": false,
+      "error": "请重新登录"
+    })
+    return
+  }
   res.send({
     success: true,
-    data: {
-      id: 678,
-      uuid: '062e5ccd-d4ee-4acf-bf9c-b8407f230b9b',
-      userId: 'fe8efcdc-a815-480a-96d9-406c6e497805',
-      JCPointSinHad: '0.12',
-      JCPointChuanHad: '0.13',
-      JCPointSinTgg: '0.07',
-      JCPointSinHalf: '0.07',
-      JCPointChuanQb: '0.07',
-      JCPointSinLq: '0.07',
-      JCPointChuanLq: '0.07',
-      JCPointChuanLqQb: '0.07',
-      HGPoint: '0.023',
-      JCTzAmt: '10000',
-      minrate: '0',
-      maxmultiple: '10',
-      danRadio: 1,
-      chuanRadio: 2,
-      zjqsRadio: 2,
-      bqcRadio: 2,
-      qbRadio: 2,
-      otherRadio: 6,
-      danSwitch: 1,
-      chuanSwitch: 1,
-      zjqsSwitch: 1,
-      bqcSwitch: 1,
-      qbSwitch: 1,
-      otherSwitch: 1,
-      createdAt: '2024-09-21T12:51:14.000Z',
-      updatedAt: '2024-10-24T04:49:03.000Z',
-    },
+    data: pickBy(userInfo, (v, k) => [
+      'id',
+      'uuid',
+      'userId',
+      'JCPointSinHad',
+      'JCPointChuanHad',
+      'JCPointSinTgg',
+      'JCPointSinHalf',
+      'JCPointChuanQb',
+      'JCPointSinLq',
+      'JCPointChuanLq',
+      'JCPointChuanLqQb',
+      'HGPoint',
+      'JCTzAmt',
+      'minrate',
+      'maxmultiple',
+      'danRadio',
+      'chuanRadio',
+      'zjqsRadio',
+      'bqcRadio',
+      'qbRadio',
+      'otherRadio',
+      'danSwitch',
+      'chuanSwitch',
+      'zjqsSwitch',
+      'bqcSwitch',
+      'qbSwitch',
+      'otherSwitch',
+      'createdAt',
+      'updatedAt',
+    ].includes(k)),
   });
   next();
 });
@@ -505,7 +538,7 @@ server.get('/api/notices/findall', (req, res, next) => {
   next();
 });
 server.get('/api/jcmatch/version', (req, res, next) => {
-  res.send({"success":true,"value":"1.0.9057"});
+  res.send({ "success": true, "value": "1.0.9057" });
   next();
 });
 

@@ -113,7 +113,7 @@ export const getGoalLineRuleList = () => {
         hgResult2,
       } as GoalLineRule;
     });
-  GlobalGoalLineRuleList = ruleList.slice(76,77);
+  GlobalGoalLineRuleList = ruleList;
   return GlobalGoalLineRuleList;
 };
 
@@ -121,16 +121,16 @@ export const getGoalLineRuleList = () => {
 function getGoalLineNumberList(goalLine: GoalLine) {
   let goalLineList = [0, 0];
   if (goalLine === '-') goalLineList = [0, 0];
-  if (['0', '1', '2', '3', '4', '5', '-1', '-2', '-3', '-4', '-5'].includes(goalLine)) {
+  if (['0', '1', '2', '3', '4', '5', '+0', '+1', '+2', '+3', '+4', '+5', '-1', '-2', '-3', '-4', '-5'].includes(goalLine)) {
     goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
   }
-  if (['0.25', '1.25', '2.25', '3.25', '4.25', '5.25', '-0.25', '-1.25', '-2.25', '-3.25', '-4.25', '-5.25'].includes(goalLine)) {
+  if (['0.25', '1.25', '2.25', '3.25', '4.25', '5.25', '+0.25', '+1.25', '+2.25', '+3.25', '+4.25', '+5.25', '-0.25', '-1.25', '-2.25', '-3.25', '-4.25', '-5.25'].includes(goalLine)) {
     goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
   }
-  if (['0.5', '1.5', '2.5', '3.5', '4.5', '5.5', '-0.5', '-1.5', '-2.5', '-3.5', '-4.5', '-5.5'].includes(goalLine)) {
+  if (['0.5', '1.5', '2.5', '3.5', '4.5', '5.5', '+0.5', '+1.5', '+2.5', '+3.5', '+4.5', '+5.5', '-0.5', '-1.5', '-2.5', '-3.5', '-4.5', '-5.5'].includes(goalLine)) {
     goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
   }
-  if (['0.75', '1.75', '2.75', '3.75', '4.75', '5.75', '-0.75', '-1.75', '-2.75', '-3.75', '-4.75', '-5.75'].includes(goalLine)) {
+  if (['0.75', '1.75', '2.75', '3.75', '4.75', '5.75', '+0.75', '+1.75', '+2.75', '+3.75', '+4.75', '+5.75', '-0.75', '-1.75', '-2.75', '-3.75', '-4.75', '-5.75'].includes(goalLine)) {
     goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
   }
   return goalLineList as [number, number];
@@ -212,7 +212,6 @@ function getBettingResult(
   const r2GoalLineNumberList = getGoalLineNumberList(r2.goalLine);
   if (r2.result === 'a') {
     const betResultList = r2GoalLineNumberList.map((r2g) => {
-      // console.log(999, r2GoalLineNumberList, winGoalList, r1);
       // r2是jc时 平局算输掉
       if (everyWithTolerance(winGoalList, (g) => g + r2g === 0 && r2.isJC)) return BETTING_RESULT.lose;
       // goalLine是独赢的时候 平局算输掉
@@ -274,10 +273,10 @@ export const getCoefficient = (
   if (odds === 0 || r1.result === '-' || r2.result === '-') return 0;
   const betResult = getBettingResult(r1, r2);
   if (betResult === BETTING_RESULT.win && r2.isJC) {
-    return odds - 1 + op.JCPoint;
+    return odds - 1 + op.JCPointSin;
   }
   if (betResult === BETTING_RESULT.lose && r2.isJC) {
-    return op.JCPoint - 1;
+    return op.JCPointSin - 1;
   }
   if (betResult === BETTING_RESULT.win && !r2.isJC) {
     return odds - 1 + (odds - 1) * op.HGPoint;
@@ -304,5 +303,5 @@ export const getCoefficient = (
 };
 
 // console.log(123, getBettingResult({ goalLine: 'J1', result: 'a', isJC: false }, { goalLine: '1', result: 'h', isJC: true }));
-console.log(123, getBettingResult({ goalLine: 'J1', result: 'a', isJC: false }, { goalLine: 'J1', result: 'a', isJC: false }));
+// console.log(123, getBettingResult({ goalLine: 'J1', result: 'a', isJC: false }, { goalLine: '1', result: 'a', isJC: true }));
 

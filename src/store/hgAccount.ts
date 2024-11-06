@@ -18,7 +18,7 @@ let isLogging = false;
 const getAliveUrl = async () => {
   var hosts = [
     'hga035.com',
-    'www.hga038.com',
+    'hga038.com',
     'mos011.com',
     'mos022.com',
     'hga038.com',
