@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/ali-oss": "^6.16.11",
     "@types/node": "^22.7.4",
     "@types/restify": "^8.5.12",
     "ali-oss": "^6.21.0",
@@ -21,6 +20,7 @@
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
+    "@types/ali-oss": "^6.16.11",
     "@types/ping": "^0.4.4",
     "prettier": "^3.3.3"
   }

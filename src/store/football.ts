@@ -9,6 +9,7 @@ import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type
 import { getLeagueSameWeight, getRatioAvg, getSinData, getTeamSameWeight, maxBy, uniqBy } from '../utils/index.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { delay } from 'src/api/utils.js';
+import {ossClient} from '../api/oss.js';
 
 // 联赛数据
 export const footballState: {
@@ -16,6 +17,16 @@ export const footballState: {
   JCInfoList: JCInfo[];
   /**给http接口用的HG数据 */
   HGInfoList: HGInfo[];
+  /**需要更新的HGInfo数据 */
+  toUpdateHGInfoList: {
+    HGEcid: string,
+    HGLeagueId: string,
+    JCMatchId: string,
+    teamWeight: number,
+    isUpdating: boolean,
+    // 该条数据更新时间
+    updateTimestamp: number
+  }[],
   /**HG所有足球联赛数据 */
   HGLeagueList: { name: string; leagueId: string }[];
   /**HG所有联赛下的比赛数据 */
@@ -28,6 +39,7 @@ export const footballState: {
       awayTeam: string;
       more: string;
     }[];
+    // 联赛的更新时间
     updateTimestamp: number;
   }[];
   /**HG联赛更新时间 */
@@ -37,6 +49,7 @@ export const footballState: {
 } = {
   JCInfoList: [],
   HGInfoList: [],
+  toUpdateHGInfoList: [],
   HGLeagueList: [],
   HGGameInfoList: [],
   HGLeagueListUpdateTimeStamp: 0,
@@ -64,7 +77,7 @@ const updateJCInfoList = async () => {
   return footballState.JCInfoList;
 };
 
-/**获取需要更新的HG联赛数据 */
+/**根据JC上的联赛数据获取需要更新的HG联赛数据 */
 const getHGLeagueToUpdate = async () => {
   if (!footballState.JCInfoList?.length) return [];
   // HG联赛数据过期超过10分钟，就更新联赛数据
@@ -199,27 +212,17 @@ const updateHGInfoList = async (op: { limitMatchCount: number }) => {
     toUpdateHGMatchList = [...toUpdateHGMatchList, ...tempToUpdateHGMatchList];
     if (toUpdateHGMatchList.length >= op.limitMatchCount) break;
   }
-  // 更新HGInfo的isUpdating数据
-  toUpdateHGMatchList.forEach((match) => {
-    const finedHGInfo = footballState.HGInfoList.find((info) => info.matchId === match.JCMatchId);
-    if (!finedHGInfo) {
-      footballState.HGInfoList = [
-        ...footballState.HGInfoList,
-        {
-          updatedAt: new Date().toISOString(),
-          updateTime: new Date().toISOString(),
-          matchId: match.JCMatchId,
-        } as HGInfo,
-      ];
-      return;
-    }
-    finedHGInfo.updateTime = new Date().toISOString();
-    finedHGInfo.updatedAt = new Date().toISOString();
-  });
-  if (!toUpdateHGMatchList?.length) return;
+  // 更新 按时间先后排序toUpdateHGInfoList， 并且删除超时1小时的数据, 这是后面需要HG数据的源头。
+  footballState.toUpdateHGInfoList = uniqBy([
+    ...footballState.toUpdateHGInfoList || [],
+    ...toUpdateHGMatchList.map(v => ({ ...v, isUpdating: false, updateTimestamp: new Date().valueOf() }))
+  ], v => v.JCMatchId).filter(v => {
+    return new Date().valueOf() - (v.updateTimestamp || 0) < 1000 * 60 * 60
+  }).sort((v1, v2) => v1.updateTimestamp - v2.updateTimestamp)
   const token = await getToken();
-  for (const toUpdateHGMatch of toUpdateHGMatchList) {
+  for (const toUpdateHGMatch of footballState.toUpdateHGInfoList.filter(v => v.isUpdating === false)) {
     try {
+      toUpdateHGMatch.isUpdating = true
       const gameMore = await getHGGameMore({
         ...token,
         ecid: toUpdateHGMatch.HGEcid,
@@ -249,12 +252,14 @@ const updateHGInfoList = async (op: { limitMatchCount: number }) => {
         had_d: normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MN?._text || '',
         ...[0, 1, 2, 3, 4, 5].reduce((re, curIndex) => {
           const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
+          const hhad_a = normalPtypeGameMore[curIndex]?.ior_PRC?._text || ''
+          const hhad_h = normalPtypeGameMore[curIndex]?.ior_PRH?._text || ''
           return {
             ...re,
-            [`hhad_a${curIndex + 1}`]: normalPtypeGameMore[curIndex]?.ior_PRC?._text || '',
-            [`hhad_h${curIndex + 1}`]: normalPtypeGameMore[curIndex]?.ior_PRH?._text || '',
+            [`hhad_a${curIndex + 1}`]: hhad_a,
+            [`hhad_h${curIndex + 1}`]: hhad_h,
             [`hhad_d${curIndex + 1}`]: '-',
-            [`hhad_goalLine${curIndex + 1}`]: getRatioAvg(
+            [`hhad_goalLine${curIndex + 1}`]: !hhad_a ? '-' : getRatioAvg(
               normalPtypeGameMore[curIndex]?.ratio?._text || '',
               isHStrong ? true : false
             ),
@@ -282,14 +287,16 @@ const updateHGInfoList = async (op: { limitMatchCount: number }) => {
           normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMN?._text ?? '',
         ...[0, 1, 2, 3].reduce((re, curIndex) => {
           const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
+          const hhafu_h = normalPtypeGameMore[curIndex]?.ior_HPRH?._text || ''
+          const hhafu_a = normalPtypeGameMore[curIndex]?.ior_HPRC?._text || ''
           return {
             ...re,
-            [`hhafu_goalLine${curIndex + 1}`]: getRatioAvg(
+            [`hhafu_goalLine${curIndex + 1}`]: !hhafu_h ? '-' : getRatioAvg(
               normalPtypeGameMore[curIndex]?.hratio?._text || '',
               isHStrong ? true : false
             ),
-            [`hhafu_h${curIndex + 1}`]: normalPtypeGameMore[curIndex]?.ior_HPRH?._text || '',
-            [`hhafu_a${curIndex + 1}`]: normalPtypeGameMore[curIndex]?.ior_HPRC?._text || '',
+            [`hhafu_h${curIndex + 1}`]: hhafu_h,
+            [`hhafu_a${curIndex + 1}`]: hhafu_a,
           };
         }, {} as HGHhafu),
         updateTime: new Date().toISOString(),
@@ -298,36 +305,45 @@ const updateHGInfoList = async (op: { limitMatchCount: number }) => {
           new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      footballState.HGInfoList = footballState.HGInfoList.filter((HGInfo) =>
+      footballState.HGInfoList = [...footballState.HGInfoList, toUpdateHGInfo].filter((HGInfo) =>
         // 去除HG中不存在于JC的match
         footballState.JCInfoList.some((JCInfo) => JCInfo.matchId === HGInfo.matchId)
       ).map((info) => {
         if (info.matchId === toUpdateHGInfo.matchId) return toUpdateHGInfo;
         return info;
       });
+      // 删除toUpdateHGInfoList里已经更新完毕的数据
+      footballState.toUpdateHGInfoList = footballState.toUpdateHGInfoList.filter(v => v.JCMatchId !== toUpdateHGMatch.JCMatchId)
       writeFileSync('./cache/footballState.json', JSON.stringify(footballState), { encoding: 'utf-8' });
       console.log(new Date().toISOString(), 'update HGInfoList');
     } catch (error) {
-      // 更新失败删除临时数据
-      footballState.HGInfoList = footballState.HGInfoList.filter(
-        (info) => Object.keys(info).length > 10 && info.matchId !== toUpdateHGMatch.JCMatchId
-      );
+      // 更新失败 重置回需要更新的状态
+      toUpdateHGMatch.isUpdating = false
     }
   }
 };
 
-export function getSinInfoList(op: GlobalOptions, JCInfoList:JCInfo[], HGInfoList:HGInfo[]) {
-  const sinInfoList = (JCInfoList || []).filter(info => info.matchId !== '1027680').map((jcInfo) => {
-    const hgInfo = (HGInfoList || []).find(hg => hg.matchId === jcInfo.matchId)
+export function getSinInfoList(op: GlobalOptions, JCInfoList: JCInfo[], HGInfoList: HGInfo[]) {
+  const sinInfoList = (JCInfoList || []).filter(jcInfo => jcInfo.matchId).map((jcInfo) => {
+    const hgInfo = (HGInfoList || []).filter(jcInfo => jcInfo.matchId).find(hg => hg.matchId === jcInfo.matchId)
     if (hgInfo) {
       return getSinData(jcInfo, hgInfo, op)
     }
     return void 0
 
-  }).filter((v):v is SinInfo[]  => !!v).flat()
+  }).filter((v): v is SinInfo[] => !!v).flat()
   return sinInfoList
-
 }
+
+async function updateToOss() {
+  const OSS_FILE_NAME = 'footballState.json';
+  try {
+    await ossClient.put(OSS_FILE_NAME, Buffer.from(JSON.stringify(footballState)));
+  } catch (error) {
+    console.log('put error', error);
+  }
+}
+
 
 (async () => {
   if (existsSync('./cache/footballState.json')) {
@@ -337,9 +353,10 @@ export function getSinInfoList(op: GlobalOptions, JCInfoList:JCInfo[], HGInfoLis
       footballState[key as keyof typeof footballState] = body[key];
     });
   }
-  getToken()
-  // setInterval(async () => {
-  //   await updateJCInfoList();
-  //   await updateHGInfoList({ limitMatchCount: 5 });
-  // }, 1000);
+  // getToken()
+  setInterval(async () => {
+    await updateJCInfoList();
+    await updateHGInfoList({ limitMatchCount: 5 });
+    await updateToOss()
+  }, 1000);
 })();

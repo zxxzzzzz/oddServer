@@ -107,7 +107,8 @@ export const getTeamSameWeight = (teamName1: string, teamName2: string) => {
 /**把 2/5 = (2+5)/2 */
 export const getRatioAvg = (str: string, isNegative: boolean) => {
   if (!str) return 0;
-  let count = str.split('/').reduce((re, cur) => re + parseFloat(cur), 0) / 2;
+  const splitCount = str.split('/').length
+  let count = str.split('/').reduce((re, cur) => re + Math.abs(parseFloat(cur)), 0) / splitCount;
   if (isNegative) {
     count = -count;
   }

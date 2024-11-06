@@ -4,7 +4,7 @@ import { delay, uniqBy } from '../api/utils.js';
 import ping from 'ping';
 
 const GlobalAccountList = [
-  { account: 'CXGCXG717', password: 'ASd12345' },
+  // { account: 'CXGCXG717', password: 'ASd12345' },
   { account: 'CXGCXG719', password: 'ASd12345' },
   { account: 'CXGCXG720', password: 'ASd12345' },
   { account: 'CXGCXG721', password: 'ASd12345' },
