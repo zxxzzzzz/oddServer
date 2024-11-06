@@ -4468,3 +4468,54 @@ export enum BETTING_RESULT {
   /**不能判断 */
   unableDetermine = 'unableDetermine',
 }
+
+
+export type User = {
+  password: string;
+  id: string;
+  uuid: string;
+  account: string;
+  name: string;
+  identificationcard: string;
+  company: string;
+  companyinfo: string;
+  sex: string;
+  email: string;
+  wechat: string;
+  photosrc: string;
+  role: string;
+  pcsessionid: string;
+  phonesessionid: string;
+  phone: string;
+  lastlogintime: string;
+  vip: string;
+  viptime: string;
+  keywords: string;
+  createdAt: string;
+  updatedAt: string;
+
+  JCPointSinHad: string;
+  JCPointChuanHad: string;
+  JCPointSinTgg: string;
+  JCPointSinHalf: string;
+  JCPointChuanQb: string;
+  JCPointSinLq: string;
+  JCPointChuanLq: string;
+  JCPointChuanLqQb: string;
+  HGPoint: string;
+  JCTzAmt: string;
+  minrate: string;
+  maxmultiple: string;
+  danRadio: number;
+  chuanRadio: number;
+  zjqsRadio: number;
+  bqcRadio: number;
+  qbRadio: number;
+  otherRadio: number;
+  danSwitch: number;
+  chuanSwitch: number;
+  zjqsSwitch: number;
+  bqcSwitch: number;
+  qbSwitch: number;
+  otherSwitch: number;
+};

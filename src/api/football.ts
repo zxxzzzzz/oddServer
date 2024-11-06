@@ -1,4 +1,4 @@
-import { reLogin } from '../store/account.js';
+import { reLogin } from '../store/hgAccount.js';
 import { cuFetch } from './request.js';
 import { objToFormData } from './utils.js';
 import Convert from 'xml-js';

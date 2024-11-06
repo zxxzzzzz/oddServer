@@ -14,12 +14,14 @@
     "@types/node": "^22.7.4",
     "@types/restify": "^8.5.12",
     "ali-oss": "^6.21.0",
+    "cookie": "^1.0.1",
     "ping": "^0.4.4",
     "restify": "^11.1.0",
     "tsx": "^4.19.1",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
-    "@types/ping": "^0.4.4"
+    "@types/ping": "^0.4.4",
+    "prettier": "^3.3.3"
   }
 }

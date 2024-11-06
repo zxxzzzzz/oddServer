@@ -4,7 +4,7 @@ import {
   getJCInfoList,
   getHGGameMore,
 } from '../api/football.js';
-import { getToken } from './account.js';
+import { getToken } from './hgAccount.js';
 import { HGHhad, HGHhafu, HGInfo, JCInfo } from '../type/index.js';
 import { getLeagueSameWeight, getRatioAvg, getTeamSameWeight, maxBy, uniqBy } from '../utils/index.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';

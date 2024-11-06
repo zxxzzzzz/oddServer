@@ -205,6 +205,57 @@ export function solveTwoVariableLinearEquations(op: {
   return [x, y];
 }
 
+export function pickBy<T>(object: Record<string, T>, predicate: (value: T, key: string, object: Record<string, T>) => boolean): Record<string, T> {
+  const result: Record<string, T> = {};
+
+  for (const key in object) {
+    if (object.hasOwnProperty(key)) {
+      const value = object[key];
+      if (predicate(value, key, object)) {
+        result[key] = value;
+      }
+    }
+  }
+
+  return result;
+}
+
+
+type Predicate<T> = (value: T, index: number, array: T[]) => boolean;
+
+/**
+ * 检查数组中的元素是否满足给定的条件，允许一定比例的结果为 false。
+ * 
+ * @param array - 要检查的数组
+ * @param predicate - 判断函数，返回 true 表示该元素满足条件
+ * @param tolerance - 允许的 false 结果的比例，默认为 0.1（10%）
+ * @returns 如果满足条件的元素数量超过允许的 false 结果比例，则返回 true，否则返回 false
+ */
+export function everyWithTolerance<T>(
+    array: T[],
+    predicate: Predicate<T>,
+    tolerance: number = 0.12
+): boolean {
+    if (tolerance < 0 || tolerance > 1) {
+        throw new Error('Tolerance must be between 0 and 1.');
+    }
+    const falseCount = Math.floor(array.length * tolerance);
+    let falseCountSoFar = 0;
+
+    for (let i = 0; i < array.length; i++) {
+        if (!predicate(array[i], i, array)) {
+            falseCountSoFar++;
+            if (falseCountSoFar > falseCount) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+
+
 /**
  * 求解三元一次方程组
  *
@@ -359,7 +410,7 @@ export function solveFourVariableLinearEquations(op: {
       return ['a', 'b', 'c', 'd', 'e'].map((k) => ob[k]).filter((v) => v !== void 0);
     })
     .filter((v): v is number[] => v !== void 0);
-  console.log(validVariableList);
+  console.log('validVariableList', validVariableList);
 
   if (validVariableList.length === 2) {
     const reList = solveTwoVariableLinearEquations({

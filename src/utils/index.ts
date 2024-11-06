@@ -371,7 +371,6 @@ export function getSinData(JCInfo: JCInfo, HGInfo: HGInfo, op: GlobalOptions) {
         d4,
         e4,
       }) || [0, 0, 0, 0];
-      console.log({ jcBet2Number, hgBet1Number, hgBet2Number, profitNumber });
       const jcRebate2Number = op.JCPoint * jcBet2Number;
       const jcAmount2Number = jcBet2Number * jcOdds2Number;
       const hgRebate1Number = hgBet1Number * (hgOdds1Number - 1) * op.HGPoint;
