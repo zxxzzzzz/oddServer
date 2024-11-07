@@ -410,7 +410,7 @@ export function solveFourVariableLinearEquations(op: {
       return ['a', 'b', 'c', 'd', 'e'].map((k) => ob[k]).filter((v) => v !== void 0);
     })
     .filter((v): v is number[] => v !== void 0);
-  console.log('validVariableList', validVariableList);
+  // console.log('validVariableList', validVariableList);
 
   if (validVariableList.length === 2) {
     const reList = solveTwoVariableLinearEquations({
