@@ -185,7 +185,6 @@ export function everyWithTolerance(array, predicate, tolerance = 0.12) {
 export function strFixed(value, count = 2) {
     const numberValue = parseFloat(value);
     if (isNaN(numberValue)) {
-        console.log(value);
         return value;
     }
     return numberValue.toFixed(count);
