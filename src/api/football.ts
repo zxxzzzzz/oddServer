@@ -110,7 +110,7 @@ export const getHGGameListByTokenAndLeagueId = toAsyncTimeFunction(async functio
     return getHGGameListByTokenAndLeagueId(url, ver, uid, lid, (count || 5) - 1);
   }
   return mixObj;
-}, 'getHGGameListByTokenAndLeagueId')
+}, 'getHGGameListByTokenAndLeagueId', (args) => 'lid:' + args[3])
 
 export const getHGGameOBTByTokenAndEcid = toAsyncTimeFunction(async function (
   url: string,
@@ -195,7 +195,7 @@ export const getHGGameOBTByTokenAndEcid = toAsyncTimeFunction(async function (
     mixObj = Convert.xml2js(text, { compact: true }) as any;
   }
   return mixObj;
-}, 'getHGGameOBTByTokenAndEcid')
+}, 'getHGGameOBTByTokenAndEcid', args => 'ecid:' + args[3])
 
 export const getHGGameMore = toAsyncTimeFunction(async function (
   op: { uid: string; ver: string; lid: string; ecid: string; url: string },
@@ -240,9 +240,9 @@ export const getHGGameMore = toAsyncTimeFunction(async function (
     return getHGGameMore(op, count - 1);
   }
   return mixObj as GameMore;
-}, 'getHGGameMore')
+}, 'getHGGameMore', args => `leagueId:${args[0].lid} ecid:${args[0].ecid}`)
 
-export const getJCInfoList = toAsyncTimeFunction(async function (count = 5):Promise<JCInfo[]> {
+export const getJCInfoList = toAsyncTimeFunction(async function (count = 5): Promise<JCInfo[]> {
   if (count <= 0) throw Error('getJCInfoList 请求次数超过');
   const res = await cuFetch(
     'https://webapi.sporttery.cn/gateway/jc/football/getMatchCalculatorV1.qry?poolCode=hhad,had,ttg,hafu&channel=c',

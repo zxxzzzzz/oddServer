@@ -104,21 +104,41 @@ export function minBy<T>(array: T[], iteratee: (value: T) => number | string): T
 }
 
 /**记录promise函数执行时间的包装函数 */
-export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, tag: string): T {
+export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, tag: string, desc: string | ((args: Parameters<T>, result: Awaited<ReturnType<T>>) => string) = ''): T {
   return async function (...args: Parameters<T>): Promise<ReturnType<T>> {
     const start = performance.now(); // 记录开始时间
     const result = await fn(...args); // 调用原函数
     const end = performance.now(); // 记录结束时间
     const duration = end - start; // 计算执行时间
     if (!existsSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'))) {
-      writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `date, tag, duration\n`, { encoding: 'utf-8' });
+      writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `date, tag, duration, description\n`, { encoding: 'utf-8' });
     }
-    writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `${new Date().toISOString()}, ${tag}, ${duration}\n`, {
+    const description = typeof desc === 'string' ? desc : desc(args, result)
+    writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `${new Date().toISOString()}, ${tag}, ${duration}, ${description}\n`, {
       flag: 'a',
       encoding: 'utf-8',
     });
     return result;
   } as T;
+}
+
+export function warnLog(text:string) {
+  if (!existsSync(path.resolve(import.meta.dirname, '../../cache/warn.csv'))) {
+    writeFileSync(path.resolve(import.meta.dirname, '../../cache/warn.csv'), `date, description\n`, { encoding: 'utf-8' });
+  }
+  writeFileSync(path.resolve(import.meta.dirname, '../../cache/warn.csv'), `${new Date().toISOString()}, ${text}\n`, {
+    flag: 'a',
+    encoding: 'utf-8',
+  });
+}
+export function errorLog(text:string) {
+  if (!existsSync(path.resolve(import.meta.dirname, '../../cache/error.csv'))) {
+    writeFileSync(path.resolve(import.meta.dirname, '../../cache/error.csv'), `date, description\n`, { encoding: 'utf-8' });
+  }
+  writeFileSync(path.resolve(import.meta.dirname, '../../cache/error.csv'), `${new Date().toISOString()}, ${text}\n`, {
+    flag: 'a',
+    encoding: 'utf-8',
+  });
 }
 
 /**先进先出的promise包装函数 */
@@ -130,10 +150,10 @@ export function toFifoFunction<T extends (...args: any[]) => Promise<any>>(fn: T
     taskList.push(fn.bind(null, ...args));
     while (taskList.length) {
       await delay(100)
-      if(isProcessing) continue
+      if (isProcessing) continue
       const task = taskList.shift();
       // 当前没任务了，说明肯定没任务在进行了
-      if(!task) {
+      if (!task) {
         isProcessing = false
         return void 0
       }
@@ -232,26 +252,47 @@ type Predicate<T> = (value: T, index: number, array: T[]) => boolean;
  * @returns 如果满足条件的元素数量超过允许的 false 结果比例，则返回 true，否则返回 false
  */
 export function everyWithTolerance<T>(
-    array: T[],
-    predicate: Predicate<T>,
-    tolerance: number = 0.12
+  array: T[],
+  predicate: Predicate<T>,
+  tolerance: number = 0.12
 ): boolean {
-    if (tolerance < 0 || tolerance > 1) {
-        throw new Error('Tolerance must be between 0 and 1.');
-    }
-    const falseCount = Math.floor(array.length * tolerance);
-    let falseCountSoFar = 0;
+  if (tolerance < 0 || tolerance > 1) {
+    throw new Error('Tolerance must be between 0 and 1.');
+  }
+  const falseCount = Math.floor(array.length * tolerance);
+  let falseCountSoFar = 0;
 
-    for (let i = 0; i < array.length; i++) {
-        if (!predicate(array[i], i, array)) {
-            falseCountSoFar++;
-            if (falseCountSoFar > falseCount) {
-                return false;
-            }
-        }
+  for (let i = 0; i < array.length; i++) {
+    if (!predicate(array[i], i, array)) {
+      falseCountSoFar++;
+      if (falseCountSoFar > falseCount) {
+        return false;
+      }
     }
+  }
 
-    return true;
+  return true;
+}
+
+/**
+ * 将字符串格式化为保留两位小数的字符串。
+ * 
+ * @param value - 输入的字符串，应该是一个有效的数字表示。
+ * @returns 格式化后的字符串，保留两位小数。
+ */
+export function strFixed(value: string, count:number=2): string {
+  // 将输入的字符串转换为浮点数
+  const numberValue = parseFloat(value);
+
+  // 检查转换后的值是否为 NaN（Not-a-Number）
+  // 如果是 NaN，说明输入的字符串不是一个有效的数字格式
+  if (isNaN(numberValue)) {
+    return value;
+  }
+
+  // 使用 toFixed 方法将数字格式化为保留两位小数的字符串
+  // toFixed 方法会四舍五入
+  return numberValue.toFixed(count);
 }
 
 

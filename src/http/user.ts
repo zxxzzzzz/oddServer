@@ -1,132 +1,137 @@
-import { getAccountBySessionId, login } from '../store/user.js';
+import { getAccountBySessionId, login, updateAccountBySessionId } from '../store/user.js';
 import { server } from './server.js';
 import { pickBy } from '../utils/lodash.js';
 import * as cookie from 'cookie';
 
 server.post('/api/users/login', (req, res, next) => {
-  const body = req.body
-  const account = body?.account
-  const password = body?.password
-  const userInfo = login(account, password)
+  const body = req.body;
+  const account = body?.account;
+  const password = body?.password;
+  const userInfo = login(account, password);
   if (!userInfo) {
     res.send(400, {
-      "success": false,
-      "error": "请检查输入账号"
-    })
-    return
+      success: false,
+      error: '请检查输入账号',
+    });
+    return;
   }
-  res.header('set-cookie', cookie.serialize('session_id', userInfo.pcsessionid, { maxAge: 60 * 60 * 24 * 3, httpOnly: true, path: '/' }))
+  res.header('set-cookie', cookie.serialize('session_id', userInfo.pcsessionid, { maxAge: 60 * 60 * 24 * 3, httpOnly: true, path: '/' }));
   res.send({
     success: true,
-    data: pickBy(userInfo, (v, k) => [
-      'id',
-      'uuid',
-      'account',
-      'password',
-      'name',
-      'identificationcard',
-      'company',
-      'companyinfo',
-      'sex',
-      'email',
-      'wechat',
-      'photosrc',
-      'role',
-      'pcsessionid',
-      'phonesessionid',
-      'phone',
-      'lastlogintime',
-      'vip',
-      'viptime',
-      'keywords',
-      'createdAt',
-      'updatedAt',
-    ].includes(k))
+    data: pickBy(userInfo, (v, k) =>
+      [
+        'id',
+        'uuid',
+        'account',
+        'password',
+        'name',
+        'identificationcard',
+        'company',
+        'companyinfo',
+        'sex',
+        'email',
+        'wechat',
+        'photosrc',
+        'role',
+        'pcsessionid',
+        'phonesessionid',
+        'phone',
+        'lastlogintime',
+        'vip',
+        'viptime',
+        'keywords',
+        'createdAt',
+        'updatedAt',
+      ].includes(k)
+    ),
   });
   next();
 });
-;
 server.get('/api/users/getme', (req, res, next) => {
-  const cookieObj = cookie.parse(req.header('cookie'))
-  const userInfo = getAccountBySessionId(cookieObj?.session_id || '')
+  const cookieObj = cookie.parse(req.header('cookie'));
+  const userInfo = getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
     res.send(400, {
-      "success": false,
-      "error": "请重新登录"
-    })
-    return
+      success: false,
+      error: '请重新登录',
+    });
+    return;
   }
   res.send({
     success: true,
-    data: pickBy(userInfo, (v, k) => [
-      'id',
-      'uuid',
-      'account',
-      'name',
-      'identificationcard',
-      'company',
-      'companyinfo',
-      'sex',
-      'email',
-      'wechat',
-      'photosrc',
-      'role',
-      'pcsessionid',
-      'phonesessionid',
-      'phone',
-      'lastlogintime',
-      'vip',
-      'viptime',
-      'keywords',
-      'createdAt',
-      'updatedAt',
-    ].includes(k)),
+    data: pickBy(userInfo, (v, k) =>
+      [
+        'id',
+        'uuid',
+        'account',
+        'name',
+        'identificationcard',
+        'company',
+        'companyinfo',
+        'sex',
+        'email',
+        'wechat',
+        'photosrc',
+        'role',
+        'pcsessionid',
+        'phonesessionid',
+        'phone',
+        'lastlogintime',
+        'vip',
+        'viptime',
+        'keywords',
+        'createdAt',
+        'updatedAt',
+      ].includes(k)
+    ),
   });
   next();
 });
 server.get('/api/userConfig/getMyConfig', (req, res, next) => {
-  const cookieObj = cookie.parse(req.header('cookie'))
-  const userInfo = getAccountBySessionId(cookieObj?.session_id || '')
+  const cookieObj = cookie.parse(req.header('cookie'));
+  const userInfo = getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
     res.send(400, {
-      "success": false,
-      "error": "请重新登录"
-    })
-    return
+      success: false,
+      error: '请重新登录',
+    });
+    return;
   }
   res.send({
     success: true,
-    data: pickBy(userInfo, (v, k) => [
-      'id',
-      'uuid',
-      'userId',
-      'JCPointSinHad',
-      'JCPointChuanHad',
-      'JCPointSinTgg',
-      'JCPointSinHalf',
-      'JCPointChuanQb',
-      'JCPointSinLq',
-      'JCPointChuanLq',
-      'JCPointChuanLqQb',
-      'HGPoint',
-      'JCTzAmt',
-      'minrate',
-      'maxmultiple',
-      'danRadio',
-      'chuanRadio',
-      'zjqsRadio',
-      'bqcRadio',
-      'qbRadio',
-      'otherRadio',
-      'danSwitch',
-      'chuanSwitch',
-      'zjqsSwitch',
-      'bqcSwitch',
-      'qbSwitch',
-      'otherSwitch',
-      'createdAt',
-      'updatedAt',
-    ].includes(k)),
+    data: pickBy(userInfo, (v, k) =>
+      [
+        'id',
+        'uuid',
+        'userId',
+        'JCPointSinHad',
+        'JCPointChuanHad',
+        'JCPointSinTgg',
+        'JCPointSinHalf',
+        'JCPointChuanQb',
+        'JCPointSinLq',
+        'JCPointChuanLq',
+        'JCPointChuanLqQb',
+        'HGPoint',
+        'JCTzAmt',
+        'minrate',
+        'maxmultiple',
+        'danRadio',
+        'chuanRadio',
+        'zjqsRadio',
+        'bqcRadio',
+        'qbRadio',
+        'otherRadio',
+        'danSwitch',
+        'chuanSwitch',
+        'zjqsSwitch',
+        'bqcSwitch',
+        'qbSwitch',
+        'otherSwitch',
+        'createdAt',
+        'updatedAt',
+      ].includes(k)
+    ),
   });
   next();
 });
@@ -514,7 +519,7 @@ server.get('/api/chuanplan/findallback', (req, res, next) => {
         createdAt: '2024-10-10T12:45:01.000Z',
         updatedAt: '2024-10-10T12:45:01.000Z',
       },
-    ],
+    ].slice(0, 1),
   });
   next();
 });
@@ -538,13 +543,14 @@ server.get('/api/notices/findall', (req, res, next) => {
   next();
 });
 server.get('/api/jcmatch/version', (req, res, next) => {
-  res.send({ "success": true, "value": "1.0.9057" });
+  res.send({ success: true, value: '1.0.9057' });
   next();
 });
 
-server.get('/footballData', (req, res, next) => {
-  res.send('hello ' + req.params.name);
+server.put('/api/userConfig/update/:uuid', (req, res, next) => {
+  const cookieObj = cookie.parse(req.header('cookie'));
+  const body = req.body;
+  updateAccountBySessionId(cookieObj?.session_id || '', body);
+  res.send({ success: true });
   next();
 });
-
-

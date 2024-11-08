@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { User } from '../type/index.js';
 import { pickBy } from '../utils/index.js';
 import { resolve } from 'path';
+import stringify from 'json-stringify-pretty-compact';
 
 let GlobalUserInfo: { userList: User[] } = { userList: [] };
 
@@ -13,7 +14,7 @@ function getAccountList() {
   return userInfo.userList;
 }
 
-function updateAccount(sessionId: string, data: Partial<Omit<User, 'username'>>) {
+export function updateAccountBySessionId(sessionId: string, data: Partial<Omit<User, 'username'>>) {
   const user = getAccountBySessionId(sessionId);
   if (user) {
     (Object.keys(data) as (keyof User)[]).forEach((k) => {
@@ -21,7 +22,7 @@ function updateAccount(sessionId: string, data: Partial<Omit<User, 'username'>>)
       // @ts-expect-error
       user[k] = v
     });
-    writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), JSON.stringify(GlobalUserInfo));
+    writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), stringify(GlobalUserInfo));
   }
 }
 
@@ -36,7 +37,7 @@ export function login(username: string, password: string) {
     const token = randomUUID();
     user.pcsessionid = token
     user.lastlogintime = new Date().toISOString()
-    writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), JSON.stringify(GlobalUserInfo));
+    writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), stringify(GlobalUserInfo));
     return user;
   }
 }

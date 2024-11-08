@@ -77,21 +77,40 @@ export function minBy(array, iteratee) {
     }
     return minElement;
 }
-export function toAsyncTimeFunction(fn, tag) {
+export function toAsyncTimeFunction(fn, tag, desc = '') {
     return async function (...args) {
         const start = performance.now();
         const result = await fn(...args);
         const end = performance.now();
         const duration = end - start;
         if (!existsSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'))) {
-            writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `date, tag, duration\n`, { encoding: 'utf-8' });
+            writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `date, tag, duration, description\n`, { encoding: 'utf-8' });
         }
-        writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `${new Date().toISOString()}, ${tag}, ${duration}\n`, {
+        const description = typeof desc === 'string' ? desc : desc(args, result);
+        writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `${new Date().toISOString()}, ${tag}, ${duration}, ${description}\n`, {
             flag: 'a',
             encoding: 'utf-8',
         });
         return result;
     };
+}
+export function warnLog(text) {
+    if (!existsSync(path.resolve(import.meta.dirname, '../../cache/warn.csv'))) {
+        writeFileSync(path.resolve(import.meta.dirname, '../../cache/warn.csv'), `date, description\n`, { encoding: 'utf-8' });
+    }
+    writeFileSync(path.resolve(import.meta.dirname, '../../cache/warn.csv'), `${new Date().toISOString()}, ${text}\n`, {
+        flag: 'a',
+        encoding: 'utf-8',
+    });
+}
+export function errorLog(text) {
+    if (!existsSync(path.resolve(import.meta.dirname, '../../cache/error.csv'))) {
+        writeFileSync(path.resolve(import.meta.dirname, '../../cache/error.csv'), `date, description\n`, { encoding: 'utf-8' });
+    }
+    writeFileSync(path.resolve(import.meta.dirname, '../../cache/error.csv'), `${new Date().toISOString()}, ${text}\n`, {
+        flag: 'a',
+        encoding: 'utf-8',
+    });
 }
 export function toFifoFunction(fn) {
     const taskList = [];
@@ -162,6 +181,14 @@ export function everyWithTolerance(array, predicate, tolerance = 0.12) {
         }
     }
     return true;
+}
+export function strFixed(value, count = 2) {
+    const numberValue = parseFloat(value);
+    if (isNaN(numberValue)) {
+        console.log(value);
+        return value;
+    }
+    return numberValue.toFixed(count);
 }
 export function solveThreeVariableLinearEquations(op) {
     const { a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3 } = op;

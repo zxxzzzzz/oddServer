@@ -3,5 +3,5 @@ import '../http/index.js';
 (async () => {
     setInterval(async () => {
         updateFootballStateFromWeb();
-    }, 1000);
+    }, 3000);
 })();

@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
 import { pickBy } from '../utils/index.js';
 import { resolve } from 'path';
+import stringify from 'json-stringify-pretty-compact';
 let GlobalUserInfo = { userList: [] };
 function getAccountList() {
     if (GlobalUserInfo.userList?.length)
@@ -10,14 +11,14 @@ function getAccountList() {
     GlobalUserInfo = userInfo;
     return userInfo.userList;
 }
-function updateAccount(sessionId, data) {
+export function updateAccountBySessionId(sessionId, data) {
     const user = getAccountBySessionId(sessionId);
     if (user) {
         Object.keys(data).forEach((k) => {
             const v = data[k];
             user[k] = v;
         });
-        writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), JSON.stringify(GlobalUserInfo));
+        writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), stringify(GlobalUserInfo));
     }
 }
 export function getAccountBySessionId(sessionId) {
@@ -30,7 +31,7 @@ export function login(username, password) {
         const token = randomUUID();
         user.pcsessionid = token;
         user.lastlogintime = new Date().toISOString();
-        writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), JSON.stringify(GlobalUserInfo));
+        writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), stringify(GlobalUserInfo));
         return user;
     }
 }

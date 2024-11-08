@@ -113,4 +113,4 @@ export const loginByAccount = toAsyncTimeFunction(async function (username: stri
     ver,
     url: `https://${domain === 'no' ? url.slice(8) : domain}/`,
   };
-}, 'hg login')
+}, 'hg login', args => 'account:' + args[0])

@@ -7,14 +7,12 @@ const GlobalAccountList = [
     { account: 'CXGCXG719', password: 'ASd12345' },
     { account: 'CXGCXG720', password: 'ASd12345' },
     { account: 'CXGCXG721', password: 'ASd12345' },
-    { account: 'CXGCXG723', password: 'ASd12345' }
+    { account: 'CXGCXG723', password: 'ASd12345' },
 ];
 let GlobalTokenList = [];
 let isLogging = false;
 const getAliveUrl = async () => {
-    var hosts = [
-        'hga035.com',
-    ];
+    var hosts = ['hga035.com', '123.108.119.118'];
     const resList = await Promise.all(hosts.map(async (host) => {
         let res = await ping.promise.probe(host);
         return res;
@@ -24,7 +22,7 @@ const getAliveUrl = async () => {
     console.log('fast', url);
     return url;
 };
-export const getToken = toFifoFunction(toAsyncTimeFunction(async (op = { limitIdleAge: 10000 }) => {
+export const getToken = toFifoFunction(toAsyncTimeFunction(async (op = { limitIdleAge: 5000 }) => {
     while (isLogging) {
         await delay(10);
     }
@@ -38,7 +36,6 @@ export const getToken = toFifoFunction(toAsyncTimeFunction(async (op = { limitId
                 GlobalTokenList = [...GlobalTokenList, { ...token, account: noLoginAccount.account, lastUseTimestamp: 0 }];
             }
             isLogging = false;
-            console.log(GlobalTokenList);
         }
         catch (error) {
             isLogging = false;
@@ -51,7 +48,8 @@ export const getToken = toFifoFunction(toAsyncTimeFunction(async (op = { limitId
     if (!GlobalTokenList?.length)
         throw Error('store account 无法登录');
     const lastUseToken = GlobalTokenList[0];
-    while (new Date().valueOf() - lastUseToken.lastUseTimestamp <= op.limitIdleAge) {
+    const offset = Math.floor(Math.random() * op.limitIdleAge);
+    while (new Date().valueOf() - lastUseToken.lastUseTimestamp <= op.limitIdleAge + offset) {
         await delay(100);
     }
     lastUseToken.lastUseTimestamp = new Date().valueOf();
