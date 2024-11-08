@@ -1,5 +1,5 @@
 import { server } from './server.js';
-import { GlobalOptions } from 'src/type/index.js';
+import { GlobalOptions } from '../type/index.js';
 import { footballState, getSinInfoList } from '../store/football.js';
 
 

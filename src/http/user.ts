@@ -1,6 +1,6 @@
-import { getAccountBySessionId, login } from 'src/store/user.js';
+import { getAccountBySessionId, login } from '../store/user.js';
 import { server } from './server.js';
-import { pickBy } from 'src/utils/lodash.js';
+import { pickBy } from '../utils/lodash.js';
 import * as cookie from 'cookie';
 
 server.post('/api/users/login', (req, res, next) => {

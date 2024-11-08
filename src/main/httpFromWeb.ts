@@ -1,4 +1,4 @@
-import { updateFootballStateFromWeb, updateFootballStateToOss } from "src/store/football.js";
+import { updateFootballStateFromWeb, updateFootballStateToOss } from "../store/football.js";
 import  '../http/index.js';
 
 (async () => {

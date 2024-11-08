@@ -1,10 +1,10 @@
-import { updateFootballStateFromWeb, updateFootballStateToOss } from "src/store/football.js";
+import { updateFootballStateFromWeb, updateFootballStateToOss } from "../store/football.js";
 
 (async () => {
   setInterval(async () => {
     updateFootballStateFromWeb()
   }, 1000);
   setInterval(async () => {
-    updateFootballStateToOss()
+    updateFootballStateToOss({ isInternal: true })
   }, 10000);
 })();

@@ -4,8 +4,9 @@ import { objToFormData } from './utils.js';
 import Convert from 'xml-js';
 import { GameList, GameMore, GameOBT } from '../type/index.js';
 import { JCInfo } from '../type/index.js';
+import { toAsyncTimeFunction } from '../utils/lodash.js';
 
-export async function getHGLeagueListAllByToken(
+export const getHGLeagueListAllByToken = toAsyncTimeFunction(async function (
   url: string,
   uid: string,
   ver: string,
@@ -59,9 +60,9 @@ export async function getHGLeagueListAllByToken(
       });
     })
     .flat();
-}
+}, 'getHGLeagueListAllByToken')
 
-export async function getHGGameListByTokenAndLeagueId(
+export const getHGGameListByTokenAndLeagueId = toAsyncTimeFunction(async function (
   url: string,
   ver: string,
   uid: string,
@@ -109,9 +110,9 @@ export async function getHGGameListByTokenAndLeagueId(
     return getHGGameListByTokenAndLeagueId(url, ver, uid, lid, (count || 5) - 1);
   }
   return mixObj;
-}
+}, 'getHGGameListByTokenAndLeagueId')
 
-export async function getHGGameOBTByTokenAndEcid(
+export const getHGGameOBTByTokenAndEcid = toAsyncTimeFunction(async function (
   url: string,
   ver: string,
   uid: string,
@@ -194,26 +195,12 @@ export async function getHGGameOBTByTokenAndEcid(
     mixObj = Convert.xml2js(text, { compact: true }) as any;
   }
   return mixObj;
-}
+}, 'getHGGameOBTByTokenAndEcid')
 
-export async function getHGGameMore(
+export const getHGGameMore = toAsyncTimeFunction(async function (
   op: { uid: string; ver: string; lid: string; ecid: string; url: string },
   count = 5
-) {
-  //  uid: w6o158ojcm35838285l233155b0
-  // ver: 2024-10-12-noShowLgGbug_57
-  // langx: zh-cn
-  // p: get_game_more
-  // gtype: ft
-  // showtype: parlay
-  // ltype: 3
-  // isRB: N
-  // lid: 100030
-  // specialClick:
-  // mode: NORMAL
-  // filter: Main
-  // ts: 1729998146992
-  // ecid: 8712307
+): Promise<GameMore> {
   const body = {
     uid: op.uid,
     ver: op.ver,
@@ -253,9 +240,9 @@ export async function getHGGameMore(
     return getHGGameMore(op, count - 1);
   }
   return mixObj as GameMore;
-}
+}, 'getHGGameMore')
 
-export async function getJCInfoList(count = 5) {
+export const getJCInfoList = toAsyncTimeFunction(async function (count = 5):Promise<JCInfo[]> {
   if (count <= 0) throw Error('getJCInfoList 请求次数超过');
   const res = await cuFetch(
     'https://webapi.sporttery.cn/gateway/jc/football/getMatchCalculatorV1.qry?poolCode=hhad,had,ttg,hafu&channel=c',
@@ -300,7 +287,7 @@ export async function getJCInfoList(count = 5) {
         awayTeamAbbName: match?.awayTeamAbbName ?? '',
         awayTeamAllName: match?.awayTeamAllName ?? '',
         isSingle_had: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HAD')?.single?.toString?.() ?? '',
-        isSingle_hhad: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HHAD')?.single?.toString?.() ??'',
+        isSingle_hhad: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HHAD')?.single?.toString?.() ?? '',
         had_a: match?.had?.a ?? '',
         had_h: match?.had?.h ?? '',
         had_d: match?.had?.d ?? '',
@@ -323,4 +310,4 @@ export async function getJCInfoList(count = 5) {
       };
     });
   return JCInfoList as JCInfo[];
-}
+}, 'getJCInfoList')

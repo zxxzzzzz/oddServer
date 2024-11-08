@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { BETTING_RESULT, GlobalOptions, GoalLine, GoalLineRule, Result, SinInfo } from 'src/type/index.js';
+import { BETTING_RESULT, GlobalOptions, GoalLine, GoalLineRule, Result, SinInfo } from '../type/index.js';
 import { everyWithTolerance, range, uniqBy } from './index.js';
 import path from 'path';
 

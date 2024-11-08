@@ -1,9 +1,9 @@
-import { updateFootballStateFromOss } from 'src/store/football.js';
+import { updateFootballStateFromOss } from '../store/football.js';
 import  '../http/index.js';
 
 (()=>{
   setInterval(async () => {
-    updateFootballStateFromOss()
+    updateFootballStateFromOss({isInternal:true})
     // await updateJCInfoList();
     // await updateHGInfoList({ limitMatchCount: 5 });
     // await updateToOss()

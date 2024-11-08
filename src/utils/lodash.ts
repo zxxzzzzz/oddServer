@@ -1,6 +1,6 @@
 import { existsSync, writeFileSync } from 'fs';
 import path from 'path';
-import { delay } from 'src/api/utils.js';
+import { delay } from '../api/utils.js';
 
 export function range(start: number, end?: number, step: number = 1): number[] {
   if (end === undefined) {

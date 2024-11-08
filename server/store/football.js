@@ -1,0 +1,289 @@
+import { getHGLeagueListAllByToken, getHGGameListByTokenAndLeagueId, getJCInfoList, getHGGameMore, } from '../api/football.js';
+import { getToken } from './hgAccount.js';
+import { getLeagueSameWeight, getRatioAvg, getSinData, getTeamSameWeight, maxBy, uniqBy } from '../utils/index.js';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { getOssClient } from '../api/oss.js';
+export const footballState = {
+    JCInfoList: [],
+    HGInfoList: [],
+    toUpdateHGInfoList: [],
+    HGLeagueList: [],
+    HGGameInfoList: [],
+    HGLeagueListUpdateTimeStamp: 0,
+    JCInfoListUpdateTimeStamp: 0,
+};
+const updateJCInfoList = async () => {
+    if (new Date().valueOf() - footballState.JCInfoListUpdateTimeStamp > 1000 * 10) {
+        footballState.JCInfoListUpdateTimeStamp = new Date().valueOf();
+        try {
+            const JCInfoList = await getJCInfoList();
+            footballState.JCInfoListUpdateTimeStamp = new Date().valueOf();
+            footballState.JCInfoList = JCInfoList.map((JCInfo) => {
+                return {
+                    ...JCInfo,
+                    createdAt: footballState.JCInfoList.find((item) => item.matchId === JCInfo.matchId)?.createdAt ||
+                        new Date().toISOString(),
+                };
+            });
+        }
+        catch (error) {
+            footballState.JCInfoListUpdateTimeStamp = 0;
+        }
+    }
+    return footballState.JCInfoList;
+};
+const getHGLeagueToUpdate = async () => {
+    if (!footballState.JCInfoList?.length)
+        return [];
+    const nowTimestamp = new Date().valueOf();
+    if (nowTimestamp - footballState.HGLeagueListUpdateTimeStamp > 1000 * 60 * 10) {
+        footballState.HGLeagueListUpdateTimeStamp = nowTimestamp;
+        const token = await getToken();
+        try {
+            const HGleagueItemList = await getHGLeagueListAllByToken(token.url, token.uid, token.ver);
+            footballState.HGLeagueListUpdateTimeStamp = new Date().valueOf();
+            footballState.HGLeagueList = HGleagueItemList;
+            console.log(new Date().toISOString(), 'update HGLeagueList');
+        }
+        catch (error) {
+            console.log('error update HGLeagueList:', error);
+            footballState.HGLeagueListUpdateTimeStamp = 0;
+        }
+    }
+    const toUpdateLeagueList = footballState.JCInfoList.map((JCInfo) => {
+        const HGLeague = maxBy(footballState.HGLeagueList, (HGLeagueItem) => getLeagueSameWeight(HGLeagueItem.name, JCInfo.leagueAllName));
+        return {
+            JCLeagueName: JCInfo.leagueAllName,
+            HGLeagueName: HGLeague?.name || '',
+            HGLeagueId: HGLeague?.leagueId,
+            weight: getLeagueSameWeight(JCInfo.leagueAllName, HGLeague?.name || ''),
+        };
+    });
+    const uniqHGLeagueList = uniqBy(toUpdateLeagueList, (item) => item.HGLeagueId);
+    return uniqHGLeagueList;
+};
+const getHGMatchToUpdate = async (HGLeagueId, JCLeagueName) => {
+    if (!footballState.JCInfoList?.length)
+        return [];
+    if (!footballState.HGGameInfoList.find((item) => item.leagueId === HGLeagueId)) {
+        footballState.HGGameInfoList = [
+            ...footballState.HGGameInfoList,
+            { leagueId: HGLeagueId, updateTimestamp: 0, gameList: [], JCLeagueName },
+        ];
+        console.log(new Date().toISOString(), 'none update HGGameInfoList leagueId:', HGLeagueId);
+    }
+    const finedHGGameInfo = footballState.HGGameInfoList.find((item) => item.leagueId === HGLeagueId);
+    if (finedHGGameInfo && new Date().valueOf() - finedHGGameInfo.updateTimestamp > 1000 * 60 * 10) {
+        const preHGGameInfoUpdateTimestamp = finedHGGameInfo.updateTimestamp;
+        finedHGGameInfo.updateTimestamp = new Date().valueOf();
+        const token = await getToken();
+        try {
+            const HGGameList = await getHGGameListByTokenAndLeagueId(token.url, token.ver, token.uid, HGLeagueId);
+            finedHGGameInfo.updateTimestamp = new Date().valueOf();
+            footballState.HGGameInfoList = footballState.HGGameInfoList.filter((gameInfo) => footballState.JCInfoList.some((JCInfo) => JCInfo.leagueAllName === gameInfo.JCLeagueName)).map((info) => {
+                if (info.leagueId === HGLeagueId) {
+                    return {
+                        gameList: (HGGameList?.serverresponse?.ec || [])
+                            .map((item) => {
+                            return {
+                                ecid: item?.game?.ECID?._text || '',
+                                homeTeam: item?.game?.TEAM_H?._text || '',
+                                awayTeam: item?.game?.TEAM_C?._text || '',
+                                more: item?.game?.MORE?._text || '',
+                            };
+                        })
+                            .filter((d) => d.ecid),
+                        updateTimestamp: new Date().valueOf(),
+                        leagueId: HGLeagueId,
+                        JCLeagueName,
+                    };
+                }
+                return info;
+            });
+            if (preHGGameInfoUpdateTimestamp !== 0) {
+                console.log(new Date().toISOString(), 'expire update HGGameInfoList leagueId:', HGLeagueId);
+            }
+        }
+        catch (error) {
+            finedHGGameInfo.updateTimestamp = 0;
+        }
+    }
+    const finedHGGameList = footballState.HGGameInfoList.find((info) => info.leagueId === HGLeagueId)?.gameList;
+    if (!finedHGGameList?.length)
+        return [];
+    const toUpdateHGMatchList = footballState.JCInfoList.filter((JCInfo) => JCInfo.leagueAllName === JCLeagueName)
+        .map((JCInfo) => {
+        const weightItemList = finedHGGameList.map((game) => {
+            const HGHomeTeam = game.homeTeam || '';
+            const HGAwayTeam = game.awayTeam || '';
+            const awayTeamWeight = getTeamSameWeight(HGAwayTeam, JCInfo.awayTeamAllName);
+            const homeTeamWeight = getTeamSameWeight(HGHomeTeam, JCInfo.homeTeamAllName);
+            return { teamWeight: awayTeamWeight + homeTeamWeight, game };
+        });
+        const { game, teamWeight } = maxBy(weightItemList, (item) => item.teamWeight);
+        return { game, matchId: JCInfo.matchId, teamWeight };
+    })
+        .filter((item) => item.game.more && item.game.more !== '0')
+        .filter((item) => {
+        const finedHGInfo = footballState.HGInfoList.find((info) => item.matchId === info.matchId);
+        if (!finedHGInfo)
+            return true;
+        return new Date().valueOf() - new Date(finedHGInfo.updatedAt).valueOf() > 1000 * 10;
+    })
+        .map(({ game, teamWeight, matchId }) => {
+        return {
+            HGEcid: game.ecid,
+            HGLeagueId,
+            JCMatchId: matchId,
+            teamWeight,
+        };
+    });
+    return toUpdateHGMatchList;
+};
+const updateHGInfoList = async (op) => {
+    const toUpdateLeagueList = await getHGLeagueToUpdate();
+    if (!toUpdateLeagueList?.length)
+        return;
+    let toUpdateHGMatchList = [];
+    for (const toUpdateLeague of toUpdateLeagueList) {
+        const tempToUpdateHGMatchList = await getHGMatchToUpdate(toUpdateLeague.HGLeagueId || '', toUpdateLeague.JCLeagueName);
+        toUpdateHGMatchList = [...toUpdateHGMatchList, ...tempToUpdateHGMatchList];
+        if (toUpdateHGMatchList.length >= op.limitMatchCount)
+            break;
+    }
+    footballState.toUpdateHGInfoList = uniqBy([
+        ...footballState.toUpdateHGInfoList || [],
+        ...toUpdateHGMatchList.map(v => ({ ...v, isUpdating: false, updateTimestamp: new Date().valueOf() }))
+    ], v => v.JCMatchId).filter(v => {
+        return new Date().valueOf() - (v.updateTimestamp || 0) < 1000 * 60 * 60;
+    }).sort((v1, v2) => v1.updateTimestamp - v2.updateTimestamp);
+    const token = await getToken();
+    for (const toUpdateHGMatch of footballState.toUpdateHGInfoList.filter(v => v.isUpdating === false)) {
+        try {
+            toUpdateHGMatch.isUpdating = true;
+            const gameMore = await getHGGameMore({
+                ...token,
+                ecid: toUpdateHGMatch.HGEcid,
+                lid: toUpdateHGMatch.HGLeagueId ?? '',
+            });
+            if (!gameMore.serverresponse.game)
+                continue;
+            const normalPtypeGameMore = (gameMore?.serverresponse?.game ?? []).filter((item) => !item?.ptype?._text);
+            const toUpdateHGInfo = {
+                matchId: toUpdateHGMatch.JCMatchId,
+                leagueAbbName: normalPtypeGameMore?.[0]?.league?._text || '',
+                leagueAllName: normalPtypeGameMore?.[0]?.league?._text || '',
+                leagueCode: '',
+                matchNumStr: '',
+                matchDate: '',
+                matchTime: '',
+                matchTimeFormat: normalPtypeGameMore?.[0]?.datetime?._text || '',
+                homeTeamAbbName: normalPtypeGameMore?.[0]?.team_h?._text || '',
+                homeTeamAllName: normalPtypeGameMore?.[0]?.team_h?._text || '',
+                awayTeamAbbName: normalPtypeGameMore?.[0]?.team_c?._text || '',
+                awayTeamAllName: normalPtypeGameMore?.[0]?.team_c?._text || '',
+                had_a: normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MC?._text || '',
+                had_h: normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MH?._text || '',
+                had_d: normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MN?._text || '',
+                ...[0, 1, 2, 3, 4, 5].reduce((re, curIndex) => {
+                    const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
+                    const hhad_a = normalPtypeGameMore[curIndex]?.ior_PRC?._text || '';
+                    const hhad_h = normalPtypeGameMore[curIndex]?.ior_PRH?._text || '';
+                    return {
+                        ...re,
+                        [`hhad_a${curIndex + 1}`]: hhad_a,
+                        [`hhad_h${curIndex + 1}`]: hhad_h,
+                        [`hhad_d${curIndex + 1}`]: '-',
+                        [`hhad_goalLine${curIndex + 1}`]: !hhad_a ? '-' : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio?._text || '', isHStrong ? true : false),
+                    };
+                }, {}),
+                wm_h1: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH1?._text ?? '',
+                wm_h2: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH2?._text ?? '',
+                wm_h3: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH3?._text ?? '',
+                wm_hov: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMHOV?._text ?? '',
+                wm_a1: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC1?._text ?? '',
+                wm_a2: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC2?._text ?? '',
+                wm_a3: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC3?._text ?? '',
+                wm_aov: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMCOV?._text ?? '',
+                wm_0: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WM0?._text ?? '',
+                wm_n: normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMN?._text ?? '',
+                ...[0, 1, 2, 3].reduce((re, curIndex) => {
+                    const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
+                    const hhafu_h = normalPtypeGameMore[curIndex]?.ior_HPRH?._text || '';
+                    const hhafu_a = normalPtypeGameMore[curIndex]?.ior_HPRC?._text || '';
+                    return {
+                        ...re,
+                        [`hhafu_goalLine${curIndex + 1}`]: !hhafu_h ? '-' : getRatioAvg(normalPtypeGameMore[curIndex]?.hratio?._text || '', isHStrong ? true : false),
+                        [`hhafu_h${curIndex + 1}`]: hhafu_h,
+                        [`hhafu_a${curIndex + 1}`]: hhafu_a,
+                    };
+                }, {}),
+                updateTime: new Date().toISOString(),
+                createdAt: footballState.HGInfoList.find((info) => info.matchId === toUpdateHGMatch.JCMatchId)?.createdAt ||
+                    new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+            footballState.HGInfoList = [...footballState.HGInfoList, toUpdateHGInfo].filter((HGInfo) => footballState.JCInfoList.some((JCInfo) => JCInfo.matchId === HGInfo.matchId)).map((info) => {
+                if (info.matchId === toUpdateHGInfo.matchId)
+                    return toUpdateHGInfo;
+                return info;
+            });
+            footballState.toUpdateHGInfoList = footballState.toUpdateHGInfoList.filter(v => v.JCMatchId !== toUpdateHGMatch.JCMatchId);
+            writeFileSync('./cache/footballState.json', JSON.stringify(footballState), { encoding: 'utf-8' });
+            console.log(new Date().toISOString(), 'update HGInfoList');
+        }
+        catch (error) {
+            toUpdateHGMatch.isUpdating = false;
+        }
+    }
+};
+export function getSinInfoList(op, JCInfoList, HGInfoList) {
+    const sinInfoList = (JCInfoList || []).filter(jcInfo => jcInfo.matchId).map((jcInfo) => {
+        const hgInfo = (HGInfoList || []).filter(jcInfo => jcInfo.matchId).find(hg => hg.matchId === jcInfo.matchId);
+        if (hgInfo) {
+            return getSinData(jcInfo, hgInfo, op);
+        }
+        return void 0;
+    }).filter((v) => !!v).flat();
+    return sinInfoList;
+}
+export async function updateFootballStateToOss(op) {
+    const OSS_FILE_NAME = 'footballState.json';
+    try {
+        const ossClient = getOssClient(op);
+        await ossClient.put(OSS_FILE_NAME, Buffer.from(JSON.stringify(footballState)));
+        console.log(new Date().toISOString(), 'oss updateHGInfoList');
+    }
+    catch (error) {
+        console.log('put error', error);
+    }
+}
+export async function updateFootballStateFromOss(op) {
+    const OSS_FILE_NAME = 'footballState.json';
+    try {
+        const ossClient = getOssClient(op);
+        const res = await ossClient.get(OSS_FILE_NAME);
+        const content = res.content;
+        if (!content)
+            return;
+        const ossFootballState = JSON.parse(content);
+        Object.entries(ossFootballState).forEach(([k, v]) => {
+            footballState[k] = v;
+        });
+        console.log(new Date().toISOString(), 'update from oss');
+    }
+    catch (error) {
+        console.log('put error', error);
+    }
+}
+export async function updateFootballStateFromWeb() {
+    if (existsSync('./cache/footballState.json') && footballState.JCInfoListUpdateTimeStamp === 0) {
+        const text = readFileSync('./cache/footballState.json', { encoding: 'utf-8' });
+        const body = JSON.parse(text);
+        Object.keys(footballState).forEach((key) => {
+            footballState[key] = body[key];
+        });
+    }
+    await updateJCInfoList();
+    await updateHGInfoList({ limitMatchCount: 5 });
+}

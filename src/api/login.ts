@@ -1,8 +1,9 @@
+import { toAsyncTimeFunction } from '../utils/lodash.js';
 import { cuFetch } from './request.js';
 import { objToFormData, obj2Str } from './utils.js';
 import Convert from 'xml-js';
 
-export async function loginByAccount(username: string, password: string, url: string) {
+export const loginByAccount = toAsyncTimeFunction(async function (username: string, password: string, url: string) {
   const res = await cuFetch(`${url}/?detection=Y`, {
     headers: {
       accept:
@@ -112,4 +113,4 @@ export async function loginByAccount(username: string, password: string, url: st
     ver,
     url: `https://${domain === 'no' ? url.slice(8) : domain}/`,
   };
-}
+}, 'hg login')

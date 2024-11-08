@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
-import { User } from 'src/type/index.js';
-import { pickBy } from 'src/utils/index.js';
+import { User } from '../type/index.js';
+import { pickBy } from '../utils/index.js';
 import { resolve } from 'path';
 
 let GlobalUserInfo: { userList: User[] } = { userList: [] };

@@ -3,7 +3,7 @@
     "target": "ESNext", // 目标语言版本
     "module": "NodeNext", // 使用 ES6 模块
     "moduleResolution": "NodeNext", // 模块解析策略
-    "outDir": "web", // 输出目录
+    "outDir": "server", // 输出目录
     "rootDir": "./src", // 源代码目录
     "esModuleInterop": true, // 允许 CommonJS 和 ES 模块之间的互操作
     "forceConsistentCasingInFileNames": true, // 强制文件名大小写一致

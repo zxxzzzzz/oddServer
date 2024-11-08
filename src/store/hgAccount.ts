@@ -1,4 +1,4 @@
-import { maxBy, minBy, toAsyncTimeFunction, toFifoFunction } from 'src/utils/index.js';
+import { maxBy, minBy, toAsyncTimeFunction, toFifoFunction } from '../utils/index.js';
 import { loginByAccount } from '../api/login.js';
 import { delay, uniqBy } from '../api/utils.js';
 import ping from 'ping';

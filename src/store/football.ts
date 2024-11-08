@@ -8,8 +8,8 @@ import { getToken } from './hgAccount.js';
 import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type/index.js';
 import { getLeagueSameWeight, getRatioAvg, getSinData, getTeamSameWeight, maxBy, uniqBy } from '../utils/index.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { delay } from 'src/api/utils.js';
-import { ossClient } from '../api/oss.js';
+import { delay } from '../api/utils.js';
+import { getOssClient } from '../api/oss.js';
 
 // 联赛数据
 export const footballState: {
@@ -89,9 +89,7 @@ const getHGLeagueToUpdate = async () => {
       const HGleagueItemList = await getHGLeagueListAllByToken(token.url, token.uid, token.ver);
       footballState.HGLeagueListUpdateTimeStamp = new Date().valueOf();
       footballState.HGLeagueList = HGleagueItemList;
-      console.log(new Date().toISOString(), 'update HGLeagueList');
     } catch (error) {
-      console.log('error update HGLeagueList:', error);
       footballState.HGLeagueListUpdateTimeStamp = 0;
     }
   }
@@ -119,7 +117,6 @@ const getHGMatchToUpdate = async (HGLeagueId: string, JCLeagueName: string) => {
       ...footballState.HGGameInfoList,
       { leagueId: HGLeagueId, updateTimestamp: 0, gameList: [], JCLeagueName },
     ];
-    console.log(new Date().toISOString(), 'none update HGGameInfoList leagueId:', HGLeagueId);
   }
   // HG当前联赛下的比赛
   const finedHGGameInfo = footballState.HGGameInfoList.find((item) => item.leagueId === HGLeagueId);
@@ -156,9 +153,6 @@ const getHGMatchToUpdate = async (HGLeagueId: string, JCLeagueName: string) => {
         }
         return info;
       });
-      if (preHGGameInfoUpdateTimestamp !== 0) {
-        console.log(new Date().toISOString(), 'expire update HGGameInfoList leagueId:', HGLeagueId);
-      }
     } catch (error) {
       finedHGGameInfo.updateTimestamp = 0;
     }
@@ -315,7 +309,6 @@ const updateHGInfoList = async (op: { limitMatchCount: number }) => {
       // 删除toUpdateHGInfoList里已经更新完毕的数据
       footballState.toUpdateHGInfoList = footballState.toUpdateHGInfoList.filter(v => v.JCMatchId !== toUpdateHGMatch.JCMatchId)
       writeFileSync('./cache/footballState.json', JSON.stringify(footballState), { encoding: 'utf-8' });
-      console.log(new Date().toISOString(), 'update HGInfoList');
     } catch (error) {
       // 更新失败 重置回需要更新的状态
       toUpdateHGMatch.isUpdating = false
@@ -335,9 +328,10 @@ export function getSinInfoList(op: GlobalOptions, JCInfoList: JCInfo[], HGInfoLi
   return sinInfoList
 }
 
-export async function updateFootballStateToOss() {
+export async function updateFootballStateToOss(op: { isInternal: boolean }) {
   const OSS_FILE_NAME = 'footballState.json';
   try {
+    const ossClient = getOssClient(op)
     await ossClient.put(OSS_FILE_NAME, Buffer.from(JSON.stringify(footballState)));
     console.log(new Date().toISOString(), 'oss updateHGInfoList');
   } catch (error) {
@@ -345,9 +339,10 @@ export async function updateFootballStateToOss() {
   }
 }
 
-export async function updateFootballStateFromOss() {
+export async function updateFootballStateFromOss(op: { isInternal: boolean }) {
   const OSS_FILE_NAME = 'footballState.json';
   try {
+    const ossClient = getOssClient(op)
     const res = await ossClient.get(OSS_FILE_NAME);
     const content = res.content
     if (!content) return
