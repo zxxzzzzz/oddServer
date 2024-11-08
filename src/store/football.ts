@@ -387,7 +387,7 @@ export async function updateFootballStateToOss(op: { isInternal: boolean }) {
   try {
     const ossClient = getOssClient(op);
     await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(footballState)));
-    console.log(new Date().toISOString(), 'oss updateHGInfoList');
+    // console.log(new Date().toISOString(), 'oss updateHGInfoList')
   } catch (error) {
     errorLog((error as Error).message)
     console.log('put error', error);
