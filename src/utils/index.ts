@@ -113,7 +113,8 @@ export const getRatioAvg = (str: string, isNegative: boolean) => {
     count = -count;
   }
   if (count === 0) return '0';
-  return count.toFixed(2);
+  // 去除末尾的0和小数点
+  return count.toString().replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.$/, '');
 };
 
 /**
