@@ -2,7 +2,6 @@ import { server } from './server.js';
 import { GlobalOptions } from '../type/index.js';
 import { footballState, getSinInfoList } from '../store/football.js';
 
-
 const op = {
   JCPoint: 0.12,
   HGPoint: 0.023,
@@ -11,22 +10,21 @@ const op = {
   JCPointChuan: 0,
 };
 
-
-
 server.post('/api/water/getFootballData', (req, res, next) => {
-  const body = req.body
+  const body = req.body;
   const op: GlobalOptions = {
-    "JCPointSin": parseFloat(body.JCPointSin || 0.12),
-    "JCPointChuan": parseFloat(body.JCPointChuan || 0.13),
-    "HGPoint": parseFloat(body.HGPoint || 0.023),
-    "JCBet": parseFloat(body.JCTzAmt || "10000"),
+    JCPointSin: parseFloat(body.JCPointSin || 0.12),
+    JCPointChuan: parseFloat(body.JCPointChuan || 0.13),
+    HGPoint: parseFloat(body.HGPoint || 0.023),
+    JCBet: parseFloat(body.JCTzAmt || '10000'),
     // "scope": "周三",
     // "outMatch": [],
     // "inMatch": []
-  }
-  const JCInfos = footballState.JCInfoList
-  const HGInfos = footballState.HGInfoList
-  const sinData = getSinInfoList(op, JCInfos, HGInfos)
+  };
+  const scope = body?.scope || '';
+  const JCInfos = footballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
+  const HGInfos = footballState.HGInfoList;
+  const sinData = getSinInfoList(op, JCInfos, HGInfos);
 
   res.send({
     success: true,
