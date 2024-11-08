@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "httpFromWeb": "npm run buildServer && tsx ./src/main/httpFromWeb.ts",
-    "httpFromWebPm2": "npm run buildServer && pm2  start ./server/main/httpFromOss.js",
+    "http": "npm run buildServer && pm2  start ./server/main/httpFromOss.js",
     "build": "vite build && npm run buildServer",
     "buildServer": "tsc --project tsconfig.json",
     "preview": "vite preview"
