@@ -542,6 +542,7 @@ server.get('/api/notices/findall', (req, res, next) => {
   });
   next();
 });
+
 server.get('/api/jcmatch/version', (req, res, next) => {
   res.send({ success: true, value: '1.0.9057' });
   next();

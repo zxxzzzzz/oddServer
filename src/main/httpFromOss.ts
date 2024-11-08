@@ -3,9 +3,9 @@ import '../http/index.js';
 
 (() => {
   setInterval(async () => {
-    updateFootballStateFromOss({ isInternal: false });
+    updateFootballStateFromOss({ isInternal: true });
     // await updateJCInfoList();
     // await updateHGInfoList({ limitMatchCount: 5 });
     // await updateToOss()
-  }, 10000);
+  }, 5000);
 })();
