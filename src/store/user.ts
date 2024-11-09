@@ -50,6 +50,14 @@ export async function login(username: string, password: string) {
     return user;
   }
 }
+export async function logout(sessionId:string) {
+  const user = await getAccountBySessionId(sessionId);
+  if (user) {
+    user.pcsessionid = '';
+    await uploadUserToOss();
+    return user;
+  }
+}
 
 /**更新足球数据到web */
 export const uploadUserToOss = toAsyncTimeFunction(async function uploadFootballStateToOss() {
