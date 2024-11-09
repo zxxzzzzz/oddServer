@@ -10,7 +10,7 @@ server.post('/api/water/getFootballData', async (req, res) => {
   const cookieObj = cookie.parse(req.header('cookie'));
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
-    res.send(400, {
+    res.send(405, {
       success: false,
       error: '请重新登录',
     });
