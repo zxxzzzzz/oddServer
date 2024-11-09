@@ -1,4 +1,4 @@
-import { getAccountBySessionId, login, updateAccountBySessionId } from '../store/user.js';
+import { getAccountBySessionId, login, logout, updateAccountBySessionId } from '../store/user.js';
 import { server } from './server.js';
 import { pickBy } from '../utils/lodash.js';
 import * as cookie from 'cookie';
@@ -543,6 +543,12 @@ server.get('/api/notices/findall', (req, res, next) => {
 server.get('/api/jcmatch/version', (req, res, next) => {
   res.send({ success: true, value: '1.0.9057' });
   next();
+});
+
+server.post('/api/users/logout', async (req, res) => {
+  const cookieObj = cookie.parse(req.header('cookie'));
+  await logout(cookieObj?.session_id || '')
+  res.send({ success: true, message: '1.0.9057' });
 });
 
 server.put('/api/userConfig/update/:uuid', async (req, res) => {

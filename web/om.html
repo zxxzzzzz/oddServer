@@ -82,11 +82,13 @@
       document.querySelector('#content').innerHTML = data.data?.state === 'running' ? '数据服务已经在运行' : '数据服务已经停止'
     }, 1000 * 60);
   }, 1000 * 60))
-  document.querySelector('#checkHg').addEventListener('click', async () => {
+
+  document.querySelector('#checkHg').addEventListener('click', debounce(async () => {
+    document.querySelector('#content').innerHTML = '正在测试中'
     const res = await fetch('/api/om/hgState')
     const data = await res.json()
     document.querySelector('#content').innerHTML = data.data?.canConnect ? '皇冠可连接' : '皇冠不可连接，请切换代理'
-  })
+  }))
 </script>
 
 </html>

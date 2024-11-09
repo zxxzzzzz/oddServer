@@ -1,7 +1,6 @@
-import { writeFileSync, existsSync, readFileSync } from 'fs';
 import { GlobalOptions, GoalLine, HGInfo, JCInfo, Result, SinInfoData } from '../type/index.js';
 import { getCoefficient, getGoalLineRuleList } from './goalLineRule.js';
-import { solveFourVariableLinearEquations, solveThreeVariableLinearEquations } from './lodash.js';
+import { solveFourVariableLinearEquations } from './lodash.js';
 export * from './lodash.js';
 export * from './goalLineRule.js';
 

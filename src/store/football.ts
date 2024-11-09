@@ -13,7 +13,7 @@ import {
   uniqBy,
   warnLog,
 } from '../utils/index.js';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { delay } from '../api/utils.js';
 import { getOssClient } from '../api/oss.js';
 import stringify from 'json-stringify-pretty-compact';
