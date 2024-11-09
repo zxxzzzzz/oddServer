@@ -11,8 +11,8 @@ export function getOssClient(op: { isInternal: boolean }) {
     accessKeyId: 'LTAI5tNpSy9xc' + 'TEcAK7M7Uxu',
     accessKeySecret: 'xJw1QUVCmOs' + 'DT5ZHqJgMssUZTtalqo',
     bucket: 'footballc',
-    internal: false,
+    internal: op.isInternal,
+    
   });
   return ossClient
-
 }

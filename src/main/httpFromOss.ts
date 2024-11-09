@@ -3,7 +3,9 @@ import '../http/index.js';
 
 (() => {
   setInterval(async () => {
-    updateFootballStateFromOss({ isInternal: true });
+    try {
+      await updateFootballStateFromOss({ isInternal: false });
+    } catch (error) {}
     // await updateJCInfoList();
     // await updateHGInfoList({ limitMatchCount: 5 });
     // await updateToOss()

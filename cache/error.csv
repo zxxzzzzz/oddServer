@@ -4,3 +4,21 @@ date, description
 2024-11-08T08:37:29.453Z, undefined
 2024-11-08T08:37:30.455Z, undefined
 2024-11-08T08:37:31.395Z, undefined
+2024-11-08T14:50:01.220Z, socket hang up, PUT http://footballc.oss-cn-hangzhou.aliyuncs.com/footballState.json -1 (connected: true, keepalive socket: false, agent status: {"createSocketCount":2,"createSocketErrorCount":0,"closeSocketCount":0,"errorSocketCount":0,"timeoutSocketCount":0,"requestCount":1,"freeSockets":{"footballc.oss-cn-hangzhou.aliyuncs.com:80:":1},"sockets":{"footballc.oss-cn-hangzhou.aliyuncs.com:80:":1},"requests":{}}, socketHandledRequests: 1, socketHandledResponses: 0)
+headers: {}
+2024-11-08T14:56:35.514Z, terminated
+2024-11-08T18:06:06.872Z, getaddrinfo ENOTFOUND footballc.oss-cn-hangzhou.aliyuncs.com, PUT http://footballc.oss-cn-hangzhou.aliyuncs.com/footballState.json -1 (connected: false, keepalive socket: false, agent status: {"createSocketCount":2,"createSocketErrorCount":0,"closeSocketCount":0,"errorSocketCount":0,"timeoutSocketCount":1,"requestCount":23,"freeSockets":{},"sockets":{"footballc.oss-cn-hangzhou.aliyuncs.com:80:":1},"requests":{}}, socketHandledRequests: 1, socketHandledResponses: 0)
+headers: {}
+2024-11-08T18:06:07.129Z, Response timeout for 60000ms, please increase the timeout, see more details at https://github.com/ali-sdk/ali-oss#responsetimeouterror
+2024-11-08T18:06:07.436Z, read ECONNRESET, GET http://footballc.oss-cn-hangzhou.aliyuncs.com/footballState.json -1 (connected: true, keepalive socket: false, agent status: {"createSocketCount":3,"createSocketErrorCount":0,"closeSocketCount":2,"errorSocketCount":0,"timeoutSocketCount":1,"requestCount":199,"freeSockets":{},"sockets":{"footballc.oss-cn-hangzhou.aliyuncs.com:80:":1},"requests":{}}, socketHandledRequests: 1, socketHandledResponses: 0)
+headers: {}
+2024-11-09T01:49:00.776Z, terminated
+2024-11-09T01:49:01.031Z, terminated
+2024-11-09T01:49:01.036Z, terminated
+2024-11-09T01:49:01.043Z, Connect timeout for 60000ms, please increase the timeout or reduce the partSize, see more details at https://github.com/ali-sdk/ali-oss#connectiontimeouterror
+2024-11-09T01:49:01.053Z, Response timeout for 60000ms, please increase the timeout, see more details at https://github.com/ali-sdk/ali-oss#responsetimeouterror
+2024-11-09T01:49:01.105Z, getaddrinfo ENOTFOUND footballc.oss-cn-hangzhou.aliyuncs.com, GET http://footballc.oss-cn-hangzhou.aliyuncs.com/footballState.json -1 (connected: false, keepalive socket: false, agent status: {"createSocketCount":5,"createSocketErrorCount":0,"closeSocketCount":4,"errorSocketCount":0,"timeoutSocketCount":2,"requestCount":200,"freeSockets":{},"sockets":{"footballc.oss-cn-hangzhou.aliyuncs.com:80:":1},"requests":{}}, socketHandledRequests: 1, socketHandledResponses: 0)
+headers: {}
+2024-11-09T02:46:52.175Z, terminated
+2024-11-09T03:56:37.254Z, terminated
+2024-11-09T04:57:38.585Z, terminated

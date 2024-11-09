@@ -1,6 +1,6 @@
 import { toAsyncTimeFunction } from '../utils/lodash.js';
 import { cuFetch } from './request.js';
-import { objToFormData, obj2Str } from './utils.js';
+import { objToFormData } from './utils.js';
 import Convert from 'xml-js';
 
 export const loginByAccount = toAsyncTimeFunction(async function (username: string, password: string, url: string) {

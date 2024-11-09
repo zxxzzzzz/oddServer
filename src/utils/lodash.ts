@@ -1,6 +1,7 @@
 import { existsSync, writeFileSync } from 'fs';
 import path from 'path';
 import { delay } from '../api/utils.js';
+import dayjs from 'dayjs';
 
 export function range(start: number, end?: number, step: number = 1): number[] {
   if (end === undefined) {
@@ -106,15 +107,16 @@ export function minBy<T>(array: T[], iteratee: (value: T) => number | string): T
 /**记录promise函数执行时间的包装函数 */
 export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, tag: string, desc: string | ((args: Parameters<T>, result: Awaited<ReturnType<T>>) => string) = ''): T {
   return async function (...args: Parameters<T>): Promise<ReturnType<T>> {
+    const filePath = path.resolve(import.meta.dirname, `../../cache/requestPerformance-${dayjs().format('YYYY-MM-DD')}.csv`) 
     const start = performance.now(); // 记录开始时间
     const result = await fn(...args); // 调用原函数
     const end = performance.now(); // 记录结束时间
     const duration = end - start; // 计算执行时间
-    if (!existsSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'))) {
-      writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `date, tag, duration, description\n`, { encoding: 'utf-8' });
+    if (!existsSync(filePath)) {
+      writeFileSync(filePath, `date, tag, duration, description\n`, { encoding: 'utf-8' });
     }
     const description = typeof desc === 'string' ? desc : desc(args, result)
-    writeFileSync(path.resolve(import.meta.dirname, '../../cache/requestPerformance.csv'), `${new Date().toISOString()}, ${tag}, ${duration}, ${description}\n`, {
+    writeFileSync(filePath, `${new Date().toISOString()}, ${tag}, ${duration}, ${description}\n`, {
       flag: 'a',
       encoding: 'utf-8',
     });
@@ -270,7 +272,6 @@ export function everyWithTolerance<T>(
       }
     }
   }
-
   return true;
 }
 

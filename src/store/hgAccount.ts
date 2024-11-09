@@ -15,21 +15,49 @@ let GlobalTokenList: { uid: string; ver: string; url: string; lastUseTimestamp: 
 let isLogging = false;
 
 /**获取存活的登录地址 */
-const getAliveUrl = async () => {
-  var hosts = ['hga035.com', '123.108.119.118'];
-  const resList = await Promise.all(
-    hosts.map(async (host) => {
-      let res = await ping.promise.probe(host);
-      return res;
-    })
-  );
-  const minRes = minBy(
-    resList.filter((res) => res.alive),
-    (item) => item.avg
-  );
-  const url = 'https://' + minRes!.inputHost + '/';
-  console.log('fast', url);
-  return url;
+export const getAliveUrl = async () => {
+  const urlList = ['https://hga035.com/', 'https://123.108.119.118/'];
+  const pList = urlList.map(async (url) => {
+    const start = new Date().valueOf();
+    try {
+      await fetch(url, {
+        headers: {
+          accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+          'accept-language': 'zh-CN,zh;q=0.9',
+          'cache-control': 'max-age=0',
+          'content-type': 'application/x-www-form-urlencoded',
+          'sec-ch-ua': '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"Windows"',
+          'sec-fetch-dest': 'document',
+          'sec-fetch-mode': 'navigate',
+          'sec-fetch-site': 'same-origin',
+          'sec-fetch-user': '?1',
+          'upgrade-insecure-requests': '1',
+          cookie: 'loadBB=WQ==; CookieChk=WQ; protocolstr=aHR0cHM=; cu=Tg==; cuipv6=Tg==; ipv6=Tg==',
+          Referer: 'https://hga035.com/',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+        },
+        body: 'detection=Y&sub_doubleLogin=',
+        method: 'POST',
+      });
+    } catch (error) {
+      return {
+        url,
+        networkQuality: Infinity,
+      };
+    }
+    const end = new Date().valueOf();
+    return {
+      url,
+      networkQuality: end - start,
+    };
+  });
+  const resList = await Promise.all(pList);
+  const item = minBy(resList, (item) => item.networkQuality);
+  if (!item) return void 0;
+  return item.url;
 };
 
 /**
@@ -45,6 +73,7 @@ export const getToken = toFifoFunction(
     if (!GlobalTokenList?.length) {
       isLogging = true;
       const aliveUrl = await getAliveUrl();
+      if (!aliveUrl) throw Error('hg服务器连接不上');
       try {
         const noLoginAccountList = GlobalAccountList.filter((account) =>
           GlobalTokenList.every((token) => token.account !== account.account)
@@ -66,7 +95,7 @@ export const getToken = toFifoFunction(
       }),
       (el) => el.account
     );
-    if (!GlobalTokenList?.length) throw Error('store account 无法登录');
+    if (!GlobalTokenList?.length) throw Error('hg账号 无法登录');
     const lastUseToken = GlobalTokenList[0];
     // 加个时间偏移
     const offset = Math.floor(Math.random() * op.limitIdleAge);
@@ -89,6 +118,7 @@ export const reLogin = async (uid: string) => {
   const account = GlobalAccountList.find((ac) => ac.account === matchItem.account);
   if (!account) return;
   const aliveUrl = await getAliveUrl();
+  if (!aliveUrl) throw new Error('hg 服务器连接不上');
   let i = 0;
   while (i < 3) {
     try {

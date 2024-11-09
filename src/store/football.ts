@@ -1,7 +1,18 @@
 import { getHGLeagueListAllByToken, getHGGameListByTokenAndLeagueId, getJCInfoList, getHGGameMore } from '../api/football.js';
 import { getToken } from './hgAccount.js';
 import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type/index.js';
-import { errorLog, getLeagueSameWeight, getRatioAvg, getSinData, getTeamSameWeight, maxBy, strFixed, uniqBy, warnLog } from '../utils/index.js';
+import {
+  errorLog,
+  getLeagueSameWeight,
+  getRatioAvg,
+  getSinData,
+  getTeamSameWeight,
+  maxBy,
+  strFixed,
+  toAsyncTimeFunction,
+  uniqBy,
+  warnLog,
+} from '../utils/index.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { delay } from '../api/utils.js';
 import { getOssClient } from '../api/oss.js';
@@ -69,7 +80,7 @@ const updateJCInfoList = async () => {
         };
       });
     } catch (error) {
-      errorLog((error as Error).message)
+      errorLog((error as Error).message);
       footballState.JCInfoListUpdateTime = ZERO_TIME;
     }
   }
@@ -92,7 +103,7 @@ const updateAllHGLeagueList = async (op: { maxAge: number } = { maxAge: 1000 * 6
       footballState.HGLeagueListUpdateTime = new Date().toISOString();
       footballState.HGLeagueList = HGleagueItemList;
     } catch (error) {
-      errorLog((error as Error).message)
+      errorLog((error as Error).message);
       footballState.HGLeagueListUpdateTime = ZERO_TIME;
     }
   }
@@ -177,7 +188,7 @@ const updateHGGameInfoList = async (op: { limitLeagueCount: number; maxAge: numb
         // 按照 更新时间先后排序。保证后续更新，先更新 时间较早的数据
         .toSorted((v1, v2) => new Date(v1.updateTime).valueOf() - new Date(v2.updateTime).valueOf());
     } catch (error) {
-      errorLog((error as Error).message)
+      errorLog((error as Error).message);
       footballState.HGGameInfoList = footballState.HGGameInfoList.map((HGGame) => {
         if (HGGame.HGLeagueId === waitLeagueItem.HGLeagueId) return { ...HGGame, updateTime: ZERO_TIME };
         return {
@@ -357,7 +368,7 @@ const updateHGInfoList = async (op: { limitMatchCount: number }) => {
       }
       // 删除toUpdateHGInfoList里已经更新完毕的数据
     } catch (error) {
-      errorLog((error as Error).message)
+      errorLog((error as Error).message);
       // 更新失败 重置回需要更新的状态
       const finedItem = footballState.waitUpdateHGInfoList.find((waitItem) => waitItem.JCMatchId === waitHGMatch.JCMatchId);
       if (finedItem) {
@@ -382,37 +393,27 @@ export function getSinInfoList(op: GlobalOptions, JCInfoList: JCInfo[], HGInfoLi
   return sinInfoList;
 }
 
-export async function updateFootballStateToOss(op: { isInternal: boolean }) {
+/**更新足球数据到web */
+export const uploadFootballStateToOss = toAsyncTimeFunction(async function uploadFootballStateToOss(op: { isInternal: boolean }) {
   const OSS_FILE_NAME = 'footballState.json';
-  try {
-    const ossClient = getOssClient(op);
-    await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(footballState)));
-    // console.log(new Date().toISOString(), 'oss updateHGInfoList')
-  } catch (error) {
-    errorLog((error as Error).message)
-    console.log('put error', error);
-  }
-}
+  const ossClient = getOssClient(op);
+  await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(footballState)));
+}, 'uploadFootballStateToOss');
 
-export async function updateFootballStateFromOss(op: { isInternal: boolean }) {
+export const updateFootballStateFromOss = toAsyncTimeFunction(async function updateFootballStateFromOss(op: { isInternal: boolean }) {
   const OSS_FILE_NAME = 'footballState.json';
-  try {
-    const ossClient = getOssClient(op);
-    const res = await ossClient.get(OSS_FILE_NAME);
-    const content = res.content;
-    if (!content) return;
-    const ossFootballState = JSON.parse(content);
-    Object.entries(ossFootballState).forEach(([k, v]) => {
-      // @ts-expect-error
-      footballState[k] = v;
-    });
-    console.log(new Date().toISOString(), 'update from oss');
-  } catch (error) {
-    errorLog((error as Error).message)
-    console.log('put error', error);
-  }
-}
+  const ossClient = getOssClient(op);
+  const res = await ossClient.get(OSS_FILE_NAME);
+  const content = res.content;
+  if (!content) throw Error('oss里没有数据')
+  const ossFootballState = JSON.parse(content);
+  Object.entries(ossFootballState).forEach(([k, v]) => {
+    // @ts-expect-error
+    footballState[k] = v;
+  });
+}, 'updateFootballStateFromOss');
 
+/**从web获取足球数据 */
 export async function updateFootballStateFromWeb() {
   if (existsSync('./cache/footballState.json') && footballState.JCInfoListUpdateTime === ZERO_TIME) {
     const text = readFileSync('./cache/footballState.json', { encoding: 'utf-8' });

@@ -1,11 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
 </head>
+
 <body>
-  
+  <div>
+    <a style="margin-bottom: 1rem;display: block;" target="_blank" href="/">去往数据网站</a>
+    <div style="margin-bottom: 1rem;">当发现数据很久不更新时，可以检测下皇冠服务是否可连接，重启下数据服务</div>
+    <button id="start">开启/重启服务</button>
+    <button id="checkHg">查看皇冠网站是否可连接</button>
+    <div class="margin-top:1rem" id="content"></div>
+  </div>
 </body>
+<script>
+
+  /**
+ * 防抖函数
+ * 
+ * @param {Function} func - 要防抖的函数
+ * @param {number} wait - 延迟时间（毫秒）
+ * @param {boolean} immediate - 是否立即执行第一次调用
+ * @returns {Function} - 防抖后的函数
+ */
+  function debounce(func, wait = 5000, immediate = true) {
+    let timeoutId;
+
+    return function (...args) {
+      const context = this;
+
+      // 清除之前的定时器
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      // 如果设置了 immediate，且这是第一次调用
+      if (immediate && !timeoutId) {
+        func.apply(context, args);
+      }
+
+      // 设置新的定时器
+      timeoutId = setTimeout(() => {
+        if (!immediate) {
+          func.apply(context, args);
+        }
+        timeoutId = null;
+      }, wait);
+    };
+  }
+
+  async function getDataServerState(params) {
+    const res = await fetch('/api/om/state')
+    const data = await res.json()
+    return data
+  }
+  
+  setTimeout(async () => {
+    const data = await getDataServerState()
+    document.querySelector('#content').innerHTML = data.data?.state === 'running' ? '数据服务已经在运行' : '数据服务已经停止'
+  }, 1000);
+
+
+  document.querySelector('#start').addEventListener('click', debounce(async () => {
+    document.querySelector('#content').innerHTML = '正在启动，请等待1分钟左右'
+    await fetch('/api/om/start')
+    setTimeout(async () => {
+      const data = await getDataServerState()
+      document.querySelector('#content').innerHTML = data.data?.state === 'running' ? '数据服务已经在运行' : '数据服务已经停止'
+    }, 1000 * 60);
+  }, 1000 * 60))
+  document.querySelector('#checkHg').addEventListener('click', async () => {
+    const res = await fetch('/api/om/hgState')
+    const data = await res.json()
+    document.querySelector('#content').innerHTML = data.data?.canConnect ? '皇冠可连接' : '皇冠不可连接，请切换代理'
+  })
+</script>
+
 </html>
