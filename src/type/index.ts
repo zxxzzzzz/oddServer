@@ -2507,8 +2507,7 @@ const gameMore = {
               '\r\n        1-0#2-0#2-1#3-0#3-1#3-2#4-0#4-1#4-2#4-3#5-0#5-1#5-2#0-1#0-2#1-2#0-3#1-3#2-3#0-4#1-4#2-4#3-4#0-5#1-5#2-5#0-0#1-1#2-2#3-3#4-4#5-3#5-4#6-1#6-2#3-5#4-5#1-6#2-6',
           },
           hpd_rtypes: {
-            _text:
-              '\r\n        1-0#2-0#2-1#3-0#3-1#3-2#4-0#4-1#0-1#0-2#1-2#0-3#1-3#2-3#0-4#1-4#0-0#1-1#2-2#3-3#4-2#5-0#2-4#0-5',
+            _text: '\r\n        1-0#2-0#2-1#3-0#3-1#3-2#4-0#4-1#0-1#0-2#1-2#0-3#1-3#2-3#0-4#1-4#0-0#1-1#2-2#3-3#4-2#5-0#2-4#0-5',
           },
           pd_strong: { _text: 'N' },
           hpd_strong: { _text: 'N' },
@@ -4412,7 +4411,7 @@ export type GoalLineRule = {
   hgResult1: Result;
   hgGoalLine2: GoalLine;
   hgResult2: Result;
-}
+};
 export type SinInfoData = {
   JCgoalLine1: GoalLine;
   JCgoalLine2: GoalLine;
@@ -4443,7 +4442,7 @@ export type SinInfoData = {
   ret: `${number}%`;
   profit: number;
   profitRate: `${number}%`;
-}
+};
 
 export type SinInfo = {
   matchId: string;
@@ -4451,7 +4450,6 @@ export type SinInfo = {
   HGgoalLine: GoalLine;
   data: SinInfoData;
 };
-
 
 export enum BETTING_RESULT {
   win = 'win',
@@ -4467,7 +4465,6 @@ export enum BETTING_RESULT {
   /**不能判断 */
   unableDetermine = 'unableDetermine',
 }
-
 
 export type User = {
   password: string;
@@ -4517,4 +4514,396 @@ export type User = {
   bqcSwitch: number;
   qbSwitch: number;
   otherSwitch: number;
+  planList: Plan[];
+};
+
+type Plan = {
+  jcMatch1: {
+    matchId: '1027801';
+    leagueAbbName: '西甲';
+    leagueAllName: '西班牙甲级联赛';
+    leagueCode: 'SFL';
+    matchNumStr: '周六001';
+    matchDate: '2024-11-09';
+    matchTime: '21:00:00';
+    matchTimeFormat: '2024-11-09 21:00:00';
+    homeTeamAbbName: '皇马';
+    homeTeamAllName: '皇家马德里';
+    awayTeamAbbName: '奥萨苏纳';
+    awayTeamAllName: '奥萨苏纳';
+    isSingle_had: '0';
+    isSingle_hhad: '0';
+    had_a: '11.00';
+    had_h: '1.14';
+    had_d: '6.20';
+    hhad_a: '2.09';
+    hhad_h: '2.50';
+    hhad_d: '4.00';
+    hhad_goalLine: '-2';
+    hafu_aa: '18.00';
+    hafu_ad: '24.00';
+    hafu_ah: '24.00';
+    hafu_da: '24.00';
+    hafu_dd: '10.50';
+    hafu_dh: '4.15';
+    hafu_ha: '80.00';
+    hafu_hd: '24.00';
+    hafu_hh: '1.58';
+    updateTime: null;
+    createdAt: '2024-11-08T03:01:30.000Z';
+    updatedAt: '2024-11-09T12:49:00.000Z';
+    jcodds: [
+      {
+        type: '胜平负';
+        h: '1.14';
+        d: '6.20';
+        a: '11.00';
+        goalLine: '-';
+      },
+      {
+        type: '让>> -2';
+        a: '2.09';
+        d: '4.00';
+        h: '2.50';
+        goalLine: '-2';
+      },
+    ];
+    maxProfitRate: '7.91%';
+  };
+  hgMatch1: {
+    matchId: '1027801';
+    leagueAbbName: '西班牙甲组联赛';
+    leagueAllName: null;
+    leagueCode: null;
+    matchNumStr: null;
+    matchDate: null;
+    matchTime: null;
+    matchTimeFormat: '11-09 09:00a';
+    homeTeamAbbName: '皇家马德里';
+    homeTeamAllName: null;
+    awayTeamAbbName: '奥萨苏纳';
+    awayTeamAllName: null;
+    had_a: '10.000';
+    had_h: '1.280';
+    had_d: '6.300';
+    hhad_a1: '1.86';
+    hhad_h1: '2.03';
+    hhad_d1: '-';
+    hhad_goalLine1: '-1.75';
+    hhad_a2: '2.08';
+    hhad_h2: '1.81';
+    hhad_d2: '-';
+    hhad_goalLine2: '-1.5';
+    hhad_a3: '1.62';
+    hhad_h3: '2.36';
+    hhad_d3: '-';
+    hhad_goalLine3: '-2';
+    hhad_a4: '2.4';
+    hhad_h4: '1.6';
+    hhad_d4: '-';
+    hhad_goalLine4: '-1.25';
+    hhad_a5: '-';
+    hhad_h5: '-';
+    hhad_d5: '-';
+    hhad_goalLine5: '-';
+    hhad_a6: '-';
+    hhad_h6: '-';
+    hhad_d6: '-';
+    hhad_goalLine6: '-';
+    wm_h1: '3.800';
+    wm_h2: '4.000';
+    wm_h3: '5.100';
+    wm_hov: '5.000';
+    wm_a1: '11.500';
+    wm_a2: '36.000';
+    wm_a3: '111.000';
+    wm_aov: '251.000';
+    wm_0: '23.000';
+    wm_n: '6.700';
+    hhafu_goalLine1: '-0.75';
+    hhafu_h1: '2.03';
+    hhafu_a1: '1.86';
+    hhafu_goalLine2: '-0.5';
+    hhafu_h2: '1.73';
+    hhafu_a2: '2.19';
+    hhafu_goalLine3: '-';
+    hhafu_h3: '-';
+    hhafu_a3: '-';
+    hhafu_goalLine4: '-';
+    hhafu_h4: '-';
+    hhafu_a4: '-';
+    updateTime: null;
+    createdAt: '2024-11-08T03:01:35.000Z';
+    updatedAt: '2024-11-09T12:49:02.000Z';
+    hgodds: [
+      {
+        type: '独赢';
+        a: '10.000';
+        h: '1.280';
+        d: '6.300';
+        goalLine: '-';
+      },
+      {
+        type: '让>>  -1.75';
+        a: '1.86';
+        h: '2.03';
+        goalLine: '-1.75';
+      },
+      {
+        type: '让>>  -1.5';
+        a: '2.08';
+        h: '1.81';
+        goalLine: '-1.5';
+      },
+      {
+        type: '让>>  -2';
+        a: '1.62';
+        h: '2.36';
+        goalLine: '-2';
+      },
+      {
+        type: '让>>  -1.25';
+        a: '2.4';
+        h: '1.6';
+        goalLine: '-1.25';
+      },
+      {
+        type: '净>> 1球';
+        h: '3.800';
+        a: '11.500';
+        goalLine: 'J1';
+      },
+      {
+        type: '净>> 2球';
+        h: '4.000';
+        a: '36.000';
+        goalLine: 'J2';
+      },
+      {
+        type: '净>> 3球';
+        h: '5.100';
+        a: '111.000';
+        goalLine: 'J3';
+      },
+    ];
+  };
+  jcMatch2: {
+    matchId: '1027801';
+    leagueAbbName: '西甲';
+    leagueAllName: '西班牙甲级联赛';
+    leagueCode: 'SFL';
+    matchNumStr: '周六001';
+    matchDate: '2024-11-09';
+    matchTime: '21:00:00';
+    matchTimeFormat: '2024-11-09 21:00:00';
+    homeTeamAbbName: '皇马';
+    homeTeamAllName: '皇家马德里';
+    awayTeamAbbName: '奥萨苏纳';
+    awayTeamAllName: '奥萨苏纳';
+    isSingle_had: '0';
+    isSingle_hhad: '0';
+    had_a: '11.00';
+    had_h: '1.14';
+    had_d: '6.20';
+    hhad_a: '2.09';
+    hhad_h: '2.50';
+    hhad_d: '4.00';
+    hhad_goalLine: '-2';
+    hafu_aa: '18.00';
+    hafu_ad: '24.00';
+    hafu_ah: '24.00';
+    hafu_da: '24.00';
+    hafu_dd: '10.50';
+    hafu_dh: '4.15';
+    hafu_ha: '80.00';
+    hafu_hd: '24.00';
+    hafu_hh: '1.58';
+    updateTime: null;
+    createdAt: '2024-11-08T03:01:30.000Z';
+    updatedAt: '2024-11-09T12:48:30.000Z';
+    jcodds: [
+      {
+        type: '胜平负';
+        h: '1.14';
+        d: '6.20';
+        a: '11.00';
+        goalLine: '-';
+      },
+      {
+        type: '让>> -2';
+        a: '2.09';
+        d: '4.00';
+        h: '2.50';
+        goalLine: '-2';
+      },
+    ];
+    maxProfitRate: '7.91%';
+  };
+  hgMatch2: {
+    matchId: '1027801';
+    leagueAbbName: '西班牙甲组联赛';
+    leagueAllName: null;
+    leagueCode: null;
+    matchNumStr: null;
+    matchDate: null;
+    matchTime: null;
+    matchTimeFormat: '11-09 09:00a';
+    homeTeamAbbName: '皇家马德里';
+    homeTeamAllName: null;
+    awayTeamAbbName: '奥萨苏纳';
+    awayTeamAllName: null;
+    had_a: '10.000';
+    had_h: '1.280';
+    had_d: '6.300';
+    hhad_a1: '1.86';
+    hhad_h1: '2.03';
+    hhad_d1: '-';
+    hhad_goalLine1: '-1.75';
+    hhad_a2: '2.08';
+    hhad_h2: '1.81';
+    hhad_d2: '-';
+    hhad_goalLine2: '-1.5';
+    hhad_a3: '1.62';
+    hhad_h3: '2.36';
+    hhad_d3: '-';
+    hhad_goalLine3: '-2';
+    hhad_a4: '2.42';
+    hhad_h4: '1.6';
+    hhad_d4: '-';
+    hhad_goalLine4: '-1.25';
+    hhad_a5: '-';
+    hhad_h5: '-';
+    hhad_d5: '-';
+    hhad_goalLine5: '-';
+    hhad_a6: '-';
+    hhad_h6: '-';
+    hhad_d6: '-';
+    hhad_goalLine6: '-';
+    wm_h1: '3.800';
+    wm_h2: '4.000';
+    wm_h3: '5.100';
+    wm_hov: '5.000';
+    wm_a1: '11.500';
+    wm_a2: '36.000';
+    wm_a3: '111.000';
+    wm_aov: '251.000';
+    wm_0: '23.000';
+    wm_n: '6.700';
+    hhafu_goalLine1: '-0.75';
+    hhafu_h1: '1.99';
+    hhafu_a1: '1.9';
+    hhafu_goalLine2: '-0.5';
+    hhafu_h2: '1.7';
+    hhafu_a2: '2.23';
+    hhafu_goalLine3: '-';
+    hhafu_h3: '-';
+    hhafu_a3: '-';
+    hhafu_goalLine4: '-';
+    hhafu_h4: '-';
+    hhafu_a4: '-';
+    updateTime: null;
+    createdAt: '2024-11-08T03:01:35.000Z';
+    updatedAt: '2024-11-09T12:48:34.000Z';
+    hgodds: [
+      {
+        type: '独赢';
+        a: '10.000';
+        h: '1.280';
+        d: '6.300';
+        goalLine: '-';
+      },
+      {
+        type: '让>>  -1.75';
+        a: '1.86';
+        h: '2.03';
+        goalLine: '-1.75';
+      },
+      {
+        type: '让>>  -1.5';
+        a: '2.08';
+        h: '1.81';
+        goalLine: '-1.5';
+      },
+      {
+        type: '让>>  -2';
+        a: '1.62';
+        h: '2.36';
+        goalLine: '-2';
+      },
+      {
+        type: '让>>  -1.25';
+        a: '2.42';
+        h: '1.6';
+        goalLine: '-1.25';
+      },
+      {
+        type: '净>> 1球';
+        h: '3.800';
+        a: '11.500';
+        goalLine: 'J1';
+      },
+      {
+        type: '净>> 2球';
+        h: '4.000';
+        a: '36.000';
+        goalLine: 'J2';
+      },
+      {
+        type: '净>> 3球';
+        h: '5.100';
+        a: '111.000';
+        goalLine: 'J3';
+      },
+    ];
+  };
+  JCTzAmt: number;
+  JCPoint: number;
+  HGPoint: number;
+  method1: 'WL';
+  method2: 'WL';
+  JCgoalLine1: GoalLine;
+  JCgoalLine2: GoalLine;
+  JCTouz1: GoalLine;
+  JCTouz2: GoalLine;
+  HGgoalLine1_1: GoalLine;
+  HGgoalLine1_2: GoalLine;
+  HGgoalLine2_1: GoalLine;
+  HGgoalLine2_2: GoalLine;
+  HGTouz1_1: Result;
+  HGTouz1_2: Result;
+  HGTouz2_1: Result;
+  HGTouz2_2: Result;
+  HGTzOdd1_1: number;
+  HGTzOdd1_2: number;
+  HGTzOdd2_1: number;
+  HGTzOdd2_2: number;
+  JcProfit: number;
+  HgProfit1: number;
+  HgProfit2: number;
+  JCAmount: number;
+  HGAmount1_1: number;
+  HGAmount1_2: number;
+  HGAmount2_1: number;
+  HGAmount2_2: number;
+  yield: 'Sin';
+  planId: string;
+  planName1: string;
+  planName2: string;
+  HGTzAmt1_1: number;
+  HGTzAmt1_2: number;
+  HgProfit1_1: number;
+  HgProfit1_2: number;
+  matchId1: number;
+  JCTzOdd1: number;
+  JCTzOdd2: number;
+  firStar: number;
+  secStar: number;
+  flag: 'saved';
+  uuid: string;
+  ifAverg: true;
+  HGTzAmt2_1: number;
+  HGTzAmt2_2: number;
+  HgProfit2_1: number;
+  HgProfit2_2: number;
+  matchId2: string;
 };
