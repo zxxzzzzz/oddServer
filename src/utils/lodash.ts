@@ -107,7 +107,7 @@ export function minBy<T>(array: T[], iteratee: (value: T) => number | string): T
 /**记录promise函数执行时间的包装函数 */
 export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, tag: string, desc: string | ((args: Parameters<T>, result: Awaited<ReturnType<T>>) => string) = ''): T {
   return async function (...args: Parameters<T>): Promise<ReturnType<T>> {
-    const filePath = path.resolve(import.meta.dirname, `../../cache/requestPerformance-${dayjs().format('YYYY-MM-DD')}.csv`) 
+    const filePath = path.resolve(import.meta.dirname, `../../log/requestPerformance-${dayjs().format('YYYY-MM-DD')}.csv`) 
     const start = performance.now(); // 记录开始时间
     const result = await fn(...args); // 调用原函数
     const end = performance.now(); // 记录结束时间
@@ -125,19 +125,21 @@ export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, ta
 }
 
 export function warnLog(text:string) {
-  if (!existsSync(path.resolve(import.meta.dirname, '../../cache/warn.csv'))) {
-    writeFileSync(path.resolve(import.meta.dirname, '../../cache/warn.csv'), `date, description\n`, { encoding: 'utf-8' });
+  const filePath = path.resolve(import.meta.dirname, '../../log/warn.csv') 
+  if (!existsSync(filePath)) {
+    writeFileSync(filePath, `date, description\n`, { encoding: 'utf-8' });
   }
-  writeFileSync(path.resolve(import.meta.dirname, '../../cache/warn.csv'), `${new Date().toISOString()}, ${text}\n`, {
+  writeFileSync(filePath, `${new Date().toISOString()}, ${text}\n`, {
     flag: 'a',
     encoding: 'utf-8',
   });
 }
 export function errorLog(text:string) {
-  if (!existsSync(path.resolve(import.meta.dirname, '../../cache/error.csv'))) {
-    writeFileSync(path.resolve(import.meta.dirname, '../../cache/error.csv'), `date, description\n`, { encoding: 'utf-8' });
+  const filePath = path.resolve(import.meta.dirname, '../../log/error.csv')
+  if (!existsSync(filePath)) {
+    writeFileSync(filePath, `date, description\n`, { encoding: 'utf-8' });
   }
-  writeFileSync(path.resolve(import.meta.dirname, '../../cache/error.csv'), `${new Date().toISOString()}, ${text}\n`, {
+  writeFileSync(filePath, `${new Date().toISOString()}, ${text}\n`, {
     flag: 'a',
     encoding: 'utf-8',
   });

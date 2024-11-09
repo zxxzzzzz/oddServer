@@ -17,7 +17,7 @@ function getDataServerState() {
     if (tag.trim() === 'getToken' && new Date().valueOf() - new Date(date).valueOf() < 1000 * 60 * 2) return true;
   });
   const stdout = execSync('pm2 list').toString('utf-8');
-  const hasServerExist = stdout.includes('data');
+  const hasServerExist = stdout.split('\n').some((line) => line.includes('data') && line.includes('online'));
   if (hasDataLog && hasServerExist) {
     return { state: 'running' };
   }

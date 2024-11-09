@@ -57,7 +57,7 @@
     const data = await res.json()
     return data
   }
-  
+
   setTimeout(async () => {
     const data = await getDataServerState()
     document.querySelector('#content').innerHTML = data.data?.state === 'running' ? '数据服务已经在运行' : '数据服务已经停止'
@@ -66,7 +66,17 @@
 
   document.querySelector('#start').addEventListener('click', debounce(async () => {
     document.querySelector('#content').innerHTML = '正在启动，请等待1分钟左右'
-    await fetch('/api/om/start')
+    try {
+      const res = await fetch('/api/om/start')
+      const { success } = await res.json()
+      if (!success) {
+        document.querySelector('#content').innerHTML = '服务已经启动，无需在启动'
+        return
+
+      }
+    } catch (error) {
+      document.querySelector('#content').innerHTML = '启动失败'
+    }
     setTimeout(async () => {
       const data = await getDataServerState()
       document.querySelector('#content').innerHTML = data.data?.state === 'running' ? '数据服务已经在运行' : '数据服务已经停止'
