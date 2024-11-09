@@ -1,4 +1,6 @@
 import { updateFootballStateFromWeb, uploadFootballStateToOss } from '../store/football.js';
+import os from 'os';
+
 
 (async () => {
   setInterval(async () => {
@@ -6,7 +8,7 @@ import { updateFootballStateFromWeb, uploadFootballStateToOss } from '../store/f
   }, 3000);
   setInterval(async () => {
     try {
-      await uploadFootballStateToOss({ isInternal: false });
+      await uploadFootballStateToOss({ isInternal: os.type() === 'Linux' ? true :false });
     } catch (error) {}
   }, 5000);
 })();
