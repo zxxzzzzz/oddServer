@@ -2,16 +2,20 @@ import { server } from './server.js';
 import { GlobalOptions, GoalLine, Result } from '../type/index.js';
 import { GlobalFootballState, getSinInfoList } from '../store/football.js';
 import { getSinData } from '../utils/index.js';
+import { getAccountBySessionId } from '../store/user.js';
+import * as cookie from 'cookie';
 
-const op = {
-  JCPoint: 0.12,
-  HGPoint: 0.023,
-  JCBet: 10000,
-  JCPointSin: 0,
-  JCPointChuan: 0,
-};
 
-server.post('/api/water/getFootballData', (req, res, next) => {
+server.post('/api/water/getFootballData', async (req, res) => {
+  const cookieObj = cookie.parse(req.header('cookie'));
+  const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
+  if (!userInfo) {
+    res.send(400, {
+      success: false,
+      error: '请重新登录',
+    });
+    return;
+  }
   const body = req.body;
   const op: GlobalOptions = {
     JCPointSin: parseFloat(body.JCPointSin || 0.12),
@@ -321,7 +325,6 @@ server.post('/api/water/getFootballData', (req, res, next) => {
       ],
     },
   });
-  next();
 });
 
 server.post('/api/water/caculateSin', (req, res, next) => {
