@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import { existsSync, readFileSync } from 'fs';
 
 function getDataServerState() {
-  const filePath = path.resolve(import.meta.dirname, `../../cache/requestPerformance-${dayjs().format('YYYY-MM-DD')}.csv`);
+  const filePath = path.resolve(import.meta.dirname, `../../log/requestPerformance-${dayjs().format('YYYY-MM-DD')}.csv`);
   if (!existsSync(filePath)) {
     return { state: 'stop' };
   }

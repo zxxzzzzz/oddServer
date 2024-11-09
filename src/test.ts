@@ -19,7 +19,7 @@ import { spawnSync, execSync } from 'child_process';
 
 (async () => {
   const res = execSync('pm2 list', { windowsHide: true });
-  const logList = res.toString('utf-8')
+  const logList = res.toString('utf-8').split('\n')
   // console.log(stdout.toString('utf-8'));
   console.log(logList);
   // updateGoalLineRuleList();
