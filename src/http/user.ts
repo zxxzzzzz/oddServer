@@ -3,17 +3,17 @@ import { server } from './server.js';
 import { pickBy } from '../utils/lodash.js';
 import * as cookie from 'cookie';
 
-server.post('/api/users/login', (req, res, next) => {
+server.post('/api/users/login', async (req, res) => {
   const body = req.body;
   const account = body?.account;
   const password = body?.password;
-  const userInfo = login(account, password);
+  const userInfo = await login(account, password);
   if (!userInfo) {
     res.send(400, {
       success: false,
       error: '请检查输入账号',
     });
-    return;
+    return true
   }
   res.header('set-cookie', cookie.serialize('session_id', userInfo.pcsessionid, { maxAge: 60 * 60 * 24 * 3, httpOnly: true, path: '/' }));
   res.send({
@@ -45,11 +45,10 @@ server.post('/api/users/login', (req, res, next) => {
       ].includes(k)
     ),
   });
-  next();
 });
-server.get('/api/users/getme', (req, res, next) => {
+server.get('/api/users/getme', async (req, res) => {
   const cookieObj = cookie.parse(req.header('cookie'));
-  const userInfo = getAccountBySessionId(cookieObj?.session_id || '');
+  const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
     res.send(400, {
       success: false,
@@ -85,11 +84,10 @@ server.get('/api/users/getme', (req, res, next) => {
       ].includes(k)
     ),
   });
-  next();
 });
-server.get('/api/userConfig/getMyConfig', (req, res, next) => {
+server.get('/api/userConfig/getMyConfig', async (req, res) => {
   const cookieObj = cookie.parse(req.header('cookie'));
-  const userInfo = getAccountBySessionId(cookieObj?.session_id || '');
+  const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
     res.send(400, {
       success: false,
@@ -133,7 +131,6 @@ server.get('/api/userConfig/getMyConfig', (req, res, next) => {
       ].includes(k)
     ),
   });
-  next();
 });
 server.get('/api/chuanplan/findallback', (req, res, next) => {
   res.send({
@@ -548,10 +545,10 @@ server.get('/api/jcmatch/version', (req, res, next) => {
   next();
 });
 
-server.put('/api/userConfig/update/:uuid', (req, res, next) => {
+server.put('/api/userConfig/update/:uuid', async (req, res) => {
   const cookieObj = cookie.parse(req.header('cookie'));
   const body = req.body;
-  updateAccountBySessionId(cookieObj?.session_id || '', body);
+  await updateAccountBySessionId(cookieObj?.session_id || '', body);
   res.send({ success: true });
-  next();
+  return true
 });

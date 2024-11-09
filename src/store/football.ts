@@ -395,15 +395,15 @@ export function getSinInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: G
 }
 
 /**更新足球数据到web */
-export const uploadFootballStateToOss = toAsyncTimeFunction(async function uploadFootballStateToOss(op: { isInternal: boolean }) {
+export const uploadFootballStateToOss = toAsyncTimeFunction(async function uploadFootballStateToOss() {
   const OSS_FILE_NAME = 'footballState.json';
-  const ossClient = getOssClient(op);
+  const ossClient = getOssClient();
   await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(GlobalFootballState)));
 }, 'uploadFootballStateToOss');
 
-export const updateFootballStateFromOss = toAsyncTimeFunction(async function updateFootballStateFromOss(op: { isInternal: boolean }) {
+export const updateFootballStateFromOss = toAsyncTimeFunction(async function updateFootballStateFromOss() {
   const OSS_FILE_NAME = 'footballState.json';
-  const ossClient = getOssClient(op);
+  const ossClient = getOssClient();
   const res = await ossClient.get(OSS_FILE_NAME);
   const content = res.content;
   if (!content) throw Error('oss里没有数据')

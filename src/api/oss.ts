@@ -1,9 +1,10 @@
 import OSS from 'ali-oss';
+import os from 'os';
 
-let ossClient: OSS | undefined = void 0
+let ossClient: OSS | undefined = void 0;
 
-export function getOssClient(op: { isInternal: boolean }) {
-  if (ossClient) return ossClient
+export function getOssClient() {
+  if (ossClient) return ossClient;
   ossClient = new OSS({
     // yourRegion填写Bucket所在地域。以华东1（杭州）为例，Region填写为oss-cn-hangzhou。
     region: 'oss-cn-hangzhou',
@@ -11,8 +12,7 @@ export function getOssClient(op: { isInternal: boolean }) {
     accessKeyId: 'LTAI5tNpSy9xc' + 'TEcAK7M7Uxu',
     accessKeySecret: 'xJw1QUVCmOs' + 'DT5ZHqJgMssUZTtalqo',
     bucket: 'footballc',
-    internal: op.isInternal,
-    
+    internal: os.type() === 'Linux' ? true : false,
   });
-  return ossClient
+  return ossClient;
 }
