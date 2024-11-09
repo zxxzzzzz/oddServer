@@ -1,6 +1,7 @@
 import { server } from './server.js';
-import { GlobalOptions } from '../type/index.js';
-import { footballState, getSinInfoList } from '../store/football.js';
+import { GlobalOptions, GoalLine, Result } from '../type/index.js';
+import { GlobalFootballState, getSinInfoList } from '../store/football.js';
+import { getSinData } from '../utils/index.js';
 
 const op = {
   JCPoint: 0.12,
@@ -22,9 +23,10 @@ server.post('/api/water/getFootballData', (req, res, next) => {
     // "inMatch": []
   };
   const scope = body?.scope || '';
-  const JCInfos = footballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
-  const HGInfos = footballState.HGInfoList;
-  const sinData = getSinInfoList(op, JCInfos, HGInfos);
+  const JCInfos = GlobalFootballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
+  const jcMatchIdList = JCInfos.map((v) => v.matchId);
+  const HGInfos = GlobalFootballState.HGInfoList.filter((v) => jcMatchIdList.includes(v.matchId));
+  const sinData = getSinInfoList(JCInfos, HGInfos, op);
 
   res.send({
     success: true,
@@ -323,39 +325,69 @@ server.post('/api/water/getFootballData', (req, res, next) => {
 });
 
 server.post('/api/water/caculateSin', (req, res, next) => {
+  type Body = {
+    JCgoalLine1: GoalLine;
+    JCgoalLine2: GoalLine;
+    HGgoalLine1: GoalLine;
+    HGgoalLine2: GoalLine;
+    jcOdds1: string;
+    jcOdds2: string;
+    hgOdds1: string;
+    hgOdds2: string;
+    JCTouz1: Result;
+    JCTouz2: Result;
+    HGTouz1: Result;
+    HGTouz2: Result;
+    method: string;
+    matchTimeFormat: string;
+    jcBet1: string;
+    jcBet2: string;
+    hgBet1: string;
+    hgBet2: string;
+    JCPoint1: string;
+    JCPoint2: string;
+    HGPoint1: string;
+    HGPoint2: string;
+    jcAmount1: string;
+    jcAmount2: string;
+    hgAmount1: string;
+    hgAmount2: string;
+    ret: string;
+    profit: string;
+    profitRate: string;
+    JCPoint: string;
+    HGPoint: string;
+    JCTzAmt: string;
+  };
+  const body: Body = req.body;
+  const toNumber = (v: string) => (Number.isNaN(parseFloat(v)) ? 0 : parseFloat(v));
+  const op: GlobalOptions = {
+    JCBet: toNumber(body.jcBet1),
+    JCPointChuan: 0,
+    JCPointSin: toNumber(body.JCPoint),
+    HGPoint: toNumber(body.HGPoint),
+  };
+  const sinData = getSinData(
+    {
+      jcResult1: body.JCTouz1 || '-',
+      jcResult2: body.JCTouz2 || '-',
+      hgResult1: body.HGTouz1 || '-',
+      hgResult2: body.HGTouz2 || '-',
+      jcGoalLine1: body.JCgoalLine1 || '-',
+      jcGoalLine2: body.JCgoalLine2 || '-',
+      hgGoalLine1: body.HGgoalLine1 || '-',
+      hgGoalLine2: body.HGgoalLine2 || '-',
+      jcOdds1: toNumber(body.jcOdds1),
+      jcOdds2: toNumber(body.jcOdds2),
+      hgOdds1: toNumber(body.hgOdds1),
+      hgOdds2: toNumber(body.hgOdds2),
+      matchTimeFormat: body.matchTimeFormat,
+    },
+    op
+  );
   res.send({
     success: true,
-    data: {
-      JCgoalLine1: '-',
-      JCgoalLine2: '',
-      HGgoalLine1: '-0.25',
-      HGgoalLine2: '-',
-      jcOdds1: 3.1,
-      jcOdds2: 0,
-      hgOdds1: 1.89,
-      hgOdds2: 3.75,
-      JCTouz1: 'd',
-      JCTouz2: '',
-      HGTouz1: 'h',
-      HGTouz2: 'a',
-      method: 'LH3',
-      matchTimeFormat: '2024-10-31 03:30:00',
-      jcBet1: '10000',
-      jcBet2: 0,
-      hgBet1: '22159.4768',
-      hgBet2: '11035.3054',
-      JCPoint1: '1200.0000',
-      JCPoint2: 0,
-      HGPoint1: '453.6045',
-      HGPoint2: '697.9831',
-      jcAmount1: '31000.0000',
-      jcAmount2: 0,
-      hgAmount1: '41881.4112',
-      hgAmount2: '41382.3953',
-      ret: '89.4100%',
-      profit: '595.2642',
-      profitRate: '5.9500%',
-    },
+    data: sinData,
   });
   next();
 });

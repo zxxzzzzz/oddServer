@@ -4413,42 +4413,43 @@ export type GoalLineRule = {
   hgGoalLine2: GoalLine;
   hgResult2: Result;
 }
+export type SinInfoData = {
+  JCgoalLine1: GoalLine;
+  JCgoalLine2: GoalLine;
+  HGgoalLine1: GoalLine;
+  HGgoalLine2: GoalLine;
+  jcOdds1: number;
+  jcOdds2: number;
+  hgOdds1: number;
+  hgOdds2: number;
+  JCTouz1: Result;
+  JCTouz2: Result;
+  HGTouz1: Result;
+  HGTouz2: Result;
+  method: string;
+  matchTimeFormat: string;
+  jcBet1: number;
+  jcBet2: number;
+  hgBet1: number;
+  hgBet2: number;
+  JCPoint1: number;
+  JCPoint2: number;
+  HGPoint1: number;
+  HGPoint2: number;
+  jcAmount1: number;
+  jcAmount2: number;
+  hgAmount1: number;
+  hgAmount2: number;
+  ret: `${number}%`;
+  profit: number;
+  profitRate: `${number}%`;
+}
 
 export type SinInfo = {
   matchId: string;
   JCgoalLine: GoalLine;
   HGgoalLine: GoalLine;
-  data: {
-    JCgoalLine1: GoalLine;
-    JCgoalLine2: GoalLine;
-    HGgoalLine1: GoalLine;
-    HGgoalLine2: GoalLine;
-    jcOdds1: number;
-    jcOdds2: number;
-    hgOdds1: number;
-    hgOdds2: number;
-    JCTouz1: Result;
-    JCTouz2: Result;
-    HGTouz1: Result;
-    HGTouz2: Result;
-    method: string;
-    matchTimeFormat: string;
-    jcBet1: number;
-    jcBet2: number;
-    hgBet1: number;
-    hgBet2: number;
-    JCPoint1: number;
-    JCPoint2: number;
-    HGPoint1: number;
-    HGPoint2: number;
-    jcAmount1: number;
-    jcAmount2: number;
-    hgAmount1: number;
-    hgAmount2: number;
-    ret: `${number}%`;
-    profit: number;
-    profitRate: `${number}%`;
-  };
+  data: SinInfoData;
 };
 
 

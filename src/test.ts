@@ -5,7 +5,7 @@ import {
   updateGoalLineRuleList,
   getCoefficient,
   solveFourVariableLinearEquations,
-  getSinData,
+  getMatchSinData,
   toAsyncTimeFunction,
   toFifoFunction,
 } from './utils/index.js';
@@ -18,10 +18,13 @@ import { spawnSync, execSync } from 'child_process';
 
 
 (async () => {
-  const res = execSync('pm2 list', { windowsHide: true });
-  const logList = res.toString('utf-8').split('\n')
+  // const res = execSync('pm2 list', { windowsHide: true });
+  // const logList = res.toString('utf-8').split('\n')
   // console.log(stdout.toString('utf-8'));
-  console.log(logList);
+  // console.log(logList);
   // updateGoalLineRuleList();
-  // writeFileSync('./user.json', JSON.stringify({ userList: ac }), { encoding: 'utf-8' })
+  // const data = JSON.parse(readFileSync('./cache/footballState.json', { encoding: 'utf-8' }))
+  // const idList = data.JCInfoList.map(v => v.matchId)
+  // const idList2 = data.HGInfoList.map(v => v.matchId)
+  // console.log(idList.length, idList2.length);
 })();
