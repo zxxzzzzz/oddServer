@@ -399,6 +399,8 @@ export const uploadFootballStateToOss = toAsyncTimeFunction(async function uploa
   const OSS_FILE_NAME = 'footballState.json';
   const ossClient = getOssClient();
   await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(GlobalFootballState)));
+  const filePath = resolve(import.meta.dirname, '../../cache/footballState.json')
+  writeFileSync(filePath, stringify(GlobalFootballState), { encoding: 'utf-8' });
 }, 'uploadFootballStateToOss');
 
 export const updateFootballStateFromOss = toAsyncTimeFunction(async function updateFootballStateFromOss() {
@@ -416,24 +418,9 @@ export const updateFootballStateFromOss = toAsyncTimeFunction(async function upd
 
 /**从web获取足球数据 */
 export async function updateFootballStateFromWeb() {
-  if (existsSync('./cache/footballState.json') && GlobalFootballState.JCInfoListUpdateTime === ZERO_TIME) {
-    const text = readFileSync('./cache/footballState.json', { encoding: 'utf-8' });
-    const body = JSON.parse(text);
-    Object.keys(GlobalFootballState).forEach((key) => {
-      const v = body[key];
-      if (v !== void 0) {
-        GlobalFootballState[key as keyof typeof GlobalFootballState] = v;
-      }
-    });
-  }
   await updateJCInfoList();
   await updateAllHGLeagueList();
   await updateHGGameInfoList({ limitLeagueCount: 5, maxAge: 1000 * 60 * 10 });
   updateWaitHGInfoList({ maxAge: 1000 * 10 });
   await updateHGInfoList({ limitMatchCount: 5 });
-}
-
-export function saveFootballStateToCache() {
-  const filePath = resolve(import.meta.dirname, '../../cache/footballState.json')
-  writeFileSync(filePath, stringify(GlobalFootballState), { encoding: 'utf-8' });
 }

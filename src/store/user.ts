@@ -23,8 +23,6 @@ export async function updateAccountBySessionId(sessionId: string, data: Partial<
       user[k] = v
     });
     await uploadUserToOss()
-    const filePath = resolve(import.meta.dirname, '../../cache/user.json')
-    writeFileSync(filePath, stringify(GlobalUserInfo));
   }
 }
 
@@ -41,7 +39,7 @@ export async function login(username: string, password: string) {
     const token = randomUUID();
     user.pcsessionid = token
     user.lastlogintime = new Date().toISOString()
-    writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), stringify(GlobalUserInfo));
+    await uploadUserToOss()
     return user;
   }
 }
@@ -52,6 +50,7 @@ export const uploadUserToOss = toAsyncTimeFunction(async function uploadFootball
   const OSS_FILE_NAME = 'user.json';
   const ossClient = getOssClient();
   await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(GlobalUserInfo)));
+  writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), stringify(GlobalUserInfo));
 }, 'uploadUserToOss');
 
 export const updateUserFromOss = toAsyncTimeFunction(async function updateFootballStateFromOss() {

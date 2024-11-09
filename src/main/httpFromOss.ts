@@ -1,4 +1,4 @@
-import { saveFootballStateToCache, updateFootballStateFromOss } from '../store/football.js';
+import { updateFootballStateFromOss } from '../store/football.js';
 import '../http/index.js';
 
 
@@ -6,7 +6,6 @@ import '../http/index.js';
   setInterval(async () => {
     try {
       await updateFootballStateFromOss();
-      saveFootballStateToCache()
     } catch (error) {}
     // await updateJCInfoList();
     // await updateHGInfoList({ limitMatchCount: 5 });

@@ -1,15 +1,13 @@
-import { saveFootballStateToCache, updateFootballStateFromWeb, uploadFootballStateToOss } from '../store/football.js';
-import os from 'os';
-
+import { updateFootballStateFromOss, updateFootballStateFromWeb, uploadFootballStateToOss } from '../store/football.js';
 
 (async () => {
+  await updateFootballStateFromOss();
   setInterval(async () => {
     await updateFootballStateFromWeb();
-    saveFootballStateToCache()
   }, 3000);
   setInterval(async () => {
     try {
-      await uploadFootballStateToOss({ isInternal: os.type() === 'Linux' ? true :false });
+      await uploadFootballStateToOss();
     } catch (error) {}
   }, 5000);
 })();
