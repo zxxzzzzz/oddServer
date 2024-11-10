@@ -1,6 +1,7 @@
 import { GlobalOptions, GoalLine, HGInfo, JCInfo, Result, SinInfoData } from '../type/index.js';
 import { getCoefficient, getGoalLineRuleList } from './goalLineRule.js';
 import { solveFourVariableLinearEquations } from './lodash.js';
+import { getMethod } from './methodRule.js';
 export * from './lodash.js';
 export * from './goalLineRule.js';
 
@@ -376,24 +377,19 @@ export function getSinData(
   const jcAmount1 = jcOdds1 * op.JCBet;
   /** 竞彩 返利金额*/
   const jcRebate1 = op.JCBet * op.JCPointSin;
-  const getRet = (a: number, b: number, c: number, d: number) => {
-    const nList = [a, b, c, d].filter((n) => !!n);
-    if (nList.length === 0) return 0;
-    if (nList.length === 1) return 1;
-    if (nList.length === 2) {
-      const [n1, n2] = nList;
-      return (n1 * n2) / (n1 + n2);
-    }
-    if (nList.length === 3) {
-      const [n1, n2, n3] = nList;
-      return (n1 * n2 * n3) / (n1 * n2 + n1 * n3 + n2 * n3);
-    }
-    const [n1, n2, n3, n4] = nList;
-    return (n1 * n2 * n3 * n4) / (n1 * n2 * n3 + n1 * n2 * n4 + n1 * n3 * n4 + n2 * n3 * n4);
-  };
-  const ret = getRet(jcOdds1, jcOdds2, hgOdds1, hgOdds2);
-  if (profit === 0) return void 0;
 
+  if (profit === 0) return void 0;
+  const ret = getRet(jcOdds1, jcOdds2, hgOdds1, hgOdds2);
+  const method = getMethod({
+    jcGoalLine1,
+    jcResult1,
+    jcGoalLine2,
+    jcResult2,
+    hgGoalLine1,
+    hgResult1,
+    hgGoalLine2,
+    hgResult2,
+  });
   return {
     JCgoalLine1: jcGoalLine1,
     JCgoalLine2: jcGoalLine2,
@@ -407,7 +403,7 @@ export function getSinData(
     JCTouz2: jcResult2,
     HGTouz1: hgResult1,
     HGTouz2: hgResult2,
-    method: 'WL',
+    method,
     matchTimeFormat: matchTimeFormat,
     jcBet1: op.JCBet,
     jcBet2: toFixNumber(jcBet2, 3),
@@ -426,3 +422,19 @@ export function getSinData(
     profitRate,
   };
 }
+/**获取反率 */
+const getRet = (a: number, b: number, c: number, d: number) => {
+  const nList = [a, b, c, d].filter((n) => !!n);
+  if (nList.length === 0) return 0;
+  if (nList.length === 1) return 1;
+  if (nList.length === 2) {
+    const [n1, n2] = nList;
+    return (n1 * n2) / (n1 + n2);
+  }
+  if (nList.length === 3) {
+    const [n1, n2, n3] = nList;
+    return (n1 * n2 * n3) / (n1 * n2 + n1 * n3 + n2 * n3);
+  }
+  const [n1, n2, n3, n4] = nList;
+  return (n1 * n2 * n3 * n4) / (n1 * n2 * n3 + n1 * n2 * n4 + n1 * n3 * n4 + n2 * n3 * n4);
+};

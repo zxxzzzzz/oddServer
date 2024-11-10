@@ -45,12 +45,12 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
     path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'),
     keys
       .map((key) => {
-        if (key === 'jcGoalLine1') return '竞彩投注类型1';
-        if (key === 'jcGoalLine2') return '竞彩投注类型2';
+        if (key === 'jcGoalLine1') return '竞彩让球线1';
+        if (key === 'jcGoalLine2') return '竞彩让球线2';
         if (key === 'jcResult1') return '竞彩比赛结果1';
         if (key === 'jcResult2') return '竞彩比赛结果2';
-        if (key === 'hgGoalLine1') return '皇冠投注类型1';
-        if (key === 'hgGoalLine2') return '皇冠投注类型2';
+        if (key === 'hgGoalLine1') return '皇冠让球线1';
+        if (key === 'hgGoalLine2') return '皇冠让球线2';
         if (key === 'hgResult1') return '皇冠比赛结果1';
         if (key === 'hgResult2') return '皇冠比赛结果2';
         return key;

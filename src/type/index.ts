@@ -4412,6 +4412,10 @@ export type GoalLineRule = {
   hgGoalLine2: GoalLine;
   hgResult2: Result;
 };
+export type Method = 'WL' | 'WLD1' | 'WLD2' | 'LH1' | 'LH2' | 'LH3' | 'WH1' | 'WH2' | 'WH3' | 'D1' | 'D2' | 'D3';
+export type MethodRule = {
+  method: Method;
+} & GoalLineRule;
 export type SinInfoData = {
   JCgoalLine1: GoalLine;
   JCgoalLine2: GoalLine;

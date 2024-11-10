@@ -8,14 +8,13 @@ import {
   getMatchSinData,
   toAsyncTimeFunction,
   toFifoFunction,
+  pickBy,
 } from './utils/index.js';
-import { delay } from './api/utils.js';
+import { delay, uniqBy } from './api/utils.js';
 import { randomUUID } from 'crypto';
 // 运维接口
 import { spawnSync, execSync } from 'child_process';
-
-
-
+import { updateMethodRuleList } from './utils/methodRule.js';
 
 (async () => {
   // const res = execSync('pm2 list', { windowsHide: true });
