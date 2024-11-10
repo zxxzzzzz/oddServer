@@ -368,7 +368,24 @@ export function getSinData(
   const jcAmount1 = jcOdds1 * op.JCBet;
   /** 竞彩 返利金额*/
   const jcRebate1 = op.JCBet * op.JCPointSin;
+  const getRet = (a: number, b: number, c: number, d: number) => {
+    const nList = [a, b, c, d].filter((n) => !!n);
+    if (nList.length === 0) return 0;
+    if (nList.length === 1) return 1;
+    if (nList.length === 2) {
+      const [n1, n2] = nList;
+      return (n1 * n2) / (n1 + n2);
+    }
+    if (nList.length === 3) {
+      const [n1, n2, n3] = nList;
+      return (n1 * n2 * n3) / (n1 * n2 + n1 * n3 + n2 * n3);
+    }
+    const [n1, n2, n3, n4] = nList;
+    return (n1 * n2 * n3 * n4) / (n1 * n2 * n3 + n1 * n2 * n4 + n1 * n3 * n4 + n2 * n3 * n4);
+  };
+  const ret = getRet(jcOdds1,jcOdds2,hgOdds1,hgOdds2)
   if (profit === 0) return void 0;
+
   return {
     JCgoalLine1: jcGoalLine1,
     JCgoalLine2: jcGoalLine2,
@@ -396,7 +413,7 @@ export function getSinData(
     jcAmount2: toFixNumber(jcAmount2, 3),
     hgAmount1: toFixNumber(hgAmount1, 3),
     hgAmount2: toFixNumber(hgAmount2, 3),
-    ret: '88.000%',
+    ret: `${(ret*100).toFixed(3)}%` as `${number}%`,
     profit: toFixNumber(profit, 3),
     profitRate,
   };
