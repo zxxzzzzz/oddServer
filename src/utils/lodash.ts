@@ -107,7 +107,7 @@ export function minBy<T>(array: T[], iteratee: (value: T) => number | string): T
 /**记录promise函数执行时间的包装函数 */
 export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, tag: string, desc: string | ((args: Parameters<T>, result: Awaited<ReturnType<T>>) => string) = ''): T {
   return async function (...args: Parameters<T>): Promise<ReturnType<T>> {
-    const filePath = path.resolve(import.meta.dirname, `../../log/requestPerformance-${dayjs().format('YYYY-MM-DD')}.csv`) 
+    const filePath = path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}.csv`) 
     const start = performance.now(); // 记录开始时间
     const result = await fn(...args); // 调用原函数
     const end = performance.now(); // 记录结束时间

@@ -5,6 +5,8 @@ import { getSinData } from '../utils/index.js';
 import { getAccountBySessionId } from '../store/user.js';
 import * as cookie from 'cookie';
 
+const toNumber = (v: string) => (Number.isNaN(parseFloat(v)) ? 0 : parseFloat(v));
+
 server.post('/api/water/getFootballData', async (req, res) => {
   const cookieObj = cookie.parse(req.header('cookie'));
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
@@ -29,7 +31,20 @@ server.post('/api/water/getFootballData', async (req, res) => {
   const JCInfos = GlobalFootballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
   const jcMatchIdList = JCInfos.map((v) => v.matchId);
   const HGInfos = GlobalFootballState.HGInfoList.filter((v) => jcMatchIdList.includes(v.matchId));
-  const sinData = getSinInfoList(JCInfos, HGInfos, op);
+  const sinData = getSinInfoList(JCInfos, HGInfos, op).filter((sinInfo) => {
+    // jc只选择了一个，可以通过
+    if (!sinInfo.data.jcOdds1 || !sinInfo.data.jcOdds2) return true;
+    // 去除jc里让球选择了两个的sin
+    if (sinInfo.data.jcOdds1 && sinInfo.data.jcOdds2 && sinInfo.data.JCgoalLine1 !== '-') return false;
+    if (sinInfo.data.jcOdds1 && sinInfo.data.jcOdds2 && sinInfo.data.JCgoalLine2 !== '-') return false;
+
+    const finedJcInfo = JCInfos.find((jcInfo) => jcInfo.matchId === sinInfo.matchId);
+    if (!finedJcInfo) return false;
+    const minJcOdds = Math.min(toNumber(finedJcInfo.had_a), toNumber(finedJcInfo.had_d), toNumber(finedJcInfo.had_h));
+    // 去除胜平负里选择了两个最大odds的sin
+    if (sinInfo.data.jcOdds1 - minJcOdds !== 0 && sinInfo.data.jcOdds2 - minJcOdds !== 0 && sinInfo.data.JCgoalLine1 === '-') return false;
+    return true;
+  });
 
   res.send({
     success: true,
@@ -362,7 +377,6 @@ server.post('/api/water/caculateSin', (req, res, next) => {
     JCTzAmt: string;
   };
   const body: Body = req.body;
-  const toNumber = (v: string) => (Number.isNaN(parseFloat(v)) ? 0 : parseFloat(v));
   const op: GlobalOptions = {
     JCBet: toNumber(body.jcBet1),
     JCPointChuan: 0,
@@ -395,221 +409,6 @@ server.post('/api/water/caculateSin', (req, res, next) => {
 });
 
 server.post('/api/water/caculateChuan', (req, res, next) => {
-  type Body = {
-    id: 19054;
-    uuid: null;
-    userId: 'fe8efcdc-a815-480a-96d9-406c6e497805';
-    planId: '周六002负4.1%0Aundefined让胜2.8';
-    matchId1: '1027802';
-    matchId2: '1027191';
-    flag: 'saved';
-    JCPoint: 0.13;
-    HGPoint: 0.023;
-    method1: 'WL';
-    method2: 'D2';
-    JCgoalLine1: '-';
-    JCgoalLine2: '-1';
-    HGgoalLine1_1: '-0.5';
-    HGgoalLine1_2: '';
-    HGgoalLine2_1: '-1';
-    HGgoalLine2_2: 'J1';
-    JCTouz1: 'a';
-    JCTouz2: 'h';
-    HGTouz1_1: 'h';
-    HGTouz1_2: '';
-    HGTouz2_1: 'a';
-    HGTouz2_2: 'h';
-    JCTzOdd1: 4.1;
-    JCTzOdd2: 2.8;
-    HGTzOdd1_1: 1.92;
-    HGTzOdd1_2: 0;
-    HGTzOdd2_1: 1.78;
-    HGTzOdd2_2: 4.05;
-    JCTzAmt: '10000';
-    HGTzAmt1_1: '';
-    HGTzAmt1_2: '';
-    HGTzAmt2_1: '29500.2535';
-    HGTzAmt2_2: '5745.1346';
-    JcProfit: '';
-    HgProfit1: '';
-    HgProfit2: '';
-    JCAmount: '';
-    HGAmount1_1: '';
-    HGAmount1_2: '';
-    HGAmount2_1: '';
-    HGAmount2_2: '';
-    yield: 'Sin';
-    ifAverg: true;
-    JcProfitRate: '3.3226%';
-    Marks: '';
-    firStar: 0;
-    secStar: 0;
-    delFlag: true;
-    updateTime: null;
-    createdAt: '2024-09-28T06:23:26.000Z';
-    updatedAt: '2024-09-28T06:23:26.000Z';
-    HgProfit1_1: '';
-    HgProfit1_2: '';
-    jcMatch1: {
-      matchId: '1027802';
-      leagueAbbName: '法乙';
-      leagueAllName: '法国乙级联赛';
-      leagueCode: 'FF2';
-      matchNumStr: '周六002';
-      matchDate: '2024-11-09';
-      matchTime: '21:00:00';
-      matchTimeFormat: '2024-11-09 21:00:00';
-      homeTeamAbbName: '洛里昂';
-      homeTeamAllName: '洛里昂';
-      awayTeamAbbName: '甘冈';
-      awayTeamAllName: '甘冈';
-      isSingle_had: '0';
-      isSingle_hhad: '0';
-      had_a: '4.10';
-      had_h: '1.65';
-      had_d: '3.60';
-      hhad_a: '1.93';
-      hhad_h: '3.15';
-      hhad_d: '3.40';
-      hhad_goalLine: '-1';
-      hafu_aa: '7.25';
-      hafu_ad: '15.50';
-      hafu_ah: '24.00';
-      hafu_da: '9.50';
-      hafu_dd: '6.20';
-      hafu_dh: '4.40';
-      hafu_ha: '40.00';
-      hafu_hd: '15.50';
-      hafu_hh: '2.65';
-      updateTime: '2024-11-09T12:29:12.600Z';
-      createdAt: '2024-11-08T07:16:38.584Z';
-      updatedAt: '2024-11-09T12:29:12.600Z';
-      jcodds: [
-        {
-          type: '胜平负';
-          h: '1.65';
-          d: '3.60';
-          a: '4.10';
-          goalLine: '-';
-        },
-        {
-          type: '让>> -1';
-          a: '1.93';
-          d: '3.40';
-          h: '3.15';
-          goalLine: '-1';
-        },
-      ];
-      maxProfitRate: '12.947%';
-    };
-    hgMatch1: {
-      matchId: '1027802';
-      leagueAbbName: '法国乙组联赛';
-      leagueAllName: '法国乙组联赛';
-      leagueCode: '';
-      matchNumStr: '';
-      matchDate: '';
-      matchTime: '';
-      matchTimeFormat: '2024-11-09 09:00:00';
-      homeTeamAbbName: '洛里昂';
-      homeTeamAllName: '洛里昂';
-      awayTeamAbbName: '甘冈';
-      awayTeamAllName: '甘冈';
-      had_a: '3.30';
-      had_h: '1.92';
-      had_d: '3.60';
-      hhad_a1: '1.96';
-      hhad_h1: '1.92';
-      hhad_d1: '-';
-      hhad_goalLine1: '-0.5';
-      hhad_a2: '1.74';
-      hhad_h2: '2.16';
-      hhad_d2: '-';
-      hhad_goalLine2: '-0.75';
-      hhad_a3: '';
-      hhad_h3: '';
-      hhad_d3: '-';
-      hhad_goalLine3: '-';
-      hhad_a4: '';
-      hhad_h4: '';
-      hhad_d4: '-';
-      hhad_goalLine4: '-';
-      hhad_a5: '';
-      hhad_h5: '';
-      hhad_d5: '-';
-      hhad_goalLine5: '-';
-      hhad_a6: '';
-      hhad_h6: '';
-      hhad_d6: '-';
-      hhad_goalLine6: '-';
-      wm_h1: '3.90';
-      wm_h2: '5.00';
-      wm_h3: '9.80';
-      wm_hov: '16.50';
-      wm_a1: '5.10';
-      wm_a2: '11.00';
-      wm_a3: '31.00';
-      wm_aov: '76.00';
-      wm_0: '14.50';
-      wm_n: '4.35';
-      hhafu_goalLine1: '-0.25';
-      hhafu_h1: '2.05';
-      hhafu_a1: '1.83';
-      hhafu_goalLine2: '-0.5';
-      hhafu_h2: '2.47';
-      hhafu_a2: '1.56';
-      hhafu_goalLine3: '-';
-      hhafu_h3: '';
-      hhafu_a3: '';
-      hhafu_goalLine4: '-';
-      hhafu_h4: '';
-      hhafu_a4: '';
-      updateTime: '2024-11-09T12:28:55.562Z';
-      createdAt: '2024-11-08T07:17:45.111Z';
-      updatedAt: '2024-11-09T12:28:55.562Z';
-      hgodds: [
-        {
-          type: '独赢';
-          a: '3.30';
-          h: '1.92';
-          d: '3.60';
-          goalLine: '-';
-        },
-        {
-          type: '让>>  -0.5';
-          a: '1.96';
-          h: '1.92';
-          goalLine: '-0.5';
-        },
-        {
-          type: '让>>  -0.75';
-          a: '1.74';
-          h: '2.16';
-          goalLine: '-0.75';
-        },
-        {
-          type: '净>> 1球';
-          h: '3.90';
-          a: '5.10';
-          goalLine: 'J1';
-        },
-        {
-          type: '净>> 2球';
-          h: '5.00';
-          a: '11.00';
-          goalLine: 'J2';
-        },
-        {
-          type: '净>> 3球';
-          h: '9.80';
-          a: '31.00';
-          goalLine: 'J3';
-        },
-      ];
-    };
-    planName1: '周六002负4.1';
-    planName2: 'undefined让胜2.8';
-  };
   res.send({
     success: true,
   });
