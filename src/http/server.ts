@@ -39,7 +39,6 @@ server.on('after', async (req: restify.Request, res, route, error) => {
     writeFileSync(filePath, `date, account, ip, url, duration\n`, { encoding: 'utf-8' });
   }
   const duration = new Date().valueOf() - startTime;
-  console.log(duration);
   writeFileSync(filePath, `${new Date().toISOString()}, ${account}, ${ip}, ${(req.url || '').replace(/,/g, '，')}, ${duration}\n`, {
     flag: 'a',
     encoding: 'utf-8',

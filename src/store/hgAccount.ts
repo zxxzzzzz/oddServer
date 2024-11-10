@@ -86,7 +86,7 @@ export const getToken = toFifoFunction(
         // console.log(GlobalTokenList);
       } catch (error) {
         isLogging = false;
-        console.log(error);
+        // console.log(error);
       }
     }
     GlobalTokenList = uniqBy(
