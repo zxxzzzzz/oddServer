@@ -66,7 +66,7 @@ export const getAliveUrl = async () => {
  * @returns
  */
 export const getToken = toFifoFunction(
-  toAsyncTimeFunction(async (op: { limitIdleAge: number } = { limitIdleAge: 5000 }) => {
+  toAsyncTimeFunction(async (op: { limitIdleAge: number } = { limitIdleAge: 1000 * 10 }) => {
     while (isLogging) {
       await delay(10);
     }
@@ -98,7 +98,7 @@ export const getToken = toFifoFunction(
     if (!GlobalTokenList?.length) throw Error('hg账号 无法登录');
     const lastUseToken = GlobalTokenList[0];
     // 加个时间偏移
-    const offset = Math.floor(Math.random() * op.limitIdleAge);
+    const offset = Math.floor(Math.random() * op.limitIdleAge * 0.5);
     while (new Date().valueOf() - lastUseToken.lastUseTimestamp <= op.limitIdleAge + offset) {
       await delay(100);
     }

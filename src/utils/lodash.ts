@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync } from 'fs';
+import { existsSync, statSync, writeFileSync } from 'fs';
 import path from 'path';
 import { delay } from '../api/utils.js';
 import dayjs from 'dayjs';
@@ -105,17 +105,32 @@ export function minBy<T>(array: T[], iteratee: (value: T) => number | string): T
 }
 
 /**记录promise函数执行时间的包装函数 */
-export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, tag: string, desc: string | ((args: Parameters<T>, result: Awaited<ReturnType<T>>) => string) = ''): T {
+export function toAsyncTimeFunction<T extends (...args: any[]) => any>(
+  fn: T,
+  tag: string,
+  desc: string | ((args: Parameters<T>, result: Awaited<ReturnType<T>>) => string) = ''
+): T {
   return async function (...args: Parameters<T>): Promise<ReturnType<T>> {
-    const filePath = path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}.csv`) 
+    let filePath = range(0, 100)
+      .map((i) => {
+        return path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
+      })
+      .find((filePath) => {
+        if (!existsSync(filePath)) return true;
+        if (statSync(filePath).size / 1024 / 1024 < 10) return true;
+        return false;
+      });
+    if (!filePath) {
+      filePath = path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
+    }
     const start = performance.now(); // 记录开始时间
     const result = await fn(...args); // 调用原函数
     const end = performance.now(); // 记录结束时间
     const duration = end - start; // 计算执行时间
+    const description = typeof desc === 'string' ? desc : desc(args, result);
     if (!existsSync(filePath)) {
       writeFileSync(filePath, `date, tag, duration, description\n`, { encoding: 'utf-8' });
     }
-    const description = typeof desc === 'string' ? desc : desc(args, result)
     writeFileSync(filePath, `${new Date().toISOString()}, ${tag}, ${duration}, ${description}\n`, {
       flag: 'a',
       encoding: 'utf-8',
@@ -124,8 +139,8 @@ export function toAsyncTimeFunction<T extends (...args: any[]) => any>(fn: T, ta
   } as T;
 }
 
-export function warnLog(text:string) {
-  const filePath = path.resolve(import.meta.dirname, '../../log/warn.csv') 
+export function warnLog(text: string) {
+  const filePath = path.resolve(import.meta.dirname, '../../log/warn.csv');
   if (!existsSync(filePath)) {
     writeFileSync(filePath, `date, description\n`, { encoding: 'utf-8' });
   }
@@ -134,8 +149,8 @@ export function warnLog(text:string) {
     encoding: 'utf-8',
   });
 }
-export function errorLog(text:string) {
-  const filePath = path.resolve(import.meta.dirname, '../../log/error.csv')
+export function errorLog(text: string) {
+  const filePath = path.resolve(import.meta.dirname, '../../log/error.csv');
   if (!existsSync(filePath)) {
     writeFileSync(filePath, `date, description\n`, { encoding: 'utf-8' });
   }
@@ -149,23 +164,23 @@ export function errorLog(text:string) {
 export function toFifoFunction<T extends (...args: any[]) => Promise<any>>(fn: T) {
   const taskList: (() => Promise<any>)[] = [];
   /**是否有任务正在进行 */
-  let isProcessing = false
+  let isProcessing = false;
   return async function (...args: any[]) {
     taskList.push(fn.bind(null, ...args));
     while (taskList.length) {
-      await delay(100)
-      if (isProcessing) continue
+      await delay(100);
+      if (isProcessing) continue;
       const task = taskList.shift();
       // 当前没任务了，说明肯定没任务在进行了
       if (!task) {
-        isProcessing = false
-        return void 0
+        isProcessing = false;
+        return void 0;
       }
       // task执行前，设置任务在进行
-      isProcessing = true
+      isProcessing = true;
       const re = await task();
       // task执行后，设置任务没在进行
-      isProcessing = false
+      isProcessing = false;
       return re;
     }
   };
@@ -229,7 +244,10 @@ export function solveTwoVariableLinearEquations(op: {
   return [x, y];
 }
 
-export function pickBy<T>(object: Record<string, T>, predicate: (value: T, key: string, object: Record<string, T>) => boolean): Record<string, T> {
+export function pickBy<T>(
+  object: Record<string, T>,
+  predicate: (value: T, key: string, object: Record<string, T>) => boolean
+): Record<string, T> {
   const result: Record<string, T> = {};
 
   for (const key in object) {
@@ -244,22 +262,17 @@ export function pickBy<T>(object: Record<string, T>, predicate: (value: T, key: 
   return result;
 }
 
-
 type Predicate<T> = (value: T, index: number, array: T[]) => boolean;
 
 /**
  * 检查数组中的元素是否满足给定的条件，允许一定比例的结果为 false。
- * 
+ *
  * @param array - 要检查的数组
  * @param predicate - 判断函数，返回 true 表示该元素满足条件
  * @param tolerance - 允许的 false 结果的比例，默认为 0.1（10%）
  * @returns 如果满足条件的元素数量超过允许的 false 结果比例，则返回 true，否则返回 false
  */
-export function everyWithTolerance<T>(
-  array: T[],
-  predicate: Predicate<T>,
-  tolerance: number = 0.12
-): boolean {
+export function everyWithTolerance<T>(array: T[], predicate: Predicate<T>, tolerance: number = 0.12): boolean {
   if (tolerance < 0 || tolerance > 1) {
     throw new Error('Tolerance must be between 0 and 1.');
   }
@@ -279,11 +292,11 @@ export function everyWithTolerance<T>(
 
 /**
  * 将字符串格式化为保留两位小数的字符串。
- * 
+ *
  * @param value - 输入的字符串，应该是一个有效的数字表示。
  * @returns 格式化后的字符串，保留两位小数。
  */
-export function strFixed(value: string, count:number=2): string {
+export function strFixed(value: string, count: number = 2): string {
   // 将输入的字符串转换为浮点数
   const numberValue = parseFloat(value);
 
@@ -297,8 +310,6 @@ export function strFixed(value: string, count:number=2): string {
   // toFixed 方法会四舍五入
   return numberValue.toFixed(count);
 }
-
-
 
 /**
  * 求解三元一次方程组
