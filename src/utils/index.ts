@@ -100,6 +100,14 @@ export const getLeagueSameWeight = (leagueName1: string, leagueName2: string) =>
 
 /**获取队伍相似度权重 */
 export const getTeamSameWeight = (teamName1: string, teamName2: string) => {
+  const equalTeamList = [
+    ['博德闪耀', '波杜基林特'],
+    ['腓特烈', '费德列斯达'],
+  ];
+  const isEqual = !!equalTeamList.some((d) => d.includes(teamName1) && d.includes(teamName2));
+  if (isEqual) {
+    return 1;
+  }
   return getStrSameWeight(teamName1, teamName2);
 };
 
@@ -383,7 +391,7 @@ export function getSinData(
     const [n1, n2, n3, n4] = nList;
     return (n1 * n2 * n3 * n4) / (n1 * n2 * n3 + n1 * n2 * n4 + n1 * n3 * n4 + n2 * n3 * n4);
   };
-  const ret = getRet(jcOdds1,jcOdds2,hgOdds1,hgOdds2)
+  const ret = getRet(jcOdds1, jcOdds2, hgOdds1, hgOdds2);
   if (profit === 0) return void 0;
 
   return {
@@ -413,7 +421,7 @@ export function getSinData(
     jcAmount2: toFixNumber(jcAmount2, 3),
     hgAmount1: toFixNumber(hgAmount1, 3),
     hgAmount2: toFixNumber(hgAmount2, 3),
-    ret: `${(ret*100).toFixed(3)}%` as `${number}%`,
+    ret: `${(ret * 100).toFixed(3)}%` as `${number}%`,
     profit: toFixNumber(profit, 3),
     profitRate,
   };
