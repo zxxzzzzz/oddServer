@@ -4,18 +4,30 @@ import { getAliveUrl } from '../store/hgAccount.js';
 import { server } from './server.js';
 import { execSync } from 'child_process';
 import dayjs from 'dayjs';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, statSync } from 'fs';
+import { range } from '../utils/index.js';
 
 function getDataServerState() {
-  const filePath = path.resolve(import.meta.dirname, `../../log/requestPerformance-${dayjs().format('YYYY-MM-DD')}.csv`);
+  let filePath = range(0, 100)
+    .map((i) => {
+      return path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
+    })
+    .find((filePath) => {
+      if (!existsSync(filePath)) return true;
+      if (statSync(filePath).size / 1024 / 1024 < 10) return true;
+      return false;
+    });
+  if (!filePath) {
+    filePath = path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
+  }
   if (!existsSync(filePath)) {
     return { state: 'stop' };
   }
   const lineList = readFileSync(filePath, { encoding: 'utf-8' }).split('\n');
   const hasDataLog = lineList.slice(-100).some((line) => {
-    if(!line) return false
+    if (!line) return false;
     const [date, tag] = line.split(',');
-    if(!tag) return
+    if (!tag) return;
     if (tag.trim() === 'getToken' && new Date().valueOf() - new Date(date).valueOf() < 1000 * 60 * 2) return true;
   });
   const stdout = execSync('pm2 list').toString('utf-8');
