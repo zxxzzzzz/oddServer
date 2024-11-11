@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "data": "npm run build && pm2 restart data || pm2 start ./server/main/updateFromWeb.js --cron=\"0 5 * * * \" --name=data",
+    "data": "npm run build && pm2 restart data || pm2 start ./server/main/updateFromWeb.js --name=data",
     "http": "npm run build && pm2 restart http || pm2 start ./server/main/httpFromOss.js --name=http",
     "build": "tsc --project tsconfig.json",
     "preview": "vite preview"
