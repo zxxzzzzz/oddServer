@@ -372,7 +372,7 @@ export function getSinData(
   const hgAmount1 = hgBet1 * hgOdds1;
   const hgRebate2 = hgBet2 * (hgOdds2 - 1) * op.HGPoint;
   const hgAmount2 = hgBet2 * hgOdds2;
-  const profitRate = `${toFixNumber((profit / op.JCBet) * 100, 3)}%` as `${number}%`;
+  const profitRate = `${toFixNumber((profit / (op.JCBet + jcBet2)) * 100, 3)}%` as `${number}%`;
   /** 竞彩 中奖金额*/
   const jcAmount1 = jcOdds1 * op.JCBet;
   /** 竞彩 返利金额*/
