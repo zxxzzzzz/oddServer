@@ -120,14 +120,19 @@ const updateHGGameInfoList = async (op: { limitLeagueCount: number; maxAge: numb
   if (!GlobalFootballState.HGLeagueList?.length) return [];
   /**来自jc的联赛数据 */
   const leagueListFromJC = GlobalFootballState.JCInfoList.map((JCInfo) => {
-    const HGLeague = maxBy(GlobalFootballState.HGLeagueList, (HGLeagueItem) => getLeagueSameWeight(HGLeagueItem.name, JCInfo.leagueAllName));
-    return {
-      JCLeagueName: JCInfo.leagueAllName,
-      HGLeagueName: HGLeague?.name || '',
-      HGLeagueId: HGLeague?.leagueId || '',
-      weight: getLeagueSameWeight(JCInfo.leagueAllName, HGLeague?.name || ''),
-    };
-  });
+    const fullSameHgLeagueList = GlobalFootballState.HGLeagueList.filter((HGLeagueItem) => {
+      return getLeagueSameWeight(HGLeagueItem.name, JCInfo.leagueAllName) === 1
+    })
+    const HGLeague = maxBy(GlobalFootballState.HGLeagueList, (HGLeagueItem) => getLeagueSameWeight(HGLeagueItem.name, JCInfo.leagueAllName))!;
+    return [...fullSameHgLeagueList, HGLeague].map((hgItem) => {
+      return {
+        JCLeagueName: JCInfo.leagueAllName,
+        HGLeagueName: hgItem?.name || '',
+        HGLeagueId: hgItem?.leagueId || '',
+        weight: getLeagueSameWeight(JCInfo.leagueAllName, hgItem?.name || ''),
+      };
+    })
+  }).flat();
   /** 所有需要更新的 HG league*/
   const uniqHGLeagueList = uniqBy(leagueListFromJC, (item) => item.HGLeagueId).filter((leagueItem) => {
     const finedHGGameInfo = GlobalFootballState.HGGameInfoList.find((item) => item.HGLeagueId === leagueItem.HGLeagueId);

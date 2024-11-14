@@ -50,7 +50,7 @@ function getStrSameWeight(s1: string, s2: string): number {
   return 1 - matrix[len1][len2] / maxLength;
 }
 
-/**获取联赛相似度权重 */
+/**获取联赛相似度权重 完全相似就是1*/
 export const getLeagueSameWeight = (leagueName1: string, leagueName2: string) => {
   const l1 = leagueName1
     .toString()
