@@ -121,9 +121,11 @@ const updateHGGameInfoList = async (op: { limitLeagueCount: number; maxAge: numb
   /**来自jc的联赛数据 */
   const leagueListFromJC = GlobalFootballState.JCInfoList.map((JCInfo) => {
     const fullSameHgLeagueList = GlobalFootballState.HGLeagueList.filter((HGLeagueItem) => {
-      return getLeagueSameWeight(HGLeagueItem.name, JCInfo.leagueAllName) === 1
-    })
-    const HGLeague = maxBy(GlobalFootballState.HGLeagueList, (HGLeagueItem) => getLeagueSameWeight(HGLeagueItem.name, JCInfo.leagueAllName))!;
+      return getLeagueSameWeight(HGLeagueItem.name, JCInfo.leagueAllName) === 1;
+    });
+    const HGLeague = maxBy(GlobalFootballState.HGLeagueList, (HGLeagueItem) =>
+      getLeagueSameWeight(HGLeagueItem.name, JCInfo.leagueAllName)
+    )!;
     return [...fullSameHgLeagueList, HGLeague].map((hgItem) => {
       return {
         JCLeagueName: JCInfo.leagueAllName,
@@ -131,7 +133,7 @@ const updateHGGameInfoList = async (op: { limitLeagueCount: number; maxAge: numb
         HGLeagueId: hgItem?.leagueId || '',
         weight: getLeagueSameWeight(JCInfo.leagueAllName, hgItem?.name || ''),
       };
-    })
+    });
   }).flat();
   /** 所有需要更新的 HG league*/
   const uniqHGLeagueList = uniqBy(leagueListFromJC, (item) => item.HGLeagueId).filter((leagueItem) => {
@@ -211,6 +213,58 @@ const updateHGGameInfoList = async (op: { limitLeagueCount: number; maxAge: numb
 const updateWaitHGInfoList = (op: { maxAge: number } = { maxAge: 1000 * 10 }) => {
   if (!GlobalFootballState.JCInfoList?.length) return [];
   if (!GlobalFootballState.HGGameInfoList?.length) return [];
+
+  for (const JCInfo of GlobalFootballState.JCInfoList) {
+    const HGGameList = GlobalFootballState.HGGameInfoList.filter((item) => item.JCLeagueName === JCInfo.leagueAllName)
+      .map((item) => {
+        return item.gameList.map((g) => {
+          return { ...g, HGLeagueId: item.HGLeagueId };
+        });
+      })
+      .flat();
+    if (!HGGameList?.length) continue;
+    const toUpdateHGMatchList = HGGameList.filter((item) => item.more && item.more !== '0').map((hgGame) => {
+      const HGHomeTeam = hgGame.homeTeam || '';
+      const HGAwayTeam = hgGame.awayTeam || '';
+      const awayTeamWeight = getTeamSameWeight(HGAwayTeam, JCInfo.awayTeamAllName);
+      const homeTeamWeight = getTeamSameWeight(HGHomeTeam, JCInfo.homeTeamAllName);
+      return {
+        HGEcid: hgGame.ecid,
+        JCMatchId: JCInfo.matchId,
+        teamWeight: awayTeamWeight + homeTeamWeight,
+        HGLeagueId: hgGame.HGLeagueId,
+        addedTime: new Date().toISOString(),
+        updateState: 'todo' as const,
+      };
+    });
+    /**与当前jcInfo最匹配的hg比赛 */
+    const maxSameMatchItem = maxBy(toUpdateHGMatchList, (item) => item.teamWeight);
+    if (!maxSameMatchItem) continue;
+    const waitHgInfo = GlobalFootballState.waitUpdateHGInfoList.find((waitItem) => waitItem.JCMatchId === maxSameMatchItem.JCMatchId);
+    const finedHGInfo = GlobalFootballState.HGInfoList.find((info) => maxSameMatchItem.JCMatchId === info.matchId);
+    const isHgInfoExpired = new Date().valueOf() - new Date(finedHGInfo?.updatedAt || 0).valueOf() > op.maxAge;
+    if (!isHgInfoExpired) continue;
+    if (waitHgInfo && waitHgInfo.updateState === 'done') continue;
+    // 获取 HGGame里的gameList
+    // 删除已经做完的任务
+    // 排序为了 先添加的数据先更新
+    GlobalFootballState.waitUpdateHGInfoList = uniqBy(
+      [maxSameMatchItem, ...GlobalFootballState.waitUpdateHGInfoList],
+      (item) => item.JCMatchId
+    )
+      .filter((item) => {
+        // 待更新节点 等待太久还没更新，需要删除(可能这个数据已经不需要再更新了)
+        const isWaitHgInfoExpired = new Date().valueOf() - new Date(item.addedTime).valueOf() > 1000 * 60 * 1;
+        // 已经更新完的wait节点要删除
+        if (item.updateState === 'done') return false;
+        if (item.updateState === 'doing' && isWaitHgInfoExpired) return false;
+        // 删除 还没更新 但是 已经过期的节点
+        if (item.updateState === 'todo' && isWaitHgInfoExpired) return false;
+        return true;
+      })
+      .toSorted((v1, v2) => new Date(v1.addedTime).valueOf() - new Date(v2.addedTime).valueOf());
+  }
+
   for (const HGGameInfo of GlobalFootballState.HGGameInfoList) {
     const HGGameList = HGGameInfo.gameList;
     if (!HGGameList?.length) continue;
@@ -251,7 +305,10 @@ const updateWaitHGInfoList = (op: { maxAge: number } = { maxAge: 1000 * 10 }) =>
     // 获取 HGGame里的gameList
     // 删除已经做完的任务
     // 排序为了 先添加的数据先更新
-    GlobalFootballState.waitUpdateHGInfoList = uniqBy([...toUpdateHGMatchList, ...GlobalFootballState.waitUpdateHGInfoList], (item) => item.JCMatchId)
+    GlobalFootballState.waitUpdateHGInfoList = uniqBy(
+      [...toUpdateHGMatchList, ...GlobalFootballState.waitUpdateHGInfoList],
+      (item) => item.JCMatchId
+    )
       .filter((item) => {
         // 待更新节点 等待太久还没更新，需要删除(可能这个数据已经不需要再更新了)
         const isWaitHgInfoExpired = new Date().valueOf() - new Date(item.addedTime).valueOf() > 1000 * 60 * 1;
@@ -361,12 +418,14 @@ const updateHGInfoList = async (op: { limitMatchCount: number }) => {
           };
         }, {} as HGHhafu),
         updateTime: new Date().toISOString(),
-        createdAt: GlobalFootballState.HGInfoList.find((info) => info.matchId === waitHGMatch.JCMatchId)?.createdAt || new Date().toISOString(),
+        createdAt:
+          GlobalFootballState.HGInfoList.find((info) => info.matchId === waitHGMatch.JCMatchId)?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      GlobalFootballState.HGInfoList = uniqBy([toUpdateHGInfo, ...GlobalFootballState.HGInfoList], (item) => item.matchId).filter((HGInfo) =>
-        // 去除HG中不存在于JC的match
-        GlobalFootballState.JCInfoList.some((JCInfo) => JCInfo.matchId === HGInfo.matchId)
+      GlobalFootballState.HGInfoList = uniqBy([toUpdateHGInfo, ...GlobalFootballState.HGInfoList], (item) => item.matchId).filter(
+        (HGInfo) =>
+          // 去除HG中不存在于JC的match
+          GlobalFootballState.JCInfoList.some((JCInfo) => JCInfo.matchId === HGInfo.matchId)
       );
       const finedItem = GlobalFootballState.waitUpdateHGInfoList.find((waitStateItem) => waitStateItem.JCMatchId === waitHGMatch.JCMatchId);
       if (finedItem) {
@@ -404,7 +463,7 @@ export const uploadFootballStateToOss = toAsyncTimeFunction(async function uploa
   const OSS_FILE_NAME = 'footballState.json';
   const ossClient = getOssClient();
   await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(GlobalFootballState)));
-  const filePath = resolve(import.meta.dirname, '../../cache/footballState.json')
+  const filePath = resolve(import.meta.dirname, '../../cache/footballState.json');
   writeFileSync(filePath, stringify(GlobalFootballState), { encoding: 'utf-8' });
 }, 'uploadFootballStateToOss');
 
@@ -413,7 +472,7 @@ export const updateFootballStateFromOss = toAsyncTimeFunction(async function upd
   const ossClient = getOssClient();
   const res = await ossClient.get(OSS_FILE_NAME);
   const content = res.content;
-  if (!content) throw Error('oss里没有数据')
+  if (!content) throw Error('oss里没有数据');
   const ossFootballState = JSON.parse(content);
   Object.entries(ossFootballState).forEach(([k, v]) => {
     // @ts-expect-error
