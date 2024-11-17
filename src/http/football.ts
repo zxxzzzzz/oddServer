@@ -51,8 +51,8 @@ server.post('/api/water/getFootballData', async (req, res) => {
     sinData: sinData,
     chuanData: [
       {
-        matchId1: '1027670',
-        matchId2: '1027682',
+        matchId1: JCInfos[0].matchId,
+        matchId2: JCInfos[1].matchId,
         method1: 'D2',
         method2: 'WL',
         JCPoint: 0.13,
@@ -63,9 +63,9 @@ server.post('/api/water/getFootballData', async (req, res) => {
         HGTzAmt2_1: '14170.7488',
         HGTzAmt2_2: 0,
         JcProfitRate: '0.4256%',
-        JcProfit: '42.5561',
-        HgProfit1: '42.5561',
-        HgProfit2: '42.5561',
+        JcProfit: '420.5561',
+        HgProfit1: '420.5561',
+        HgProfit2: '420.5561',
         JCAmount: '32400.0000',
         HGAmount1_1: '18449.6858',
         HGAmount1_2: '11653.7010',
@@ -236,35 +236,15 @@ server.post('/api/water/getFootballData', async (req, res) => {
       ],
       ftSinList: [
         {
-          matchId: '1027696',
+          matchId: JCInfos[0].matchId,
           matchNumStr: '周日012',
           profitRate: '6.43%',
-        },
-        {
-          matchId: '1027670',
-          matchNumStr: '周六008',
-          profitRate: '5.39%',
-        },
-        {
-          matchId: '1027664',
-          matchNumStr: '周六002',
-          profitRate: '5.21%',
-        },
-        {
-          matchId: '1027678',
-          matchNumStr: '周六016',
-          profitRate: '4.64%',
-        },
-        {
-          matchId: '1027688',
-          matchNumStr: '周日004',
-          profitRate: '4.60%',
         },
       ],
       ftChuanList: [
         {
-          matchId1: '1027670',
-          matchId2: '1027696',
+          matchId1: JCInfos[0].matchId,
+          matchId2: JCInfos[1].matchId,
           matchNumStr1: '周六008',
           matchNumStr2: '周日012',
           profitRate: '1.18%',

@@ -264,63 +264,6 @@ const updateWaitHGInfoList = (op: { maxAge: number } = { maxAge: 1000 * 10 }) =>
       })
       .toSorted((v1, v2) => new Date(v1.addedTime).valueOf() - new Date(v2.addedTime).valueOf());
   }
-
-  for (const HGGameInfo of GlobalFootballState.HGGameInfoList) {
-    const HGGameList = HGGameInfo.gameList;
-    if (!HGGameList?.length) continue;
-    const toUpdateHGMatchList = GlobalFootballState.JCInfoList.filter((JCInfo) => JCInfo.leagueAllName === HGGameInfo.JCLeagueName)
-      .map((JCInfo) => {
-        const weightItemList = HGGameList.map((game) => {
-          const HGHomeTeam = game.homeTeam || '';
-          const HGAwayTeam = game.awayTeam || '';
-          const awayTeamWeight = getTeamSameWeight(HGAwayTeam, JCInfo.awayTeamAllName);
-          const homeTeamWeight = getTeamSameWeight(HGHomeTeam, JCInfo.homeTeamAllName);
-          return { teamWeight: awayTeamWeight + homeTeamWeight, game };
-        });
-        const { game, teamWeight } = maxBy(weightItemList, (item) => item.teamWeight) as (typeof weightItemList)[0];
-        return { game, matchId: JCInfo.matchId, teamWeight, HGLeagueId: HGGameInfo.HGLeagueId };
-      })
-      .filter((item) => item.game.more && item.game.more !== '0')
-      .filter((item) => {
-        const waitHgInfo = GlobalFootballState.waitUpdateHGInfoList.find((waitItem) => waitItem.JCMatchId === item.matchId);
-        const finedHGInfo = GlobalFootballState.HGInfoList.find((info) => item.matchId === info.matchId);
-        // hgInfo是否过期
-        const isHgInfoExpired = new Date().valueOf() - new Date(finedHGInfo?.updatedAt || 0).valueOf() > op.maxAge;
-        // 添加 wait中列表不存在 且 过期的hgInfo
-        if (!waitHgInfo) return isHgInfoExpired;
-        // 除了已经done的数据， 其他已经存在wait列表的数据不再添加进去
-        if (waitHgInfo.updateState === 'done') return true;
-        return false;
-      })
-      .map(({ game, teamWeight, matchId, HGLeagueId }) => {
-        return {
-          HGEcid: game.ecid,
-          HGLeagueId,
-          JCMatchId: matchId,
-          teamWeight,
-          updateState: 'todo',
-          addedTime: new Date().toISOString(),
-        } as (typeof GlobalFootballState.waitUpdateHGInfoList)[0];
-      });
-    // 获取 HGGame里的gameList
-    // 删除已经做完的任务
-    // 排序为了 先添加的数据先更新
-    GlobalFootballState.waitUpdateHGInfoList = uniqBy(
-      [...toUpdateHGMatchList, ...GlobalFootballState.waitUpdateHGInfoList],
-      (item) => item.JCMatchId
-    )
-      .filter((item) => {
-        // 待更新节点 等待太久还没更新，需要删除(可能这个数据已经不需要再更新了)
-        const isWaitHgInfoExpired = new Date().valueOf() - new Date(item.addedTime).valueOf() > 1000 * 60 * 1;
-        // 已经更新完的wait节点要删除
-        if (item.updateState === 'done') return false;
-        if (item.updateState === 'doing' && isWaitHgInfoExpired) return false;
-        // 删除 还没更新 但是 已经过期的节点
-        if (item.updateState === 'todo' && isWaitHgInfoExpired) return false;
-        return true;
-      })
-      .toSorted((v1, v2) => new Date(v1.addedTime).valueOf() - new Date(v2.addedTime).valueOf());
-  }
 };
 
 /**

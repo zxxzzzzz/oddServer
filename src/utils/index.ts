@@ -1,6 +1,6 @@
-import { GlobalOptions, GoalLine, HGInfo, JCInfo, Result, SinInfoData } from '../type/index.js';
+import { GlobalOptions, GoalLine, HGInfo, JCInfo, Result, SinInfo, DataOfSinInfo } from '../type/index.js';
 import { getCoefficient, getGoalLineRuleList } from './goalLineRule.js';
-import { solveFourVariableLinearEquations } from './lodash.js';
+import { getGaussElimination } from './lodash.js';
 import { getMethod } from './methodRule.js';
 export * from './lodash.js';
 export * from './goalLineRule.js';
@@ -227,7 +227,7 @@ export function getSinData(
     matchTimeFormat: string;
   },
   op: GlobalOptions
-): SinInfoData | undefined {
+): DataOfSinInfo | undefined {
   const {
     jcResult1,
     jcResult2,
@@ -246,123 +246,154 @@ export function getSinData(
   // x=jc2 y=hg1 z=hg2 w=profit
 
   // jc1 等式
-  const a1 = getCoefficient(
-    { result: jcResult1, isJC: true, goalLine: jcGoalLine1 },
-    { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
-    op
-  );
-  const b1 = getCoefficient(
-    { result: jcResult1, isJC: true, goalLine: jcGoalLine1 },
-    { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
-    op
-  );
-  const c1 = getCoefficient(
-    { result: jcResult1, isJC: true, goalLine: jcGoalLine1 },
-    { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
-    op
-  );
+  const a1 =
+    jcOdds1 === 0
+      ? 0
+      : getCoefficient(
+          { result: jcResult1, isJC: true, goalLine: jcGoalLine1 },
+          { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
+          op
+        );
+  const b1 =
+    jcOdds1 === 0
+      ? 0
+      : getCoefficient(
+          { result: jcResult1, isJC: true, goalLine: jcGoalLine1 },
+          { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
+          op
+        );
+  const c1 =
+    jcOdds1 === 0
+      ? 0
+      : getCoefficient(
+          { result: jcResult1, isJC: true, goalLine: jcGoalLine1 },
+          { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
+          op
+        );
   const d1 = jcOdds1 === 0 ? 0 : -1;
   const e1 =
-    -getCoefficient(
-      { result: jcResult1, isJC: true, goalLine: jcGoalLine1 },
-      { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
-      op
-    ) * op.JCBet;
+    jcOdds1 === 0
+      ? 0
+      : -getCoefficient(
+          { result: jcResult1, isJC: true, goalLine: jcGoalLine1 },
+          { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
+          op
+        ) * op.JCBet;
 
   // jc2等式
-  const a2 = getCoefficient(
-    { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
-    { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
-    op
-  );
-  const b2 = getCoefficient(
-    { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
-    { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
-    op
-  );
-  const c2 = getCoefficient(
-    { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
-    { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
-    op
-  );
+  const a2 =
+    jcOdds2 === 0
+      ? 0
+      : getCoefficient(
+          { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
+          { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
+          op
+        );
+  const b2 =
+    jcOdds2 === 0
+      ? 0
+      : getCoefficient(
+          { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
+          { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
+          op
+        );
+  const c2 =
+    jcOdds2 === 0
+      ? 0
+      : getCoefficient(
+          { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
+          { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
+          op
+        );
   const d2 = jcOdds2 === 0 ? 0 : -1;
   const e2 =
-    -getCoefficient(
-      { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
-      { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
-      op
-    ) * op.JCBet;
+    jcOdds2 === 0
+      ? 0
+      : -getCoefficient(
+          { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
+          { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
+          op
+        ) * op.JCBet;
 
   // hg1等式
-  const a3 = getCoefficient(
-    { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
-    { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
-    op
-  );
-  const b3 = getCoefficient(
-    { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
-    { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
-    op
-  );
-  const c3 = getCoefficient(
-    { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
-    { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
-    op
-  );
+  const a3 =
+    hgOdds1 === 0
+      ? 0
+      : getCoefficient(
+          { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
+          { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
+          op
+        );
+  const b3 =
+    hgOdds1 === 0
+      ? 0
+      : getCoefficient(
+          { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
+          { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
+          op
+        );
+  const c3 =
+    hgOdds1 === 0
+      ? 0
+      : getCoefficient(
+          { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
+          { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
+          op
+        );
   const d3 = hgOdds1 === 0 ? 0 : -1;
   const e3 =
-    -getCoefficient(
-      { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
-      { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
-      op
-    ) * op.JCBet;
+    hgOdds1 === 0
+      ? 0
+      : -getCoefficient(
+          { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
+          { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
+          op
+        ) * op.JCBet;
 
   // hg2等式
-  const a4 = getCoefficient(
-    { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
-    { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
-    op
-  );
-  const b4 = getCoefficient(
-    { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
-    { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
-    op
-  );
-  const c4 = getCoefficient(
-    { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
-    { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
-    op
-  );
+  const a4 =
+    hgOdds2 === 0
+      ? 0
+      : getCoefficient(
+          { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
+          { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
+          op
+        );
+  const b4 =
+    hgOdds2 === 0
+      ? 0
+      : getCoefficient(
+          { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
+          { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
+          op
+        );
+  const c4 =
+    hgOdds2 === 0
+      ? 0
+      : getCoefficient(
+          { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
+          { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
+          op
+        );
   const d4 = hgOdds2 === 0 ? 0 : -1;
   const e4 =
-    -getCoefficient(
-      { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
-      { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
-      op
-    ) * op.JCBet;
+    hgOdds2 === 0
+      ? 0
+      : -getCoefficient(
+          { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
+          { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
+          op
+        ) * op.JCBet;
 
-  const [jcBet2, hgBet1, hgBet2, profit] = solveFourVariableLinearEquations({
-    a1,
-    b1,
-    c1,
-    d1,
-    e1,
-    a2,
-    b2,
-    c2,
-    d2,
-    e2,
-    a3,
-    b3,
-    c3,
-    d3,
-    e3,
-    a4,
-    b4,
-    c4,
-    d4,
-    e4,
-  }) || [0, 0, 0, 0];
+  const [jcBet2, hgBet1, hgBet2, profit] = getGaussElimination(
+    [
+      [a1, b1, c1, d1],
+      [a2, b2, c2, d2],
+      [a3, b3, c3, d3],
+      [a4, b4, c4, d4],
+    ],
+    [e1, e2, e3, e4]
+  ) || [0, 0, 0, 0];
   const toFixNumber = (num: number, fixCount: number) => {
     return parseFloat(num.toFixed(fixCount));
   };
@@ -422,7 +453,7 @@ export function getSinData(
     profitRate,
   };
 }
-/**获取反率 */
+/**获取返率 */
 const getRet = (a: number, b: number, c: number, d: number) => {
   const nList = [a, b, c, d].filter((n) => !!n);
   if (nList.length === 0) return 0;
@@ -438,3 +469,210 @@ const getRet = (a: number, b: number, c: number, d: number) => {
   const [n1, n2, n3, n4] = nList;
   return (n1 * n2 * n3 * n4) / (n1 * n2 * n3 + n1 * n2 * n4 + n1 * n3 * n4 + n2 * n3 * n4);
 };
+
+// const getChuanInfo = (info1: DataOfSinInfo, info2: DataOfSinInfo, op: GlobalOptions) => {
+//   // x=hg1 y=hg2 z=hg3 w=hg4 u=profit
+//   const jcOdds1 = info1.jcOdds1;
+//   const jcOdds2 = info2.jcOdds1;
+//   const jcResult1 = info1.JCTouz1;
+//   const jcResult2 = info2.JCTouz1;
+//   const jcGoalLine1 = info1.JCgoalLine1;
+//   const jcGoalLine2 = info2.JCgoalLine1;
+//   const hgOdds1_1 = info1.hgOdds1;
+//   const hgOdds1_2 = info1.hgOdds2;
+//   const hgOdds2_1 = info2.hgOdds1;
+//   const hgOdds2_2 = info2.hgOdds2;
+//   const hgResult1_1 = info1.HGTouz1;
+//   const hgResult1_2 = info1.HGTouz2;
+//   const hgResult2_1 = info2.HGTouz1;
+//   const hgResult2_2 = info2.HGTouz2;
+//   const hgGoalLine1_1 = info1.HGgoalLine1;
+//   const hgGoalLine1_2 = info1.HGgoalLine2;
+//   const hgGoalLine2_1 = info2.HGgoalLine1;
+//   const hgGoalLine2_2 = info2.HGgoalLine2;
+
+//   // hg1 等式
+//   const a1 = hgOdds1_1 === 0 ? 0 : -1 + op.HGPoint;
+//   const b1 = hgOdds1_1 === 0 ? 0 : -1 + op.HGPoint;
+//   const c1 = hgOdds1_1 === 0 ? 0 : -1 + op.HGPoint;
+//   const d1 = hgOdds1_1 === 0 ? 0 : -1 + op.HGPoint;
+//   const e1 = hgOdds1_1 === 0 ? 0 : -1;
+//   const f1 = hgOdds1_1 === 0 ? 0 : -jcOdds1 * jcOdds2 * (op.JCBet-1);
+
+//   // hg2 等式
+//   const a2 = hgOdds1_2 === 0 ? 0 : -1 + op.JCPointChuan;
+//   const b1 =
+//     hgOdds1_2 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: hgResult1_1, isJC: false, goalLine: hgGoalLine1_1 },
+//           { result: hgResult1_2, isJC: false, goalLine: hgGoalLine1_2, odds: hgOdds1_2 },
+//           op
+//         );
+//   const c1 =
+//     hgOdds1_2 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: hgResult1_1, isJC: false, goalLine: hgGoalLine1_1 },
+//           { result: hgResult2_1, isJC: false, goalLine: hgGoalLine2_1, odds: hgOdds2_1 },
+//           op
+//         );
+//   const d1 =
+//     hgOdds1_2 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: hgResult1_1, isJC: true, goalLine: hgGoalLine1_1 },
+//           { result: hgResult2_2, isJC: false, goalLine: hgGoalLine2_2, odds: hgOdds2_2 },
+//           op
+//         );
+//   const e1 = hgOdds1_1 === 0 ? 0 : -1;
+//   const f1 = hgOdds1_1 === 0 ? 0 : -jcOdds1 * jcOdds2 * op.JCBet;
+
+//   // jc2等式
+//   const a2 =
+//     jcOdds2 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
+//           { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
+//           op
+//         );
+//   const b2 =
+//     jcOdds2 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
+//           { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
+//           op
+//         );
+//   const c2 =
+//     jcOdds2 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
+//           { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
+//           op
+//         );
+//   const d2 = jcOdds2 === 0 ? 0 : -1;
+//   const e2 =
+//     jcOdds2 === 0
+//       ? 0
+//       : -getCoefficient(
+//           { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
+//           { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
+//           op
+//         ) * op.JCBet;
+
+//   // hg1等式
+//   const a3 =
+//     hgOdds1 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
+//           { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
+//           op
+//         );
+//   const b3 =
+//     hgOdds1 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
+//           { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
+//           op
+//         );
+//   const c3 =
+//     hgOdds1 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
+//           { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
+//           op
+//         );
+//   const d3 = hgOdds1 === 0 ? 0 : -1;
+//   const e3 =
+//     hgOdds1 === 0
+//       ? 0
+//       : -getCoefficient(
+//           { result: hgResult1, isJC: false, goalLine: hgGoalLine1 },
+//           { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
+//           op
+//         ) * op.JCBet;
+
+//   // hg2等式
+//   const a4 =
+//     hgOdds2 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
+//           { result: jcResult2, isJC: true, goalLine: jcGoalLine2, odds: jcOdds2 },
+//           op
+//         );
+//   const b4 =
+//     hgOdds2 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
+//           { result: hgResult1, isJC: false, goalLine: hgGoalLine1, odds: hgOdds1 },
+//           op
+//         );
+//   const c4 =
+//     hgOdds2 === 0
+//       ? 0
+//       : getCoefficient(
+//           { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
+//           { result: hgResult2, isJC: false, goalLine: hgGoalLine2, odds: hgOdds2 },
+//           op
+//         );
+//   const d4 = hgOdds2 === 0 ? 0 : -1;
+//   const e4 =
+//     hgOdds2 === 0
+//       ? 0
+//       : -getCoefficient(
+//           { result: hgResult2, isJC: false, goalLine: hgGoalLine2 },
+//           { result: jcResult1, isJC: true, goalLine: jcGoalLine1, odds: jcOdds1 },
+//           op
+//         ) * op.JCBet;
+
+//   return {
+//     matchId1: '1027832',
+//     matchId2: '1027842',
+//     method1: 'WL',
+//     method2: 'WL',
+//     JCPoint: 0.14,
+//     HGPoint: 0.023,
+//     JCTzAmt: '10000',
+//     HGTzAmt1_1: '18199.6879',
+//     HGTzAmt1_2: 0,
+//     HGTzAmt2_1: '25935.0000',
+//     HGTzAmt2_2: 0,
+//     JcProfitRate: '1.5041%',
+//     JcProfit: '150.4099',
+//     HgProfit1: '150.4099',
+//     HgProfit2: '150.4099',
+//     JCAmount: '51870.0000',
+//     HGAmount1_1: '26753.5412',
+//     HGAmount1_2: 0,
+//     HGAmount2_1: '51870.0000',
+//     HGAmount2_2: 0,
+//     JCgoalLine1: '-1',
+//     JCgoalLine2: '-2',
+//     HGgoalLine1_1: '-',
+//     HGgoalLine1_2: '-',
+//     HGgoalLine2_1: '-1.5',
+//     HGgoalLine2_2: '-',
+//     JCTzOdd1: '2.85',
+//     JCTzOdd2: '1.82',
+//     HGTzOdd1_1: '1.470',
+//     HGTzOdd1_2: '-',
+//     HGTzOdd2_1: '2',
+//     HGTzOdd2_2: '-',
+//     yield: 'Sin',
+//     planId: '1027832_2.85_1027842_1.82',
+//     JCTouz1: 'a',
+//     JCTouz2: 'a',
+//     HGTouz1_1: 'h',
+//     HGTouz1_2: '-',
+//     HGTouz2_1: 'h',
+//     HGTouz2_2: '-',
+//   };
+// };

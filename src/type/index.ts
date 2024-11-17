@@ -4344,7 +4344,7 @@ export type GlobalOptions = {
   /** JC投注*/
   JCBet: number;
   /** JC串返点*/
-  JCPointChuan: Number;
+  JCPointChuan: number;
 };
 
 export type GoalLine =
@@ -4416,7 +4416,7 @@ export type Method = 'WL' | 'WLD1' | 'WLD2' | 'LH1' | 'LH2' | 'LH3' | 'WH1' | 'W
 export type MethodRule = {
   method: Method;
 } & GoalLineRule;
-export type SinInfoData = {
+export type DataOfSinInfo = {
   JCgoalLine1: GoalLine;
   JCgoalLine2: GoalLine;
   HGgoalLine1: GoalLine;
@@ -4452,7 +4452,7 @@ export type SinInfo = {
   matchId: string;
   JCgoalLine: GoalLine;
   HGgoalLine: GoalLine;
-  data: SinInfoData;
+  data: DataOfSinInfo;
 };
 
 export enum BETTING_RESULT {

@@ -423,7 +423,7 @@ export function solveThreeVariableLinearEquations(op: {
  * @param e4 - 第四个方程的常数项
  * @returns 一个包含解 [x, y, z, w] 的数组，如果方程组无解或有无穷多解，则返回 null
  */
-export function solveFourVariableLinearEquations(op: {
+function solveFourVariableLinearEquations(op: {
   a1: number;
   b1: number;
   c1: number;
@@ -562,4 +562,81 @@ export function solveFourVariableLinearEquations(op: {
   }
 
   return x;
+}
+
+/**
+ * 使用高斯消元法求解线性方程组 Ax = b
+ * @param A 系数矩阵
+ * @param b 常数项向量
+ * @returns 解向量 x
+ */
+export function getGaussElimination(pA: number[][], pB: number[]): number[] {
+  const isColNone = (col: number) => {
+    return pA.map((item) => item?.[col]).every((n) => !n);
+  };
+  const isLineNone = (line: number) => {
+    if (!pA?.[line]?.length) return true;
+    return pA[line].every((n) => !n);
+  };
+
+  // 未知数数量
+  const A = pA
+    .filter((_, n) => !isLineNone(n))
+    .map((item) => {
+      return item.filter((_, col) => {
+        return !isColNone(col);
+      });
+    })
+  const n = A.length; // 获取矩阵的大小
+  const x = new Array(n).fill(0); // 初始化解向量 x，初始值为 0
+  const b = pB.filter((_, line) => !isLineNone(line));
+
+  
+
+  // 创建增广矩阵 [A|b]
+  for (let i = 0; i < n; i++) {
+    A[i].push(b[i]);
+  }
+
+  // 前向消元
+  for (let i = 0; i < n; i++) {
+    // 找到当前列的最大值所在的行，以避免除以接近零的数
+    let maxRow = i;
+    for (let k = i + 1; k < n; k++) {
+      if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) {
+        maxRow = k;
+      }
+    }
+
+    // 交换当前行和最大值所在的行
+    [A[i], A[maxRow]] = [A[maxRow], A[i]];
+
+    // 检查主元是否为零，如果是，则矩阵是奇异的
+    if (A[i][i] === 0) {
+      throw new Error('Matrix is singular');
+    }
+
+    // 将当前列下方的所有元素消为零
+    for (let j = i + 1; j < n; j++) {
+      const factor = A[j][i] / A[i][i]; // 计算消元因子
+      for (let k = i; k <= n; k++) {
+        A[j][k] -= factor * A[i][k]; // 更新增广矩阵
+      }
+    }
+  }
+
+  // 回代求解
+  for (let i = n - 1; i >= 0; i--) {
+    x[i] = A[i][n] / A[i][i]; // 计算当前变量的值
+    for (let j = i - 1; j >= 0; j--) {
+      A[j][n] -= A[j][i] * x[i]; // 更新增广矩阵的最后一列
+    }
+  }
+  const _x = [...x];
+  // 返回解向量
+  const re = range(0, pA.length).map((n) => {
+    if (isLineNone(n)) return 0;
+    return _x.shift();
+  });
+  return re
 }

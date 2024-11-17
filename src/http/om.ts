@@ -12,6 +12,7 @@ function getDataServerState() {
     .map((i) => {
       return path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
     })
+    .reverse()
     .find((filePath) => {
       if (!existsSync(filePath)) return true;
       if (statSync(filePath).size / 1024 / 1024 < 10) return true;
