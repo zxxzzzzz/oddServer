@@ -19,14 +19,15 @@ server.post('/api/water/getFootballData', async (req, res) => {
   }
   const body = req.body;
   const op: GlobalOptions = {
-    JCPointSin: parseFloat(body.JCPointSin || 0.12),
-    JCPointChuan: parseFloat(body.JCPointChuan || 0.13),
-    HGPoint: parseFloat(body.HGPoint || 0.023),
+    JCPointSin: parseFloat(body.JCPointSin || '0.12'),
+    JCPointChuan: parseFloat(body.JCPointChuan || '0.13'),
+    HGPoint: parseFloat(body.HGPoint || '0.023'),
     JCBet: parseFloat(body.JCTzAmt || '10000'),
     // "scope": "周三",
     // "outMatch": [],
     // "inMatch": []
   };
+  console.log(op);
   const scope = body?.scope || '';
   const JCInfos = GlobalFootballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
   const jcMatchIdList = JCInfos.map((v) => v.matchId);

@@ -160,8 +160,8 @@ export function getMatchSinData(JCInfo: JCInfo, HGInfo: HGInfo, op: GlobalOption
     hgGoalLineItem8,
     hgGoalLineItem9,
     hgGoalLineItem10,
-  ].filter((item) => item.a !== '-');
-  const jcGoalLineItemList = [jcGoalLineItem1, jcGoalLineItem2].filter((item) => item.a !== '-');
+  ].filter((item) => item.a !== '-' && item.a);
+  const jcGoalLineItemList = [jcGoalLineItem1, jcGoalLineItem2].filter((item) => item.a !== '-' && item.a);
   return goalLineRuleList
     .map((rule) => {
       const jcResult1 = rule.jcResult1;
@@ -204,6 +204,7 @@ export function getMatchSinData(JCInfo: JCInfo, HGInfo: HGInfo, op: GlobalOption
         matchId: JCInfo.matchId,
         JCgoalLine: jcGoalLine1,
         HGgoalLine: hgGoalLine1,
+        rule: rule,
         data: sinData,
       };
     })

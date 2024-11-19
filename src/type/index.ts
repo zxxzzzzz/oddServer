@@ -4452,6 +4452,7 @@ export type SinInfo = {
   matchId: string;
   JCgoalLine: GoalLine;
   HGgoalLine: GoalLine;
+  rule: GoalLineRule;
   data: DataOfSinInfo;
 };
 
