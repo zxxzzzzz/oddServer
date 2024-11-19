@@ -14,8 +14,7 @@ function getDataServerState() {
     })
     .reverse()
     .find((filePath) => {
-      if (!existsSync(filePath)) return true;
-      if (statSync(filePath).size / 1024 / 1024 < 10) return true;
+      if (existsSync(filePath)) return true;
       return false;
     });
   if (!filePath) {
