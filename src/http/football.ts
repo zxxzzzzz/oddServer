@@ -42,7 +42,13 @@ server.post('/api/water/getFootballData', async (req, res) => {
     if (!finedJcInfo) return false;
     const minJcOdds = Math.min(toNumber(finedJcInfo.had_a), toNumber(finedJcInfo.had_d), toNumber(finedJcInfo.had_h));
     // 去除胜平负里选择了两个最大odds的sin
-    if (sinInfo.data.jcOdds1 - minJcOdds !== 0 && sinInfo.data.jcOdds2 - minJcOdds !== 0 && sinInfo.data.JCgoalLine1 === '-') return false;
+    if (
+      sinInfo.data.jcOdds1 - minJcOdds !== 0 &&
+      sinInfo.data.jcOdds2 - minJcOdds !== 0 &&
+      sinInfo.data.JCgoalLine1 === '-' &&
+      sinInfo.data.JCgoalLine2 === '-'
+    )
+      return false;
     return true;
   });
 
