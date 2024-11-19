@@ -177,6 +177,8 @@ export function getMatchSinData(JCInfo: JCInfo, HGInfo: HGInfo, op: GlobalOption
       const finedHgItem1 = hgGoalLineItemList.find((hgItem) => hgItem.goalLine === hgGoalLine1);
       const finedHgItem2 = hgGoalLineItemList.find((hgItem) => hgItem.goalLine === hgGoalLine2);
       if (!finedJcItem1 || !finedHgItem1) return void 0;
+      if (rule.jcResult2 !== '-' && !finedJcItem2) return void 0;
+      if (rule.hgResult2 !== '-' && !finedHgItem2) return void 0;
       const jcOdds1 = !finedJcItem1 ? 0 : jcResult1 === '-' ? 0 : parseFloat(finedJcItem1[jcResult1]);
       const jcOdds2 = !finedJcItem2 ? 0 : jcResult2 === '-' ? 0 : parseFloat(finedJcItem2[jcResult2]);
       const hgOdds1 = !finedHgItem1 ? 0 : hgResult1 === '-' ? 0 : parseFloat(finedHgItem1[hgResult1]);

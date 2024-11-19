@@ -27,7 +27,6 @@ server.post('/api/water/getFootballData', async (req, res) => {
     // "outMatch": [],
     // "inMatch": []
   };
-  console.log(op);
   const scope = body?.scope || '';
   const JCInfos = GlobalFootballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
   const jcMatchIdList = JCInfos.map((v) => v.matchId);

@@ -19,5 +19,6 @@ import path from 'path';
 import dayjs from 'dayjs';
 
 (async () => {
+  // updateGoalLineRuleList();
   // updateMethodRuleList();
 })();

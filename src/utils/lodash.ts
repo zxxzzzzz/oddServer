@@ -590,6 +590,7 @@ export function getGaussElimination(pA: number[][], pB: number[]): number[] {
   const n = A.length; // 获取矩阵的大小
   const x = new Array(n).fill(0); // 初始化解向量 x，初始值为 0
   const b = pB.filter((_, line) => !isLineNone(line));
+  // console.log(A, pA);
 
   
 
@@ -635,8 +636,9 @@ export function getGaussElimination(pA: number[][], pB: number[]): number[] {
   const _x = [...x];
   // 返回解向量
   const re = range(0, pA.length).map((n) => {
-    if (isLineNone(n)) return 0;
+    if (isColNone(n)) return 0;
     return _x.shift();
   });
+  // console.log(re);
   return re
 }
