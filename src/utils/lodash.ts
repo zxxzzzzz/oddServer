@@ -638,7 +638,7 @@ export function getGaussElimination(pA: number[][], pB: number[]): number[] {
     if (isColNone(n)) return 0;
     return _x.shift();
   });
-  console.log(re, pA, A, b);
+  // console.log(re, pA, A, b);
   return re
 }
 
