@@ -1,7 +1,7 @@
 import { updateFootballStateFromOss, updateFootballStateFromWeb, uploadFootballStateToOss } from '../store/football.js';
 
 (async () => {
-  await updateFootballStateFromOss();
+  // await updateFootballStateFromOss();
   setInterval(async () => {
     await updateFootballStateFromWeb();
   }, 3000);
