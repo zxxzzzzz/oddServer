@@ -5,8 +5,6 @@ import { getSinData, toNumber } from '../utils/index.js';
 import { getAccountBySessionId } from '../store/user.js';
 import * as cookie from 'cookie';
 
-
-
 server.post('/api/water/getFootballData', async (req, res) => {
   const cookieObj = cookie.parse(req.header('cookie'));
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
@@ -51,7 +49,7 @@ server.post('/api/water/getFootballData', async (req, res) => {
       return false;
     return true;
   });
-  const chuanData = getChuanInfoList(sinData, op)
+  const chuanData = getChuanInfoList(sinData, op);
 
   res.send({
     success: true,
@@ -60,89 +58,10 @@ server.post('/api/water/getFootballData', async (req, res) => {
     JCInfos,
     HGInfos,
     watData: {
-      bsktList: [
-        {
-          matchId: '1027707',
-          matchNumStr: '周六302',
-          profitRate: '4.29%',
-        },
-        {
-          matchId: '1027706',
-          matchNumStr: '周六301',
-          profitRate: '0.34%',
-        },
-      ],
-      ftSinList: [
-        {
-          matchId: JCInfos[0].matchId,
-          matchNumStr: '周日012',
-          profitRate: '6.43%',
-        },
-      ],
-      ftChuanList: [
-        {
-          matchId1: JCInfos[0].matchId,
-          matchId2: JCInfos[1].matchId,
-          matchNumStr1: '周六008',
-          matchNumStr2: '周日012',
-          profitRate: '1.18%',
-        },
-        {
-          matchId1: '1027678',
-          matchId2: '1027696',
-          matchNumStr1: '周六016',
-          matchNumStr2: '周日012',
-          profitRate: '0.47%',
-        },
-        {
-          matchId1: '1027689',
-          matchId2: '1027696',
-          matchNumStr1: '周日005',
-          matchNumStr2: '周日012',
-          profitRate: '0.34%',
-        },
-        {
-          matchId1: '1027696',
-          matchId2: '1027699',
-          matchNumStr1: '周日012',
-          matchNumStr2: '周日015',
-          profitRate: '0.27%',
-        },
-        {
-          matchId1: '1027664',
-          matchId2: '1027696',
-          matchNumStr1: '周六002',
-          matchNumStr2: '周日012',
-          profitRate: '0.09%',
-        },
-      ],
-      fttgList: [
-        {
-          matchId: '1027663',
-          matchNumStr: '周六001',
-          profitRate: '1.78%',
-        },
-        {
-          matchId: '1027684',
-          matchNumStr: '周六022',
-          profitRate: '1.32%',
-        },
-        {
-          matchId: '1027665',
-          matchNumStr: '周六003',
-          profitRate: '1.19%',
-        },
-        {
-          matchId: '1027692',
-          matchNumStr: '周日008',
-          profitRate: '1.11%',
-        },
-        {
-          matchId: '1027672',
-          matchNumStr: '周六010',
-          profitRate: '0.74%',
-        },
-      ],
+      bsktList: [],
+      ftSinList: [],
+      ftChuanList: [],
+      fttgList: [],
       bqcList: [
         {
           matchId: '1027673',
