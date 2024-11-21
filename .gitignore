@@ -4,5 +4,6 @@ log/*
 !log/holderplace.txt
 
 cache/*
-!cache/goalLineRule.csv
+!cache/sinRule.csv
 !cache/methodRule.csv
+!cache/chuanRule.csv

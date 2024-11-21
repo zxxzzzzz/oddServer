@@ -9,6 +9,8 @@ import {
   toFifoFunction,
   pickBy,
   range,
+  updateChuanRuleList,
+  getLeagueSameWeight
 } from './utils/index.js';
 import { delay, uniqBy } from './api/utils.js';
 import { randomUUID } from 'crypto';
@@ -19,6 +21,9 @@ import path from 'path';
 import dayjs from 'dayjs';
 
 (async () => {
-  // updateGoalLineRuleList();
-  // updateMethodRuleList();
+  // updateGoalLineRuleList([]);
+  // updateMethodRuleList([]);
+  // updateChuanRuleList()
+  console.log(getLeagueSameWeight('瑞典超级甲组联赛-附加赛', '瑞典超级联赛'));
+  console.log(getLeagueSameWeight('瑞典超级甲组联赛-附加赛', '瑞典甲组联赛-附加赛'));
 })();

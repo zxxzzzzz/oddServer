@@ -1,9 +1,11 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { BETTING_RESULT, GlobalOptions, GoalLine, GoalLineRule, Result, SinInfo } from '../type/index.js';
+import { BETTING_RESULT, GlobalOptions, GoalLine, SinRule, Result, SinInfo } from '../type/index.js';
 import { everyWithTolerance, range, uniqBy } from './index.js';
 import path from 'path';
 
-let GlobalGoalLineRuleList: GoalLineRule[] = [];
+let GlobalGoalLineRuleList: SinRule[] = [];
+const FILE_PATH = path.resolve(import.meta.dirname, '../../cache/sinRule.csv');
+const CSV_HEAD = ['jcGoalLine1', 'jcResult1', 'jcGoalLine2', 'jcResult2', 'hgGoalLine1', 'hgResult1', 'hgGoalLine2', 'hgResult2'] as const;
 
 export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
   const allGoalLine = sinDataList.map((item) => {
@@ -21,9 +23,8 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
   const oldGoalLineRuleList = getGoalLineRuleList();
 
   const itemList = [...allGoalLine, ...oldGoalLineRuleList];
-  const keys = Object.keys(itemList[0]) as (keyof (typeof itemList)[0])[];
-  const uniqItemList = uniqBy(itemList, (item) => keys.map((key) => item[key]).join(',')).sort((a, b) => {
-    const jm = { J1: 1, J2: 2, J3: 3 }
+  const uniqItemList = uniqBy(itemList, (item) => CSV_HEAD.map((key) => item[key]).join(',')).sort((a, b) => {
+    const jm = { J1: 1, J2: 2, J3: 3 };
     const aIndex =
       (a.jcGoalLine1 === '-' ? 0 : parseFloat(a.jcGoalLine1)) * 1000 +
       (a.jcGoalLine2 === '-' ? 0 : parseFloat(a.jcGoalLine2)) * 100 +
@@ -42,8 +43,8 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
   });
 
   writeFileSync(
-    path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'),
-    keys
+    FILE_PATH,
+    CSV_HEAD
       .map((key) => {
         if (key === 'jcGoalLine1') return '竞彩让球线1';
         if (key === 'jcGoalLine2') return '竞彩让球线2';
@@ -59,22 +60,12 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
     { encoding: 'utf-8' }
   );
   writeFileSync(
-    path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'),
+    FILE_PATH,
     uniqItemList
       .map((item) =>
-        keys
+        CSV_HEAD
           .map((key) => {
             const v = item[key];
-            if (['jcGoalLine1'].includes(key) && v === '-' && item.jcResult1 !== '-') return '胜平负';
-            if (['jcGoalLine2'].includes(key) && v === '-' && item.jcResult2 !== '-') return '胜平负';
-            if (['hgGoalLine1'].includes(key) && v === '-' && item.hgResult1 !== '-') return '独赢';
-            if (['hgGoalLine2'].includes(key) && v === '-' && item.hgResult2 !== '-') return '独赢';
-            if (v === 'a') return '负';
-            if (v === 'h') return '胜';
-            if (v === 'd') return '平';
-            if (v === 'J1') return '净1';
-            if (v === 'J2') return '净2';
-            if (v === 'J3') return '净3';
             return v;
           })
           .join(',')
@@ -86,32 +77,18 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
 
 export const getGoalLineRuleList = () => {
   if (GlobalGoalLineRuleList?.length) return GlobalGoalLineRuleList;
-  const ruleList = readFileSync(path.resolve(import.meta.dirname, '../../cache/goalLineRule.csv'), { encoding: 'utf-8' })
+  const ruleList = readFileSync(FILE_PATH, { encoding: 'utf-8' })
     .replace(/\r\n/g, '\n')
     .split('\n')
     .slice(1)
     .map((line: string) => {
-      const [jcGoalLine1, jcResult1, jcGoalLine2, jcResult2, hgGoalLine1, hgResult1, hgGoalLine2, hgResult2] = line.split(',').map((v) => {
-        if (v === '胜平负') return '-';
-        if (v === '独赢') return '-';
-        if (v === '负') return 'a';
-        if (v === '胜') return 'h';
-        if (v === '平') return 'd';
-        if (v === '净1') return 'J1';
-        if (v === '净2') return 'J2';
-        if (v === '净3') return 'J3';
+      const vList = line.split(',').map((v) => {
         return v;
       });
-      return {
-        jcGoalLine1,
-        jcResult1,
-        jcGoalLine2,
-        jcResult2,
-        hgGoalLine1,
-        hgResult1,
-        hgGoalLine2,
-        hgResult2,
-      } as GoalLineRule;
+      return CSV_HEAD.reduce((re, key, index)=>{
+        const v = vList[index]
+        return {...re, [key]:v}
+      }, {} as SinRule)
     });
   GlobalGoalLineRuleList = ruleList;
   return GlobalGoalLineRuleList;
@@ -124,13 +101,76 @@ function getGoalLineNumberList(goalLine: GoalLine) {
   if (['0', '1', '2', '3', '4', '5', '+0', '+1', '+2', '+3', '+4', '+5', '-1', '-2', '-3', '-4', '-5'].includes(goalLine)) {
     goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
   }
-  if (['0.25', '1.25', '2.25', '3.25', '4.25', '5.25', '+0.25', '+1.25', '+2.25', '+3.25', '+4.25', '+5.25', '-0.25', '-1.25', '-2.25', '-3.25', '-4.25', '-5.25'].includes(goalLine)) {
+  if (
+    [
+      '0.25',
+      '1.25',
+      '2.25',
+      '3.25',
+      '4.25',
+      '5.25',
+      '+0.25',
+      '+1.25',
+      '+2.25',
+      '+3.25',
+      '+4.25',
+      '+5.25',
+      '-0.25',
+      '-1.25',
+      '-2.25',
+      '-3.25',
+      '-4.25',
+      '-5.25',
+    ].includes(goalLine)
+  ) {
     goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
   }
-  if (['0.5', '1.5', '2.5', '3.5', '4.5', '5.5', '+0.5', '+1.5', '+2.5', '+3.5', '+4.5', '+5.5', '-0.5', '-1.5', '-2.5', '-3.5', '-4.5', '-5.5'].includes(goalLine)) {
+  if (
+    [
+      '0.5',
+      '1.5',
+      '2.5',
+      '3.5',
+      '4.5',
+      '5.5',
+      '+0.5',
+      '+1.5',
+      '+2.5',
+      '+3.5',
+      '+4.5',
+      '+5.5',
+      '-0.5',
+      '-1.5',
+      '-2.5',
+      '-3.5',
+      '-4.5',
+      '-5.5',
+    ].includes(goalLine)
+  ) {
     goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
   }
-  if (['0.75', '1.75', '2.75', '3.75', '4.75', '5.75', '+0.75', '+1.75', '+2.75', '+3.75', '+4.75', '+5.75', '-0.75', '-1.75', '-2.75', '-3.75', '-4.75', '-5.75'].includes(goalLine)) {
+  if (
+    [
+      '0.75',
+      '1.75',
+      '2.75',
+      '3.75',
+      '4.75',
+      '5.75',
+      '+0.75',
+      '+1.75',
+      '+2.75',
+      '+3.75',
+      '+4.75',
+      '+5.75',
+      '-0.75',
+      '-1.75',
+      '-2.75',
+      '-3.75',
+      '-4.75',
+      '-5.75',
+    ].includes(goalLine)
+  ) {
     goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
   }
   return goalLineList as [number, number];
@@ -163,17 +203,17 @@ function getBettingResultByBettingList(betList: [BETTING_RESULT, BETTING_RESULT]
 /**获取获胜的 主-客 的分差 */
 function getWinGoalList(item: { goalLine: GoalLine; result: 'h' | 'd' | 'a' | '-'; isJC: boolean }) {
   if (item.result === '-') return [];
-  if (item.goalLine === 'J1' && item.result === 'h') return [1]
-  if (item.goalLine === 'J1' && item.result === 'd') return []
-  if (item.goalLine === 'J1' && item.result === 'a') return [-1]
+  if (item.goalLine === 'J1' && item.result === 'h') return [1];
+  if (item.goalLine === 'J1' && item.result === 'd') return [];
+  if (item.goalLine === 'J1' && item.result === 'a') return [-1];
 
-  if (item.goalLine === 'J2' && item.result === 'h') return [2]
-  if (item.goalLine === 'J2' && item.result === 'd') return []
-  if (item.goalLine === 'J2' && item.result === 'a') return [-2]
+  if (item.goalLine === 'J2' && item.result === 'h') return [2];
+  if (item.goalLine === 'J2' && item.result === 'd') return [];
+  if (item.goalLine === 'J2' && item.result === 'a') return [-2];
 
-  if (item.goalLine === 'J3' && item.result === 'h') return [3]
-  if (item.goalLine === 'J3' && item.result === 'd') return []
-  if (item.goalLine === 'J3' && item.result === 'a') return [-3]
+  if (item.goalLine === 'J3' && item.result === 'h') return [3];
+  if (item.goalLine === 'J3' && item.result === 'd') return [];
+  if (item.goalLine === 'J3' && item.result === 'a') return [-3];
   const goalLineNumberList = getGoalLineNumberList(item.goalLine);
   const winGoalList = range(-20, 20).filter((i) => {
     if (item.result === 'a' && item.goalLine === '-') return i < 0;
@@ -194,20 +234,20 @@ function getBettingResult(
   if (r1.result === '-' || r2.result === '-') return BETTING_RESULT.unableDetermine;
   const winGoalList = getWinGoalList(r1);
   if (!winGoalList?.length) return BETTING_RESULT.unableDetermine;
-  if (r2.goalLine === 'J1' && r2.result === 'h' && everyWithTolerance(winGoalList, g => g === 1)) return BETTING_RESULT.win
-  if (r2.goalLine === 'J1' && r2.result === 'a' && everyWithTolerance(winGoalList, g => g === -1)) return BETTING_RESULT.win
-  if (r2.goalLine === 'J1' && r2.result === 'h' && everyWithTolerance(winGoalList, g => g !== 1)) return BETTING_RESULT.lose
-  if (r2.goalLine === 'J1' && r2.result === 'a' && everyWithTolerance(winGoalList, g => g !== -1)) return BETTING_RESULT.lose
+  if (r2.goalLine === 'J1' && r2.result === 'h' && everyWithTolerance(winGoalList, (g) => g === 1)) return BETTING_RESULT.win;
+  if (r2.goalLine === 'J1' && r2.result === 'a' && everyWithTolerance(winGoalList, (g) => g === -1)) return BETTING_RESULT.win;
+  if (r2.goalLine === 'J1' && r2.result === 'h' && everyWithTolerance(winGoalList, (g) => g !== 1)) return BETTING_RESULT.lose;
+  if (r2.goalLine === 'J1' && r2.result === 'a' && everyWithTolerance(winGoalList, (g) => g !== -1)) return BETTING_RESULT.lose;
 
-  if (r2.goalLine === 'J2' && r2.result === 'h' && everyWithTolerance(winGoalList, g => g === 2)) return BETTING_RESULT.win
-  if (r2.goalLine === 'J2' && r2.result === 'a' && everyWithTolerance(winGoalList, g => g === -2)) return BETTING_RESULT.win
-  if (r2.goalLine === 'J2' && r2.result === 'h' && everyWithTolerance(winGoalList, g => g !== 2)) return BETTING_RESULT.lose
-  if (r2.goalLine === 'J2' && r2.result === 'a' && everyWithTolerance(winGoalList, g => g !== -2)) return BETTING_RESULT.lose
+  if (r2.goalLine === 'J2' && r2.result === 'h' && everyWithTolerance(winGoalList, (g) => g === 2)) return BETTING_RESULT.win;
+  if (r2.goalLine === 'J2' && r2.result === 'a' && everyWithTolerance(winGoalList, (g) => g === -2)) return BETTING_RESULT.win;
+  if (r2.goalLine === 'J2' && r2.result === 'h' && everyWithTolerance(winGoalList, (g) => g !== 2)) return BETTING_RESULT.lose;
+  if (r2.goalLine === 'J2' && r2.result === 'a' && everyWithTolerance(winGoalList, (g) => g !== -2)) return BETTING_RESULT.lose;
 
-  if (r2.goalLine === 'J3' && r2.result === 'h' && everyWithTolerance(winGoalList, g => g === 3)) return BETTING_RESULT.win
-  if (r2.goalLine === 'J3' && r2.result === 'a' && everyWithTolerance(winGoalList, g => g === -3)) return BETTING_RESULT.win
-  if (r2.goalLine === 'J3' && r2.result === 'h' && everyWithTolerance(winGoalList, g => g !== 3)) return BETTING_RESULT.lose
-  if (r2.goalLine === 'J3' && r2.result === 'a' && everyWithTolerance(winGoalList, g => g !== -3)) return BETTING_RESULT.lose
+  if (r2.goalLine === 'J3' && r2.result === 'h' && everyWithTolerance(winGoalList, (g) => g === 3)) return BETTING_RESULT.win;
+  if (r2.goalLine === 'J3' && r2.result === 'a' && everyWithTolerance(winGoalList, (g) => g === -3)) return BETTING_RESULT.win;
+  if (r2.goalLine === 'J3' && r2.result === 'h' && everyWithTolerance(winGoalList, (g) => g !== 3)) return BETTING_RESULT.lose;
+  if (r2.goalLine === 'J3' && r2.result === 'a' && everyWithTolerance(winGoalList, (g) => g !== -3)) return BETTING_RESULT.lose;
   /**把0.25转化为[0,0.5]格式 ,1=>[1,1], 0.75=>[0.5,1] */
   const r2GoalLineNumberList = getGoalLineNumberList(r2.goalLine);
   if (r2.result === 'a') {
@@ -304,4 +344,3 @@ export const getCoefficient = (
 
 // console.log(123, getBettingResult({ goalLine: 'J1', result: 'a', isJC: false }, { goalLine: '1', result: 'h', isJC: true }));
 // console.log(123, getBettingResult({ goalLine: 'J1', result: 'a', isJC: false }, { goalLine: '1', result: 'a', isJC: true }));
-

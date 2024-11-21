@@ -12,12 +12,15 @@ import {
   toAsyncTimeFunction,
   uniqBy,
   warnLog,
+  getChuanInfo,
+  getChuanRuleList,
 } from '../utils/index.js';
 import { writeFileSync } from 'fs';
 import { delay } from '../api/utils.js';
 import { getOssClient } from '../api/oss.js';
 import stringify from 'json-stringify-pretty-compact';
 import { resolve } from 'path';
+import dayjs from 'dayjs';
 
 const ZERO_TIME = '2000-11-08T05:55:26.881Z';
 
@@ -399,6 +402,45 @@ export function getSinInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: G
     .filter((v): v is SinInfo[] => !!v)
     .flat();
   return sinInfoList;
+}
+
+export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
+  const chuanRuleList = getChuanRuleList();
+  const filteredSinInfoList = sinInfoList
+    .filter((v) => v.data.profit >= 450 && v.data.JCTouz2 === '-' && v.data.matchTimeFormat)
+    .filter((v) => {
+      return chuanRuleList.some((rule) => {
+        return (
+          v.data.JCgoalLine1 === rule.jcGoalLine &&
+          v.data.JCTouz1 === rule.jcResult &&
+          v.data.HGgoalLine1 === rule.hgGoalLine1 &&
+          v.data.HGgoalLine2 === rule.hgGoalLine2 &&
+          v.data.HGTouz1 === rule.hgResult1 &&
+          v.data.HGTouz2 === rule.hgResult2
+        );
+      });
+    })
+    .toSorted((v1, v2) => {
+      return (
+        dayjs(v1.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() - dayjs(v2.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf()
+      );
+    });
+  return filteredSinInfoList
+    .map((info1, index) => {
+      const exInfoList = filteredSinInfoList
+        .slice(index)
+        .filter(
+          (info2) =>
+            info2.matchId !== info1.matchId &&
+            dayjs(info2.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() -
+              dayjs(info1.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() >
+              1000 * 60 * 60 * 2
+        );
+      return exInfoList.map((exInfo) => {
+        return getChuanInfo(info1, exInfo, { ...op, JCPointSin: op.JCPointChuan });
+      });
+    })
+    .flat();
 }
 
 /**更新足球数据到web */

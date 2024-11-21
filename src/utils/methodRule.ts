@@ -5,6 +5,17 @@ import path from 'path';
 
 let GlobalMethodRuleList: MethodRule[] = [];
 const FILE_PATH = path.resolve(import.meta.dirname, '../../cache/methodRule.csv');
+const CSV_HEAD = [
+  'method',
+  'jcGoalLine1',
+  'jcResult1',
+  'jcGoalLine2',
+  'jcResult2',
+  'hgGoalLine1',
+  'hgResult1',
+  'hgGoalLine2',
+  'hgResult2',
+] as const;
 
 export const updateMethodRuleList = (sinDataList: SinInfo[]) => {
   const allMethod = sinDataList.map((item) => {
@@ -23,39 +34,34 @@ export const updateMethodRuleList = (sinDataList: SinInfo[]) => {
   const oldMethodRuleList = getMethodRuleList();
 
   const itemList = [...allMethod, ...oldMethodRuleList];
-  const keys = Object.keys(itemList[0]) as (keyof (typeof itemList)[0])[];
   const methodList = ['WL', 'WLD1', 'WLD2', 'LH1', 'LH2', 'LH3', 'WH1', 'WH2', 'WH3', 'D1', 'D2', 'D3'];
-  const uniqItemList = uniqBy(itemList, (item) => keys.map((key) => item[key]).join(',')).toSorted((v1, v2) => {
+  const uniqItemList = uniqBy(itemList, (item) => CSV_HEAD.map((key) => item[key]).join(',')).toSorted((v1, v2) => {
     return methodList.findIndex((m) => v1.method === m) - methodList.findIndex((m) => v2.method === m);
   });
   writeFileSync(
     FILE_PATH,
-    keys
-      .map((key) => {
-        if (key === 'jcGoalLine1') return '竞彩让球线1';
-        if (key === 'jcGoalLine2') return '竞彩让球线2';
-        if (key === 'jcResult1') return '竞彩比赛结果1';
-        if (key === 'jcResult2') return '竞彩比赛结果2';
-        if (key === 'hgGoalLine1') return '皇冠让球线1';
-        if (key === 'hgGoalLine2') return '皇冠让球线2';
-        if (key === 'hgResult1') return '皇冠比赛结果1';
-        if (key === 'hgResult2') return '皇冠比赛结果2';
-        if (key === 'method') return '投注方式';
-        return key;
-      })
-      .join(',') + '\n',
+    CSV_HEAD.map((key) => {
+      if (key === 'jcGoalLine1') return '竞彩让球线1';
+      if (key === 'jcGoalLine2') return '竞彩让球线2';
+      if (key === 'jcResult1') return '竞彩比赛结果1';
+      if (key === 'jcResult2') return '竞彩比赛结果2';
+      if (key === 'hgGoalLine1') return '皇冠让球线1';
+      if (key === 'hgGoalLine2') return '皇冠让球线2';
+      if (key === 'hgResult1') return '皇冠比赛结果1';
+      if (key === 'hgResult2') return '皇冠比赛结果2';
+      if (key === 'method') return '投注方式';
+      return key;
+    }).join(',') + '\n',
     { encoding: 'utf-8' }
   );
   writeFileSync(
     FILE_PATH,
     uniqItemList
       .map((item) =>
-        keys
-          .map((key) => {
-            const v = item[key];
-            return v;
-          })
-          .join(',')
+        CSV_HEAD.map((key) => {
+          const v = item[key];
+          return v;
+        }).join(',')
       )
       .join('\n'),
     { flag: 'a', encoding: 'utf-8' }
@@ -70,22 +76,13 @@ export const getMethodRuleList = () => {
     .split('\n')
     .slice(1)
     .map((line: string) => {
-      const [method, jcGoalLine1, jcResult1, jcGoalLine2, jcResult2, hgGoalLine1, hgResult1, hgGoalLine2, hgResult2] = line
-        .split(',')
-        .map((v) => {
-          return v;
-        });
-      return {
-        method,
-        jcGoalLine1,
-        jcResult1,
-        jcGoalLine2,
-        jcResult2,
-        hgGoalLine1,
-        hgResult1,
-        hgGoalLine2,
-        hgResult2,
-      } as MethodRule;
+      const vList = line.split(',').map((v) => {
+        return v;
+      });
+      return CSV_HEAD.reduce((re, key, index) => {
+        const v = vList[index];
+        return { ...re, [key]: v };
+      }, {} as MethodRule);
     });
   GlobalMethodRuleList = ruleList;
   return GlobalMethodRuleList;
@@ -114,5 +111,5 @@ export const getMethod = (item: {
       m.hgResult2 === item.hgResult2
     );
   });
-  return finedItem?.method || 'WL'
+  return finedItem?.method || 'WL';
 };
