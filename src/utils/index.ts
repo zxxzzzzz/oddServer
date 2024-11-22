@@ -93,7 +93,7 @@ export const getLeagueSameWeight = (leagueName1: string, leagueName2: string) =>
     ['美国职业篮球联盟', 'NBA美国职业篮球联赛'],
     ['亚洲杯', '亚洲杯2023(在卡塔尔)'],
     ['非洲国家杯', '非洲国家杯2023(在象牙海岸)'],
-    ['瑞典超级甲级联赛', '瑞典超级联赛']
+    ['瑞典超级甲级联赛', '瑞典超级联赛'],
   ];
   const isEqual = !!equalNameList.some((d) => d.includes(l1) && d.includes(l2));
   if (isEqual) {
@@ -118,6 +118,7 @@ export const getTeamSameWeight = (teamName1: string, teamName2: string) => {
 /**把 2/5 = (2+5)/2 */
 export const getRatioAvg = (str: string, isNegative: boolean) => {
   if (!str) return '-';
+  if (str === '-') return '-';
   const splitCount = str.split('/').length;
   let count = str.split('/').reduce((re, cur) => re + Math.abs(parseFloat(cur)), 0) / splitCount;
   if (isNegative) {
