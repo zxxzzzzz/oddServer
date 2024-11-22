@@ -5,6 +5,6 @@ import { syncFootballState, updateFootballStateFromWeb, saveFootballState } from
   setInterval(async () => {
     await updateFootballStateFromWeb();
     saveFootballState()
-    syncFootballState()
+    // syncFootballState()
   }, 3000);
 })();
