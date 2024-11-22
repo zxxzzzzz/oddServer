@@ -17,10 +17,10 @@ import {
 } from '../utils/index.js';
 import { writeFileSync } from 'fs';
 import { delay } from '../api/utils.js';
-import { getOssClient } from '../api/oss.js';
 import stringify from 'json-stringify-pretty-compact';
 import { resolve } from 'path';
 import dayjs from 'dayjs';
+import { cuFetch } from 'src/api/request.js';
 
 const ZERO_TIME = '2000-11-08T05:55:26.881Z';
 
@@ -445,24 +445,21 @@ export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
 }
 
 /**更新足球数据到web */
-export const uploadFootballStateToOss = async function uploadFootballStateToOss() {
-  const OSS_FILE_NAME = 'footballState.json';
-  const ossClient = getOssClient();
-  await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(GlobalFootballState)));
+export const saveFootballState = function () {
   const filePath = resolve(import.meta.dirname, '../../cache/footballState.json');
   writeFileSync(filePath, stringify(GlobalFootballState), { encoding: 'utf-8' });
 };
 
-export const updateFootballStateFromOss = async function updateFootballStateFromOss() {
-  const OSS_FILE_NAME = 'footballState.json';
-  const ossClient = getOssClient();
-  const res = await ossClient.get(OSS_FILE_NAME);
-  const content = res.content;
-  if (!content) throw Error('oss里没有数据');
-  const ossFootballState = JSON.parse(content);
-  Object.entries(ossFootballState).forEach(([k, v]) => {
-    // @ts-expect-error
-    GlobalFootballState[k] = v;
+export const syncFootballState = function () {
+  return cuFetch('http://116.62.87.207/sync/footballState', {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      HGInfoList: GlobalFootballState.HGInfoList,
+      JCInfoList: GlobalFootballState.JCInfoList,
+    }),
   });
 };
 

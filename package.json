@@ -11,7 +11,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "ali-oss": "^6.21.0",
     "cookie": "^1.0.1",
     "dayjs": "^1.11.13",
     "json-stringify-pretty-compact": "^4.0.0",

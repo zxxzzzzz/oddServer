@@ -1,13 +1,10 @@
-import { updateFootballStateFromOss, updateFootballStateFromWeb, uploadFootballStateToOss } from '../store/football.js';
+import { syncFootballState, updateFootballStateFromWeb, saveFootballState } from '../store/football.js';
 
 (async () => {
   // await updateFootballStateFromOss();
   setInterval(async () => {
     await updateFootballStateFromWeb();
+    saveFootballState()
+    syncFootballState()
   }, 3000);
-  setInterval(async () => {
-    try {
-      await uploadFootballStateToOss();
-    } catch (error) {}
-  }, 5000);
 })();
