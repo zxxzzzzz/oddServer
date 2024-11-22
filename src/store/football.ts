@@ -192,6 +192,7 @@ const updateHGGameInfoList = async (op: { limitLeagueCount: number; maxAge: numb
               updateTime: new Date().toISOString(),
               HGLeagueId: waitLeagueItem.HGLeagueId,
               JCLeagueName: waitLeagueItem.JCLeagueName,
+              HGLeagueName: waitLeagueItem.HGLeagueName,
             };
           }
           return info;
@@ -444,15 +445,15 @@ export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
 }
 
 /**更新足球数据到web */
-export const uploadFootballStateToOss = toAsyncTimeFunction(async function uploadFootballStateToOss() {
+export const uploadFootballStateToOss = async function uploadFootballStateToOss() {
   const OSS_FILE_NAME = 'footballState.json';
   const ossClient = getOssClient();
   await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(GlobalFootballState)));
   const filePath = resolve(import.meta.dirname, '../../cache/footballState.json');
   writeFileSync(filePath, stringify(GlobalFootballState), { encoding: 'utf-8' });
-}, 'uploadFootballStateToOss');
+};
 
-export const updateFootballStateFromOss = toAsyncTimeFunction(async function updateFootballStateFromOss() {
+export const updateFootballStateFromOss = async function updateFootballStateFromOss() {
   const OSS_FILE_NAME = 'footballState.json';
   const ossClient = getOssClient();
   const res = await ossClient.get(OSS_FILE_NAME);
@@ -463,7 +464,7 @@ export const updateFootballStateFromOss = toAsyncTimeFunction(async function upd
     // @ts-expect-error
     GlobalFootballState[k] = v;
   });
-}, 'updateFootballStateFromOss');
+};
 
 /**从web获取足球数据 */
 export async function updateFootballStateFromWeb() {
