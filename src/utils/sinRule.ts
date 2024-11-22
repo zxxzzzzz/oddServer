@@ -7,7 +7,7 @@ let GlobalGoalLineRuleList: SinRule[] = [];
 const FILE_PATH = path.resolve(import.meta.dirname, '../../cache/sinRule.csv');
 const CSV_HEAD = ['jcGoalLine1', 'jcResult1', 'jcGoalLine2', 'jcResult2', 'hgGoalLine1', 'hgResult1', 'hgGoalLine2', 'hgResult2'] as const;
 
-export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
+export const updateSinRuleList = (sinDataList: SinInfo[]) => {
   const allGoalLine = sinDataList.map((item) => {
     return {
       jcGoalLine1: item.data.JCgoalLine1,
@@ -20,7 +20,7 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
       hgResult2: item.data.HGTouz2,
     };
   });
-  const oldGoalLineRuleList = getGoalLineRuleList();
+  const oldGoalLineRuleList = getSinRuleList();
 
   const itemList = [...allGoalLine, ...oldGoalLineRuleList];
   const uniqItemList = uniqBy(itemList, (item) => CSV_HEAD.map((key) => item[key]).join(',')).sort((a, b) => {
@@ -75,7 +75,7 @@ export const updateGoalLineRuleList = (sinDataList: SinInfo[]) => {
   );
 };
 
-export const getGoalLineRuleList = () => {
+export const getSinRuleList = () => {
   if (GlobalGoalLineRuleList?.length) return GlobalGoalLineRuleList;
   const ruleList = readFileSync(FILE_PATH, { encoding: 'utf-8' })
     .replace(/\r\n/g, '\n')

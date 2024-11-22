@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { GlobalOptions, GoalLine, HGInfo, JCInfo, Result, SinInfo, DataOfSinInfo, ChuanInfo } from '../type/index.js';
-import { getCoefficient, getGoalLineRuleList } from './sinRule.js';
+import { getCoefficient, getSinRuleList } from './sinRule.js';
 import { getGaussElimination, toFixNumber, toNumber } from './lodash.js';
 import { getMethod } from './methodRule.js';
 export * from './lodash.js';
@@ -139,7 +139,7 @@ export const getRatioAvg = (str: string, isNegative: boolean) => {
  * @returns
  */
 export function getMatchSinData(JCInfo: JCInfo, HGInfo: HGInfo, op: GlobalOptions) {
-  const goalLineRuleList = getGoalLineRuleList();
+  const goalLineRuleList = getSinRuleList();
   const jcGoalLineItem1 = { goalLine: '-', a: JCInfo.had_a, d: JCInfo.had_d, h: JCInfo.had_h };
   const jcGoalLineItem2 = { goalLine: JCInfo.hhad_goalLine, a: JCInfo.hhad_a, d: JCInfo.hhad_d, h: JCInfo.hhad_h };
   const hgGoalLineItem1 = { goalLine: '-', a: HGInfo.had_a, d: HGInfo.had_d, h: HGInfo.had_h };
