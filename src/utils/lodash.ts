@@ -165,17 +165,12 @@ export function toFifoFunction<T extends (...args: any[]) => Promise<any>>(fn: T
   const taskList: (() => Promise<any>)[] = [];
   /**是否有任务正在进行 */
   let isProcessing = false;
-  return async function (...args: any[]) {
+  return async function (...args: any[]): Promise<ReturnType<T>> {
     taskList.push(fn.bind(null, ...args));
-    while (taskList.length) {
+    while (true) {
       await delay(100);
       if (isProcessing) continue;
-      const task = taskList.shift();
-      // 当前没任务了，说明肯定没任务在进行了
-      if (!task) {
-        isProcessing = false;
-        return void 0;
-      }
+      const task = taskList.shift()!;
       // task执行前，设置任务在进行
       isProcessing = true;
       const re = await task();
@@ -586,12 +581,10 @@ export function getGaussElimination(pA: number[][], pB: number[]): number[] {
       return item.filter((_, col) => {
         return !isColNone(col);
       });
-    })
+    });
   const n = A.length; // 获取矩阵的大小
   const x = new Array(n).fill(0); // 初始化解向量 x，初始值为 0
   const b = pB.filter((_, line) => !isLineNone(line));
-
-  
 
   // 创建增广矩阵 [A|b]
   for (let i = 0; i < n; i++) {
@@ -639,15 +632,202 @@ export function getGaussElimination(pA: number[][], pB: number[]): number[] {
     return _x.shift();
   });
   // console.log(re, pA, A, b);
-  return re
+  return re;
 }
-
 
 export const toFixNumber = (num: number, fixCount: number) => {
   if (!num) return 0;
   return parseFloat(num.toFixed(fixCount));
 };
-export const toNumber = (v: string|number) => {
-  if(typeof v === 'number') return v
-  return Number.isNaN(parseFloat(v)) ? 0 : parseFloat(v)
+export const toNumber = (v: string | number) => {
+  if (typeof v === 'number') return v;
+  if (v === 'J3') return 3;
+  if (v === 'J2') return 2;
+  if (v === 'J1') return 1;
+  return Number.isNaN(parseFloat(v)) ? 0 : parseFloat(v);
 };
+
+/**计算最大可能的编辑距离 
+ *  - 示例使用
+    ```const s1 = "你好世界";```  
+    ```const s2 = "你好世间";```  
+    ``` // 输出：0.75```  
+    ```console.log(`归一化编辑距离: ${normalizedLevenshteinDistance(s1, s2).toFixed(2)}`);```
+*/
+function getStrSameWeight(s1: string, s2: string): number {
+  const len1 = s1.length;
+  const len2 = s2.length;
+
+  // 如果其中一个字符串为空，则返回另一个字符串的长度
+  if (len1 === 0) return 1.0;
+  if (len2 === 0) return 1.0;
+
+  // 创建一个二维数级来存储子问题的结果
+  const matrix: number[][] = Array.from({ length: len1 + 1 }, () => Array(len2 + 1).fill(0));
+
+  // 初始化第一行和第一列
+  for (let i = 0; i <= len1; i++) {
+    matrix[i][0] = i;
+  }
+  for (let j = 0; j <= len2; j++) {
+    matrix[0][j] = j;
+  }
+
+  // 动态规划填充矩阵
+  for (let i = 1; i <= len1; i++) {
+    for (let j = 1; j <= len2; j++) {
+      const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1, // 删除
+        matrix[i][j - 1] + 1, // 插入
+        matrix[i - 1][j - 1] + cost // 替换
+      );
+    }
+  }
+
+  // 计算最大可能的编辑距离
+  const maxLength = Math.max(len1, len2);
+
+  // 返回归一化的编辑距离
+  return 1 - matrix[len1][len2] / maxLength;
+}
+
+/**获取联赛相似度权重 完全相似就是1*/
+export const getLeagueSameWeight = (leagueName1: string, leagueName2: string) => {
+  const l1 = leagueName1
+    .toString()
+    .replace(/组/g, '级')
+    .replace(/(-|附加赛|升级)/g, '');
+  const l2 = leagueName2
+    .toString()
+    .replace(/组/g, '级')
+    .replace(/(-|附加赛|升级)/g, '');
+  const equalNameList = [
+    ['日本职业联赛杯', '日本联赛杯'],
+    ['澳大利亚超级联赛', '澳大利亚甲级联赛', '澳大利亚甲级联赛'],
+    ['欧罗巴联赛', '欧洲联赛'],
+    ['韩国K甲级联赛', '韩国职业联赛'],
+    ['日本J1联赛', '日本职业联赛'],
+    ['日本J2联赛', '日本职业乙级联赛', '日本乙级联赛'],
+    ['英格兰冠军联赛-附加赛', '英格兰冠军联赛'],
+    ['世界U20锦标赛', 'U20世界杯2023(在阿根廷)'],
+    ['美国公开赛冠军杯', '美国公开赛杯'],
+    ['南美解放者杯', '南美自由杯'],
+    ['欧洲国家联赛', '欧洲国家联赛A', '欧洲国家联赛B', '欧洲国家联赛C', '欧洲国家联赛D'],
+    ['欧洲杯预选赛', '欧洲足球锦标赛2024外围赛'],
+    ['国际赛', '国际友谊赛'],
+    ['国际赛', '美洲国家联赛A'],
+    ['欧洲U21锦标赛', '欧洲U21青年锦标赛2023(在罗马尼亚和格鲁吉亚)'],
+    ['中北美金杯赛', '美洲金杯2023(在美国和加拿大)'],
+    ['欧洲冠军联赛外围赛', '欧洲冠军联赛'],
+    ['女足世界杯', '女子世界杯2023(在澳大利亚和纽西兰)'],
+    ['英格兰联赛锦标赛', '英格兰锦标赛'],
+    ['欧罗巴联赛', '欧洲联赛'],
+    ['欧罗巴联赛', '欧洲联赛外围赛'],
+    ['世界杯2026南美洲外围赛', '世界杯预选赛'],
+    ['亚运会男足', '亚运会2022男子足球U23(在中国)'],
+    ['亚洲冠军联赛', '亚足联冠军联赛'],
+    ['世界杯预选赛', '世界杯2026亚洲外围赛', '世界杯2026南美洲外围赛', '世界杯2026非洲外围赛'],
+    ['西班牙篮球联赛', '西班牙篮球甲级联赛'],
+    ['美国职业篮球联盟', 'NBA美国职业篮球联赛'],
+    ['美国职业篮球联盟', 'NBA美国职业篮球联赛'],
+    ['亚洲杯', '亚洲杯2023(在卡塔尔)'],
+    ['非洲国家杯', '非洲国家杯2023(在象牙海岸)'],
+    ['瑞典超级甲级联赛', '瑞典超级联赛'],
+  ];
+  const isEqual = !!equalNameList.some((d) => d.includes(l1) && d.includes(l2));
+  if (isEqual) {
+    return 1;
+  }
+  return getStrSameWeight(l1, l2);
+};
+
+/**获取队伍相似度权重 */
+export const getTeamSameWeight = (teamName1: string, teamName2: string) => {
+  const equalTeamList = [
+    ['博德闪耀', '波杜基林特'],
+    ['腓特烈', '费德列斯达'],
+  ];
+  const isEqual = !!equalTeamList.some((d) => d.includes(teamName1) && d.includes(teamName2));
+  if (isEqual) {
+    return 1;
+  }
+  return getStrSameWeight(teamName1, teamName2);
+};
+
+/**把 2/5 = (2+5)/2 */
+export const getRatioAvg = (str: string, isNegative: boolean) => {
+  if (!str) return '-';
+  if (str === '-') return '-';
+  const splitCount = str.split('/').length;
+  let count = str.split('/').reduce((re, cur) => re + Math.abs(parseFloat(cur)), 0) / splitCount;
+  if (isNegative) {
+    count = -count;
+  }
+  if (count === 0) return '0';
+  // 去除末尾的0和小数点
+  return count
+    .toString()
+    .replace(/(\.\d*?[1-9])0+$/, '$1')
+    .replace(/\.$/, '');
+};
+
+/**
+ * 执行一个顺序的定时器，确保每次回调函数中的异步操作完成后再启动下一次定时。
+ * @param callback - 返回 Promise 的异步回调函数。
+ * @param interval - 时间间隔（毫秒），在上一次回调完成后等待的时间。
+ * @param immediate - 是否要立即执行
+ */
+export async function executeSequentialIntervals(callback: () => Promise<void>, interval: number, immediate = true): Promise<void> {
+  try {
+    if (immediate) {
+      // 等待回调函数中的异步操作完成
+      await callback();
+    }
+    // 在指定的时间间隔后再次调用自身以启动下一次定时
+    setTimeout(() => executeSequentialIntervals(callback, interval), interval);
+  } catch (error) {
+    // 捕获并打印回调函数中的错误信息
+    console.error('Error in scheduled task:', error);
+  }
+}
+
+
+/**
+ * 根据提供的分组函数对数组进行分组，并返回一个包含分组键和分组值的对象数组。
+ * 
+ * @param array - 要分组的数组。
+ * @param iteratee - 分组函数，接受数组中的每个元素并返回一个分组键。
+ * @returns 一个数组，其中每个元素是一个对象，包含分组键和对应的分组值。
+ */
+export function zipBy<T>(array: T[], iteratee: (item: T) => string): Array<{ key: string, value: T[] }> {
+  // 初始化一个记录类型的对象，用于存储分组结果
+  const result: Record<string, T[]> = {} as Record<string, T[]>;
+
+  // 初始化一个数组，用于存储最终的分组结果
+  const output: Array<{ key: string, value: T[] }> = [];
+
+  // 遍历数组中的每个元素
+  array.forEach(item => {
+      // 调用分组函数获取当前元素的分组键
+      const key = iteratee(item);
+
+      // 如果 result 对象中还没有该分组键对应的数组，则初始化一个空数组
+      if (!result[key]) {
+          result[key] = [];
+      }
+
+      // 将当前元素推入对应分组键的数组中
+      result[key].push(item);
+  });
+
+  // 遍历 result 对象，将每个分组键和对应的分组值构建成一个对象，并将其推入 output 数组中
+  for (const key in result) {
+      if (result.hasOwnProperty(key)) {
+          output.push({ key: key as string, value: result[key] });
+      }
+  }
+
+  // 返回分组后的结果数组
+  return output;
+}

@@ -1,12 +1,12 @@
 import { server } from './server';
 import { GlobalOptions, GoalLine, Result } from '../type/index';
 import { GlobalFootballState, getChuanInfoList, getSinInfoList, loadFootballState } from '../store/football';
-import { getSinData, toNumber } from '../utils/index';
+import { getSinData, maxBy, toNumber, zipBy } from '../utils/index';
 import { getAccountBySessionId } from '../store/user';
 import * as cookie from 'cookie';
 
 server.post('/api/water/getFootballData', async (req, res) => {
-  loadFootballState()
+  loadFootballState();
   const cookieObj = cookie.parse(req.header('cookie'));
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
@@ -31,8 +31,10 @@ server.post('/api/water/getFootballData', async (req, res) => {
   const jcMatchIdList = JCInfos.map((v) => v.matchId);
   const HGInfos = GlobalFootballState.HGInfoList.filter((v) => jcMatchIdList.includes(v.matchId));
   const sinData = getSinInfoList(JCInfos as any[], HGInfos as any[], op).filter((sinInfo) => {
-    // jc只选择了一个，可以通过
-    if (!sinInfo.data.jcOdds1 || !sinInfo.data.jcOdds2) return true;
+    const jcBet = sinInfo.data.jcBet1 + sinInfo.data.jcBet2;
+    const hgBet = sinInfo.data.hgBet1 + sinInfo.data.hgBet2;
+    // hg投注不超过jc 6倍
+    if (hgBet > jcBet * 6) return false;
     // 去除jc里让球选择了两个的sin
     if (sinInfo.data.jcOdds1 && sinInfo.data.jcOdds2 && sinInfo.data.JCgoalLine1 !== '-') return false;
     if (sinInfo.data.jcOdds1 && sinInfo.data.jcOdds2 && sinInfo.data.JCgoalLine2 !== '-') return false;
@@ -42,15 +44,24 @@ server.post('/api/water/getFootballData', async (req, res) => {
     const minJcOdds = Math.min(toNumber(finedJcInfo.had_a), toNumber(finedJcInfo.had_d), toNumber(finedJcInfo.had_h));
     // 去除胜平负里选择了两个最大odds的sin
     if (
+      sinInfo.data.jcOdds2 !== 0 &&
       sinInfo.data.jcOdds1 - minJcOdds !== 0 &&
       sinInfo.data.jcOdds2 - minJcOdds !== 0 &&
       sinInfo.data.JCgoalLine1 === '-' &&
       sinInfo.data.JCgoalLine2 === '-'
-    )
+    ) {
       return false;
+    }
     return true;
   });
-  const chuanData = getChuanInfoList(sinData, op);
+  const chuanData = zipBy(
+    getChuanInfoList(sinData, op),
+    (item) => `${item.matchId1},${item.JCgoalLine1},${item.JCTouz1},${item.matchId2},${item.JCgoalLine2},${item.JCTouz2}`
+  ).map((item) => {
+    const { key, value } = item;
+    const info = maxBy(value, (item) => item.JcProfit);
+    return info;
+  }).filter(v =>!!v);
 
   res.send({
     success: true,

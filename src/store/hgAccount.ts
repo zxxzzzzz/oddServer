@@ -2,6 +2,7 @@ import { maxBy, minBy, toAsyncTimeFunction, toFifoFunction } from '../utils/inde
 import { loginByAccount } from '../api/login';
 import { delay, uniqBy } from '../api/utils';
 import ping from 'ping';
+import { Token } from '../type';
 
 const GlobalAccountList = [
   { account: 'CXGCXG717', password: 'ASd12345' },
@@ -10,7 +11,7 @@ const GlobalAccountList = [
   { account: 'CXGCXG721', password: 'ASd12345' },
   { account: 'CXGCXG723', password: 'ASd12345' },
 ];
-let GlobalTokenList: { uid: string; ver: string; url: string; lastUseTimestamp: number; account: string }[] = [];
+let GlobalTokenList: Token[] = [];
 // 是否正在登录
 let isLogging = false;
 
@@ -66,7 +67,7 @@ export const getAliveUrl = async () => {
  * @returns
  */
 export const getToken = toFifoFunction(
-  toAsyncTimeFunction(async (op: { limitIdleAge: number } = { limitIdleAge: 1000 * 10 }) => {
+  toAsyncTimeFunction(async (op: { limitIdleAge: number } = { limitIdleAge: 1000 * 1 }): Promise<Token> => {
     while (isLogging) {
       await delay(10);
     }
@@ -123,7 +124,7 @@ export const reLogin = async (uid: string) => {
   while (i < 3) {
     try {
       const token = await loginByAccount(account.account, account.password, aliveUrl);
-      GlobalTokenList = [...GlobalTokenList, { ...token, account: account.account, lastUseTimestamp: 0 }];
+      GlobalTokenList = [...GlobalTokenList, { ...token, account: account.account, lastUseTimestamp: 0 }].filter((v) => v.uid !== uid);
       return;
     } catch (error) {}
   }

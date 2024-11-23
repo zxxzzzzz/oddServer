@@ -1,4 +1,4 @@
-import { reLogin } from '../store/hgAccount';
+import { getToken, reLogin } from '../store/hgAccount';
 import { cuFetch } from './request';
 import { objToFormData } from './utils';
 import Convert from 'xml-js';
@@ -6,13 +6,11 @@ import { GameList, GameMore, GameOBT } from '../type/index';
 import { JCInfo } from '../type/index';
 import { toAsyncTimeFunction } from '../utils/lodash';
 
-export const getHGLeagueListAllByToken = toAsyncTimeFunction(async function (
-  url: string,
-  uid: string,
-  ver: string,
+export const getHGLeagueListAll = toAsyncTimeFunction(async function (
   count?: number
 ): Promise<{ name: string; leagueId: string }[]> {
   if (count !== undefined && count < 0) throw Error('getLeagueListAllByNodeFetch 递归太多');
+  const { uid, ver, url } = await getToken();
   const body = {
     p: 'get_league_list_All',
     uid: uid,
@@ -48,7 +46,7 @@ export const getHGLeagueListAllByToken = toAsyncTimeFunction(async function (
   const mixObj = Convert.xml2js(text, { compact: true }) as any;
   if (mixObj?.serverresponse?.code?._text === 'error') {
     await reLogin(uid);
-    return getHGLeagueListAllByToken(url, uid, ver, (count || 5) - 1);
+    return getHGLeagueListAll((count || 5) - 1);
   }
   return (mixObj?.serverresponse?.classifier?.region || [])
     .map((r: any) => {
@@ -60,121 +58,94 @@ export const getHGLeagueListAllByToken = toAsyncTimeFunction(async function (
       });
     })
     .flat();
-}, 'getHGLeagueListAllByToken')
+}, 'getHGLeagueListAll');
 
-export const getHGGameListByTokenAndLeagueId = toAsyncTimeFunction(async function (
-  url: string,
-  ver: string,
-  uid: string,
-  lid: string,
-  count?: number
-): Promise<GameList> {
-  if (count !== undefined && count < 0) throw Error('getGameListByTokenAndLeagueId 递归太多');
-  const body = {
-    uid: uid,
-    ver: ver,
-    langx: 'zh-cn',
-    p: 'get_game_list',
-    p3type: '',
-    date: 'all',
-    gtype: 'ft',
-    showtype: 'parlay',
-    rtype: 'rb',
-    ltype: 3,
-    lid: lid,
-    action: 'click_league',
-    sorttype: 'L',
-    specialClick: '',
-    isFantasy: 'N',
-    ts: new Date().valueOf(),
-  };
-  const _url = new URL(url);
-  const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
-    method: 'post',
-    headers: {
-      accept: '*/*',
-      'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-      'sec-ch-ua': '"Chromium";v="112", "Microsoft Edge";v="112", "Not:A-Brand";v="99"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-origin',
-    },
-    body: objToFormData(body),
-  });
-  const text = await res.text();
-  const mixObj = Convert.xml2js(text, { compact: true }) as any;
-  if (mixObj?.serverresponse?.code?._text === 'error') {
-    await reLogin(uid);
-    return getHGGameListByTokenAndLeagueId(url, ver, uid, lid, (count || 5) - 1);
-  }
-  return mixObj;
-}, 'getHGGameListByTokenAndLeagueId', (args) => 'lid:' + args[3])
+export const getHGGameList = toAsyncTimeFunction(
+  async function (op: { lid: string }, count?: number): Promise<GameList> {
+    if (count !== undefined && count < 0) throw Error('getGameListByTokenAndLeagueId 递归太多');
+    const { uid, ver, url } = await getToken();
+    const body = {
+      uid: uid,
+      ver: ver,
+      langx: 'zh-cn',
+      p: 'get_game_list',
+      p3type: '',
+      date: 'all',
+      gtype: 'ft',
+      showtype: 'parlay',
+      rtype: 'rb',
+      ltype: 3,
+      lid: op.lid,
+      action: 'click_league',
+      sorttype: 'L',
+      specialClick: '',
+      isFantasy: 'N',
+      ts: new Date().valueOf(),
+    };
+    const _url = new URL(url);
+    const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
+      method: 'post',
+      headers: {
+        accept: '*/*',
+        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        'sec-ch-ua': '"Chromium";v="112", "Microsoft Edge";v="112", "Not:A-Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+      },
+      body: objToFormData(body),
+    });
+    const text = await res.text();
+    const mixObj = Convert.xml2js(text, { compact: true }) as any;
+    if (mixObj?.serverresponse?.code?._text === 'error') {
+      await reLogin(uid);
+      return getHGGameList(op, (count || 1) - 1);
+    }
+    return mixObj;
+  },
+  'getHGGameList',
+  (args) => 'lid:' + args[0].lid
+);
 
-export const getHGGameOBTByTokenAndEcid = toAsyncTimeFunction(async function (
-  url: string,
-  ver: string,
-  uid: string,
-  ecid: string,
-  count?: number
-): Promise<GameOBT> {
-  const body = {
-    uid: uid,
-    ver: ver,
-    langx: 'zh-cn',
-    p: 'get_game_OBT',
-    gtype: 'ft',
-    showtype: 'live',
-    isSpecial: '',
-    isEarly: 'N',
-    model: 'ROU|MIX',
-    isETWI: 'N',
-    ecid: ecid,
-    ltype: 3,
-    is_rb: 'Y',
-    isClick: 'Y',
-  };
-  const body2 = {
-    uid: uid,
-    ver: ver,
-    langx: 'zh-cn',
-    p: 'get_game_OBT',
-    gtype: 'ft',
-    showtype: 'live',
-    isSpecial: '',
-    isEarly: 'N',
-    model: 'ROU|MIX',
-    isETWI: 'N',
-    ecid: ecid,
-    ltype: 3,
-    is_rb: 'Y',
-    isClick: 'Y',
-  };
-  const _url = new URL(url);
-  const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
-    headers: {
-      accept: '*/*',
-      'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-      'sec-ch-ua': '"Chromium";v="130", "Microsoft Edge";v="130", "Not?A_Brand";v="99"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-origin',
-      Referer: 'https://m172.mos077.com/',
-      'Referrer-Policy': 'strict-origin-when-cross-origin',
-    },
-    method: 'POST',
-    body: objToFormData(body2),
-  });
-  const text = await res.text();
-  let mixObj = Convert.xml2js(text, { compact: true }) as any;
-  if (mixObj?.serverresponse?.code?._text === 'error') {
-    await reLogin(uid);
-    return getHGGameOBTByTokenAndEcid(url, ver, uid, ecid, (count || 5) - 1);
-  }
-  if (!mixObj?.serverresponse?.ec?.game) {
+export const getHGGameOBT = toAsyncTimeFunction(
+  async function (op:{ecid: string}, count?: number): Promise<GameOBT> {
+    if (count !== undefined && count < 0) throw Error('getHGGameOBTByTokenAndEcid 递归太多');
+    const { uid, ver, url } = await getToken();
+    const body = {
+      uid: uid,
+      ver: ver,
+      langx: 'zh-cn',
+      p: 'get_game_OBT',
+      gtype: 'ft',
+      showtype: 'live',
+      isSpecial: '',
+      isEarly: 'N',
+      model: 'ROU|MIX',
+      isETWI: 'N',
+      ecid: op.ecid,
+      ltype: 3,
+      is_rb: 'Y',
+      isClick: 'Y',
+    };
+    const body2 = {
+      uid: uid,
+      ver: ver,
+      langx: 'zh-cn',
+      p: 'get_game_OBT',
+      gtype: 'ft',
+      showtype: 'live',
+      isSpecial: '',
+      isEarly: 'N',
+      model: 'ROU|MIX',
+      isETWI: 'N',
+      ecid: op.ecid,
+      ltype: 3,
+      is_rb: 'Y',
+      isClick: 'Y',
+    };
+    const _url = new URL(url);
     const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
       headers: {
         accept: '*/*',
@@ -189,58 +160,87 @@ export const getHGGameOBTByTokenAndEcid = toAsyncTimeFunction(async function (
         'Referrer-Policy': 'strict-origin-when-cross-origin',
       },
       method: 'POST',
-      body: objToFormData(body),
+      body: objToFormData(body2),
     });
     const text = await res.text();
-    mixObj = Convert.xml2js(text, { compact: true }) as any;
-  }
-  return mixObj;
-}, 'getHGGameOBTByTokenAndEcid', args => 'ecid:' + args[3])
+    let mixObj = Convert.xml2js(text, { compact: true }) as any;
+    if (mixObj?.serverresponse?.code?._text === 'error') {
+      await reLogin(uid);
+      return getHGGameOBT(op, (count || 5) - 1);
+    }
+    if (!mixObj?.serverresponse?.ec?.game) {
+      const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
+        headers: {
+          accept: '*/*',
+          'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+          'sec-ch-ua': '"Chromium";v="130", "Microsoft Edge";v="130", "Not?A_Brand";v="99"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"Windows"',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-origin',
+          Referer: 'https://m172.mos077.com/',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+        },
+        method: 'POST',
+        body: objToFormData(body),
+      });
+      const text = await res.text();
+      mixObj = Convert.xml2js(text, { compact: true }) as any;
+    }
+    return mixObj;
+  },
+  'getHGGameOBT',
+  (args) => 'ecid:' + args[0].ecid
+);
 
-export const getHGGameMore = toAsyncTimeFunction(async function (
-  op: { uid: string; ver: string; lid: string; ecid: string; url: string },
-  count = 5
-): Promise<GameMore> {
-  const body = {
-    uid: op.uid,
-    ver: op.ver,
-    langx: 'zh-cn',
-    p: 'get_game_more',
-    gtype: 'ft',
-    showtype: 'parlay',
-    ltype: '3',
-    isRB: 'N',
-    lid: op.lid,
-    specialClick: '',
-    mode: 'NORMAL',
-    filter: 'Main',
-    ecid: op.ecid,
-  };
-  const _url = new URL(op.url);
-  const res = await cuFetch(`${_url.origin}/transform.php?ver=${op.ver}`, {
-    headers: {
-      accept: '*/*',
-      'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-      'sec-ch-ua': '"Chromium";v="130", "Microsoft Edge";v="130", "Not?A_Brand";v="99"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-origin',
-      Referer: 'https://m172.mos077.com/',
-      'Referrer-Policy': 'strict-origin-when-cross-origin',
-    },
-    body: objToFormData(body),
-    method: 'POST',
-  });
-  const text = await res.text();
-  let mixObj = Convert.xml2js(text, { compact: true }) as any;
-  if (mixObj?.serverresponse?.code?._text === 'error') {
-    await reLogin(op.uid);
-    return getHGGameMore(op, count - 1);
-  }
-  return mixObj as GameMore;
-}, 'getHGGameMore', args => `leagueId:${args[0].lid} ecid:${args[0].ecid}`)
+export const getHGGameMore = toAsyncTimeFunction(
+  async function (op: { lid: string; ecid: string }, count = 5): Promise<GameMore> {
+    if (count !== undefined && count < 0) throw Error('getHGGameMore 递归太多');
+    const { uid, ver, url } = await getToken();
+    const body = {
+      uid: uid,
+      ver: ver,
+      langx: 'zh-cn',
+      p: 'get_game_more',
+      gtype: 'ft',
+      showtype: 'parlay',
+      ltype: '3',
+      isRB: 'N',
+      lid: op.lid,
+      specialClick: '',
+      mode: 'NORMAL',
+      filter: 'Main',
+      ecid: op.ecid,
+    };
+    const _url = new URL(url);
+    const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
+      headers: {
+        accept: '*/*',
+        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        'sec-ch-ua': '"Chromium";v="130", "Microsoft Edge";v="130", "Not?A_Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        Referer: 'https://m172.mos077.com/',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+      },
+      body: objToFormData(body),
+      method: 'POST',
+    });
+    const text = await res.text();
+    let mixObj = Convert.xml2js(text, { compact: true }) as any;
+    if (mixObj?.serverresponse?.code?._text === 'error') {
+      await reLogin(uid);
+      return getHGGameMore(op, count - 1);
+    }
+    return mixObj as GameMore;
+  },
+  'getHGGameMore',
+  (args) => `leagueId:${args[0].lid} ecid:${args[0].ecid}`
+);
 
 export const getJCInfoList = toAsyncTimeFunction(async function (count = 5): Promise<JCInfo[]> {
   if (count <= 0) throw Error('getJCInfoList 请求次数超过');
@@ -310,4 +310,4 @@ export const getJCInfoList = toAsyncTimeFunction(async function (count = 5): Pro
       };
     });
   return JCInfoList as JCInfo[];
-}, 'getJCInfoList')
+}, 'getJCInfoList');

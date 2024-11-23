@@ -4417,13 +4417,13 @@ export type MethodRule = {
   method: Method;
 } & SinRule;
 export type ChuanRule = {
-  jcGoalLine: GoalLine,
-  jcResult: Result,
-  hgGoalLine1: GoalLine,
-  hgGoalLine2: GoalLine,
-  hgResult1: Result,
-  hgResult2: Result,
-}
+  jcGoalLine: GoalLine;
+  jcResult: Result;
+  hgGoalLine1: GoalLine;
+  hgGoalLine2: GoalLine;
+  hgResult1: Result;
+  hgResult2: Result;
+};
 export type DataOfSinInfo = {
   JCgoalLine1: GoalLine;
   JCgoalLine2: GoalLine;
@@ -4465,47 +4465,47 @@ export type SinInfo = {
 };
 
 export type ChuanInfo = {
-  matchId1: string,
-  matchId2: string,
-  method1: string,
-  method2: string,
-  JCPoint: number,
-  HGPoint: number,
-  JCTzAmt: number,
-  HGTzAmt1_1: number
-  HGTzAmt1_2: number
-  HGTzAmt2_1: number
-  HGTzAmt2_2: number
-  JcProfitRate: `${number}%`
-  JcProfit: number,
-  HgProfit1: number,
-  HgProfit2: number,
-  JCAmount: number,
-  HGAmount1_1: number,
-  HGAmount1_2: number,
-  HGAmount2_1: number,
-  HGAmount2_2: number,
-  JCgoalLine1: GoalLine,
-  JCgoalLine2: GoalLine,
-  HGgoalLine1_1: GoalLine,
-  HGgoalLine1_2: GoalLine,
-  HGgoalLine2_1: GoalLine,
-  HGgoalLine2_2: GoalLine,
-  JCTzOdd1: number,
-  JCTzOdd2: number,
-  HGTzOdd1_1: number,
-  HGTzOdd1_2: number,
-  HGTzOdd2_1: number,
-  HGTzOdd2_2: number,
-  yield: 'Sin',
-  planId: string,
-  JCTouz1: Result,
-  JCTouz2: Result,
-  HGTouz1_1: Result,
-  HGTouz1_2: Result,
-  HGTouz2_1: Result,
-  HGTouz2_2: Result,
-}
+  matchId1: string;
+  matchId2: string;
+  method1: string;
+  method2: string;
+  JCPoint: number;
+  HGPoint: number;
+  JCTzAmt: number;
+  HGTzAmt1_1: number;
+  HGTzAmt1_2: number;
+  HGTzAmt2_1: number;
+  HGTzAmt2_2: number;
+  JcProfitRate: `${number}%`;
+  JcProfit: number;
+  HgProfit1: number;
+  HgProfit2: number;
+  JCAmount: number;
+  HGAmount1_1: number;
+  HGAmount1_2: number;
+  HGAmount2_1: number;
+  HGAmount2_2: number;
+  JCgoalLine1: GoalLine;
+  JCgoalLine2: GoalLine;
+  HGgoalLine1_1: GoalLine;
+  HGgoalLine1_2: GoalLine;
+  HGgoalLine2_1: GoalLine;
+  HGgoalLine2_2: GoalLine;
+  JCTzOdd1: number;
+  JCTzOdd2: number;
+  HGTzOdd1_1: number;
+  HGTzOdd1_2: number;
+  HGTzOdd2_1: number;
+  HGTzOdd2_2: number;
+  yield: 'Sin';
+  planId: string;
+  JCTouz1: Result;
+  JCTouz2: Result;
+  HGTouz1_1: Result;
+  HGTouz1_2: Result;
+  HGTouz2_1: Result;
+  HGTouz2_2: Result;
+};
 
 export enum BETTING_RESULT {
   win = 'win',
@@ -4963,3 +4963,5 @@ type Plan = {
   HgProfit2_2: number;
   matchId2: string;
 };
+
+export type Token = { uid: string; ver: string; url: string; lastUseTimestamp: number; account: string };

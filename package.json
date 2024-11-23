@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "vite",
-    "data": "tsx ./src/main/updateFromWeb.ts",
+    "data": "tsx ./src/main/updateState.ts",
     "http": "tsx ./src/main/httpServer.ts",
     "build": "tsc --project tsconfig.json",
     "preview": "vite preview"
