@@ -11,12 +11,12 @@ import {
   range,
   updateChuanRuleList,
   getLeagueSameWeight
-} from './utils/index.js';
-import { delay, uniqBy } from './api/utils.js';
+} from './utils/index';
+import { delay, uniqBy } from './api/utils';
 import { randomUUID } from 'crypto';
 // 运维接口
 import { spawnSync, execSync } from 'child_process';
-import { updateMethodRuleList } from './utils/methodRule.js';
+import { updateMethodRuleList } from './utils/methodRule';
 import path from 'path';
 import dayjs from 'dayjs';
 

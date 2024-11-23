@@ -1,4 +1,4 @@
-import { delay } from './utils.js';
+import { delay } from './utils';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 

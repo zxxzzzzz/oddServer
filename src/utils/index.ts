@@ -1,11 +1,11 @@
 import { randomUUID } from 'crypto';
-import { GlobalOptions, GoalLine, HGInfo, JCInfo, Result, SinInfo, DataOfSinInfo, ChuanInfo } from '../type/index.js';
-import { getCoefficient, getSinRuleList } from './sinRule.js';
-import { getGaussElimination, toFixNumber, toNumber } from './lodash.js';
-import { getMethod } from './methodRule.js';
-export * from './lodash.js';
-export * from './sinRule.js';
-export * from './chuanRule.js';
+import { GlobalOptions, GoalLine, HGInfo, JCInfo, Result, SinInfo, DataOfSinInfo, ChuanInfo } from '../type/index';
+import { getCoefficient, getSinRuleList } from './sinRule';
+import { getGaussElimination, toFixNumber, toNumber } from './lodash';
+import { getMethod } from './methodRule';
+export * from './lodash';
+export * from './sinRule';
+export * from './chuanRule';
 
 /**计算最大可能的编辑距离 
  *  - 示例使用

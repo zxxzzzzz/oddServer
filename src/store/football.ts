@@ -1,6 +1,6 @@
-import { getHGLeagueListAllByToken, getHGGameListByTokenAndLeagueId, getJCInfoList, getHGGameMore } from '../api/football.js';
-import { getToken } from './hgAccount.js';
-import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type/index.js';
+import { getHGLeagueListAllByToken, getHGGameListByTokenAndLeagueId, getJCInfoList, getHGGameMore } from '../api/football';
+import { getToken } from './hgAccount';
+import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type/index';
 import {
   errorLog,
   getLeagueSameWeight,
@@ -14,13 +14,13 @@ import {
   warnLog,
   getChuanInfo,
   getChuanRuleList,
-} from '../utils/index.js';
-import { writeFileSync } from 'fs';
-import { delay } from '../api/utils.js';
+} from '../utils/index';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { delay } from '../api/utils';
 import stringify from 'json-stringify-pretty-compact';
 import { resolve } from 'path';
 import dayjs from 'dayjs';
-import { cuFetch } from 'src/api/request.js';
+import { cuFetch } from '../api/request';
 
 const ZERO_TIME = '2000-11-08T05:55:26.881Z';
 
@@ -446,22 +446,18 @@ export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
 
 /**更新足球数据到web */
 export const saveFootballState = function () {
-  const filePath = resolve(import.meta.dirname, '../../cache/footballState.json');
+  const filePath = resolve(__dirname, '../../cache/footballState.json');
   writeFileSync(filePath, stringify(GlobalFootballState), { encoding: 'utf-8' });
 };
-
-export const syncFootballState = function () {
-  return cuFetch('http://116.62.87.207/sync/footballState', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      HGInfoList: GlobalFootballState.HGInfoList,
-      JCInfoList: GlobalFootballState.JCInfoList,
-    }),
+export const loadFootballState = function () {
+  const filePath = resolve(__dirname, '../../cache/footballState.json');
+  if (!existsSync(filePath)) return;
+  const content = readFileSync(filePath, { encoding: 'utf-8' });
+  Object.entries(JSON.parse(content)).forEach(([key, value]) => {
+    GlobalFootballState[key as keyof typeof GlobalFootballState] = value as any;
   });
 };
+
 
 /**从web获取足球数据 */
 export async function updateFootballStateFromWeb() {

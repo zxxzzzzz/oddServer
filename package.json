@@ -2,16 +2,15 @@
   "name": "blindbox",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "vite",
-    "data": "npm run build && pm2 restart data || pm2 start ./server/main/updateFromWeb.js --name=data",
-    "http": "npm run build && pm2 restart http || pm2 start ./server/main/httpFromOss.js --name=http",
+    "data": "tsx ./src/main/updateFromWeb.ts",
+    "http": "tsx ./src/main/httpServer.ts",
     "build": "tsc --project tsconfig.json",
     "preview": "vite preview"
   },
   "dependencies": {
-    "ali-oss": "^6.21.0",
     "cookie": "^1.0.1",
     "dayjs": "^1.11.13",
     "json-stringify-pretty-compact": "^4.0.0",

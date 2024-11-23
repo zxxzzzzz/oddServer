@@ -1,10 +1,10 @@
-import { reLogin } from '../store/hgAccount.js';
-import { cuFetch } from './request.js';
-import { objToFormData } from './utils.js';
+import { reLogin } from '../store/hgAccount';
+import { cuFetch } from './request';
+import { objToFormData } from './utils';
 import Convert from 'xml-js';
-import { GameList, GameMore, GameOBT } from '../type/index.js';
-import { JCInfo } from '../type/index.js';
-import { toAsyncTimeFunction } from '../utils/lodash.js';
+import { GameList, GameMore, GameOBT } from '../type/index';
+import { JCInfo } from '../type/index';
+import { toAsyncTimeFunction } from '../utils/lodash';
 
 export const getHGLeagueListAllByToken = toAsyncTimeFunction(async function (
   url: string,

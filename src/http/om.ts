@@ -1,16 +1,16 @@
 // 运维接口
 import path from 'path';
-import { getAliveUrl } from '../store/hgAccount.js';
-import { server } from './server.js';
+import { getAliveUrl } from '../store/hgAccount';
+import { server } from './server';
 import { execSync } from 'child_process';
 import dayjs from 'dayjs';
 import { existsSync, readFileSync, statSync } from 'fs';
-import { range } from '../utils/index.js';
+import { range } from '../utils/index';
 
 function getDataServerState() {
   let filePath = range(0, 100)
     .map((i) => {
-      return path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
+      return path.resolve(__dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
     })
     .reverse()
     .find((filePath) => {
@@ -18,7 +18,7 @@ function getDataServerState() {
       return false;
     });
   if (!filePath) {
-    filePath = path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
+    filePath = path.resolve(__dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
   }
   if (!existsSync(filePath)) {
     return { state: 'stop' };

@@ -1,10 +1,10 @@
 import restify from 'restify';
 import * as cookie from 'cookie';
-import { getAccountBySessionId } from '../store/user.js';
+import { getAccountBySessionId } from '../store/user';
 import dayjs from 'dayjs';
 import path from 'path';
 import { existsSync, statSync, writeFileSync } from 'fs';
-import { range } from '../utils/lodash.js';
+import { range } from '../utils/lodash';
 
 // 创建一个 restify 服务器实例
 const server = restify.createServer();
@@ -20,7 +20,7 @@ server.use(restify.plugins.queryParser());
 server.on('after', async (req: restify.Request, res, route, error) => {
   let filePath = range(0, 100)
     .map((i) => {
-      return path.resolve(import.meta.dirname, `../../log/http-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
+      return path.resolve(__dirname, `../../log/http-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
     })
     .find((filePath) => {
       if (!existsSync(filePath)) return true;
@@ -28,10 +28,10 @@ server.on('after', async (req: restify.Request, res, route, error) => {
       return false;
     });
   if (!filePath) {
-    filePath = path.resolve(import.meta.dirname, `../../log/http-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
+    filePath = path.resolve(__dirname, `../../log/http-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
   }
   const startTime = req.time();
-  const cookieObj = cookie.parse(req.header('cookie'));
+  const cookieObj = req.header('cookie') ? cookie.parse(req.header('cookie')) : {};
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   const account = userInfo?.account || req.body?.account || '';
   const ip = req.socket.remoteAddress || '';

@@ -1,4 +1,4 @@
-import { server } from './server.js';
+import { server } from './server';
 
 server.post('/api/water/getBasketballData', (req, res, next) => {
   res.send({

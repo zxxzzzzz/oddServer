@@ -1,10 +1,10 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { ChuanInfo, ChuanRule } from '../type/index.js';
-import { toNumber, uniqBy } from './index.js';
+import { ChuanInfo, ChuanRule } from '../type/index';
+import { toNumber, uniqBy } from './index';
 import path from 'path';
 
 let GlobalChuanRuleList: ChuanRule[] = [];
-const FILE_PATH = path.resolve(import.meta.dirname, '../../cache/chuanRule.csv');
+const FILE_PATH = path.resolve(__dirname, '../../cache/chuanRule.csv');
 const CSV_HEAD = ['jcGoalLine', 'jcResult', 'hgGoalLine1', 'hgResult1', 'hgGoalLine2', 'hgResult2'] as const;
 
 export const updateChuanRuleList = (chuanInfoList: ChuanInfo[]) => {

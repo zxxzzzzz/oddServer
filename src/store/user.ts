@@ -1,23 +1,22 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
-import { User } from '../type/index.js';
-import { pickBy, toAsyncTimeFunction } from '../utils/index.js';
+import { User } from '../type/index';
 import { resolve } from 'path';
 import stringify from 'json-stringify-pretty-compact';
-import { getOssClient } from '../api/oss.js';
-import { delay } from '../api/utils.js';
+import { delay } from '../api/utils';
 
 let GlobalUserInfo: { userList: User[] } = { userList: [] };
+const FILE_PATH = resolve(__dirname, '../../cache/user.json');
 
 async function getAccountList() {
   if (GlobalUserInfo.userList.length) return GlobalUserInfo.userList;
   for (let index = 0; index < 10; index++) {
     try {
-      const userInfo = await getUserFromOss();
+      const userInfo = await loadUser();
       GlobalUserInfo = userInfo;
       return GlobalUserInfo.userList;
     } catch (error) {}
-    await delay(1000)
+    await delay(1000);
   }
   return GlobalUserInfo.userList;
 }
@@ -30,7 +29,7 @@ export async function updateAccountBySessionId(sessionId: string, data: Partial<
       // @ts-expect-error
       user[k] = v;
     });
-    await uploadUserToOss();
+    await saveUser();
   }
 }
 
@@ -47,7 +46,7 @@ export async function login(username: string, password: string) {
     const token = randomUUID();
     user.pcsessionid = token;
     user.lastlogintime = new Date().toISOString();
-    await uploadUserToOss();
+    await saveUser();
     return user;
   }
 }
@@ -55,25 +54,19 @@ export async function logout(sessionId: string) {
   const user = await getAccountBySessionId(sessionId);
   if (user) {
     user.pcsessionid = '';
-    await uploadUserToOss();
+    await saveUser();
     return user;
   }
 }
 
 /**更新足球数据到web */
-export const uploadUserToOss = toAsyncTimeFunction(async function uploadFootballStateToOss() {
-  const OSS_FILE_NAME = 'user.json';
-  const ossClient = getOssClient();
-  await ossClient.put(OSS_FILE_NAME, Buffer.from(stringify(GlobalUserInfo)));
-  writeFileSync(resolve(import.meta.dirname, '../../cache/user.json'), stringify(GlobalUserInfo));
-}, 'uploadUserToOss');
+export const saveUser = function () {
+  writeFileSync(FILE_PATH, stringify(GlobalUserInfo));
+};
 
-export const getUserFromOss = toAsyncTimeFunction(async function updateFootballStateFromOss(): Promise<typeof GlobalUserInfo> {
-  const OSS_FILE_NAME = 'user.json';
-  const ossClient = getOssClient();
-  const res = await ossClient.get(OSS_FILE_NAME);
-  const content = res.content;
-  if (!content) throw Error('oss里没有user数据');
+export const loadUser = function (): typeof GlobalUserInfo {
+  if (!existsSync(FILE_PATH)) return { userList: [] };
+  const content = readFileSync(FILE_PATH, { encoding: 'utf-8' });
   const ossUserInfo = JSON.parse(content);
   return ossUserInfo;
-}, 'updateUserFromOss');
+};

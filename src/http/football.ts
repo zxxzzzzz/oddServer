@@ -1,11 +1,12 @@
-import { server } from './server.js';
-import { GlobalOptions, GoalLine, Result } from '../type/index.js';
-import { GlobalFootballState, getChuanInfoList, getSinInfoList } from '../store/football.js';
-import { getSinData, toNumber } from '../utils/index.js';
-import { getAccountBySessionId } from '../store/user.js';
+import { server } from './server';
+import { GlobalOptions, GoalLine, Result } from '../type/index';
+import { GlobalFootballState, getChuanInfoList, getSinInfoList, loadFootballState } from '../store/football';
+import { getSinData, toNumber } from '../utils/index';
+import { getAccountBySessionId } from '../store/user';
 import * as cookie from 'cookie';
 
 server.post('/api/water/getFootballData', async (req, res) => {
+  loadFootballState()
   const cookieObj = cookie.parse(req.header('cookie'));
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {

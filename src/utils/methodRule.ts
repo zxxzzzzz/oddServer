@@ -1,10 +1,10 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { GoalLine, MethodRule, Result, SinInfo } from '../type/index.js';
-import { uniqBy } from './index.js';
+import { GoalLine, MethodRule, Result, SinInfo } from '../type/index';
+import { uniqBy } from './index';
 import path from 'path';
 
 let GlobalMethodRuleList: MethodRule[] = [];
-const FILE_PATH = path.resolve(import.meta.dirname, '../../cache/methodRule.csv');
+const FILE_PATH = path.resolve(__dirname, '../../cache/methodRule.csv');
 const CSV_HEAD = [
   'method',
   'jcGoalLine1',

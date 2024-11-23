@@ -1,6 +1,6 @@
-import { maxBy, minBy, toAsyncTimeFunction, toFifoFunction } from '../utils/index.js';
-import { loginByAccount } from '../api/login.js';
-import { delay, uniqBy } from '../api/utils.js';
+import { maxBy, minBy, toAsyncTimeFunction, toFifoFunction } from '../utils/index';
+import { loginByAccount } from '../api/login';
+import { delay, uniqBy } from '../api/utils';
 import ping from 'ping';
 
 const GlobalAccountList = [

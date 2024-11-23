@@ -1,6 +1,6 @@
 import { existsSync, statSync, writeFileSync } from 'fs';
 import path from 'path';
-import { delay } from '../api/utils.js';
+import { delay } from '../api/utils';
 import dayjs from 'dayjs';
 
 export function range(start: number, end?: number, step: number = 1): number[] {
@@ -113,7 +113,7 @@ export function toAsyncTimeFunction<T extends (...args: any[]) => any>(
   return async function (...args: Parameters<T>): Promise<ReturnType<T>> {
     let filePath = range(0, 100)
       .map((i) => {
-        return path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
+        return path.resolve(__dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
       })
       .find((filePath) => {
         if (!existsSync(filePath)) return true;
@@ -121,7 +121,7 @@ export function toAsyncTimeFunction<T extends (...args: any[]) => any>(
         return false;
       });
     if (!filePath) {
-      filePath = path.resolve(import.meta.dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
+      filePath = path.resolve(__dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
     }
     const start = performance.now(); // 记录开始时间
     const result = await fn(...args); // 调用原函数
@@ -140,7 +140,7 @@ export function toAsyncTimeFunction<T extends (...args: any[]) => any>(
 }
 
 export function warnLog(text: string) {
-  const filePath = path.resolve(import.meta.dirname, '../../log/warn.csv');
+  const filePath = path.resolve(__dirname, '../../log/warn.csv');
   if (!existsSync(filePath)) {
     writeFileSync(filePath, `date, description\n`, { encoding: 'utf-8' });
   }
@@ -150,7 +150,7 @@ export function warnLog(text: string) {
   });
 }
 export function errorLog(text: string) {
-  const filePath = path.resolve(import.meta.dirname, '../../log/error.csv');
+  const filePath = path.resolve(__dirname, '../../log/error.csv');
   if (!existsSync(filePath)) {
     writeFileSync(filePath, `date, description\n`, { encoding: 'utf-8' });
   }

@@ -1,2 +1,2 @@
-import '../http/index.js';
+import '../http/index';
 

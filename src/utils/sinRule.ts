@@ -1,10 +1,10 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { BETTING_RESULT, GlobalOptions, GoalLine, SinRule, Result, SinInfo } from '../type/index.js';
-import { everyWithTolerance, range, uniqBy } from './index.js';
+import { BETTING_RESULT, GlobalOptions, GoalLine, SinRule, Result, SinInfo } from '../type/index';
+import { everyWithTolerance, range, uniqBy } from './index';
 import path from 'path';
 
 let GlobalGoalLineRuleList: SinRule[] = [];
-const FILE_PATH = path.resolve(import.meta.dirname, '../../cache/sinRule.csv');
+const FILE_PATH = path.resolve(__dirname, '../../cache/sinRule.csv');
 const CSV_HEAD = ['jcGoalLine1', 'jcResult1', 'jcGoalLine2', 'jcResult2', 'hgGoalLine1', 'hgResult1', 'hgGoalLine2', 'hgResult2'] as const;
 
 export const updateSinRuleList = (sinDataList: SinInfo[]) => {
