@@ -12,10 +12,3 @@ Start-Process powershell.exe -ArgumentList "-NoExit", "-Command `"cd '$projectPa
 # 启动一个新的 PowerShell 窗口并运行 npm install
 Write-Output "Starting npm install in a new terminal window..."
 Start-Process powershell.exe -ArgumentList "-NoExit", "-Command `"cd '$projectPath'; npm run http`""
-
-
-
-
-
-
-

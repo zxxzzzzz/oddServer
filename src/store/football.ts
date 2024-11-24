@@ -302,11 +302,11 @@ export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
 
 /**更新足球数据到web */
 export const saveFootballState = function () {
-  const filePath = resolve(__dirname, '../../cache/footballState.json');
+  const filePath = resolve(__dirname, '../../state/footballState.json');
   writeFileSync(filePath, stringify(GlobalFootballState), { encoding: 'utf-8' });
 };
 export const loadFootballState = function () {
-  const filePath = resolve(__dirname, '../../cache/footballState.json');
+  const filePath = resolve(__dirname, '../../state/footballState.json');
   if (!existsSync(filePath)) return;
   const content = readFileSync(filePath, { encoding: 'utf-8' });
   Object.entries(JSON.parse(content)).forEach(([key, value]) => {

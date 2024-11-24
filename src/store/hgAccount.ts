@@ -32,13 +32,13 @@ export const updateTokenIdleAge = () => {
   if (new Date().valueOf() - new Date(date).valueOf() > 1000 * 60 * 10) return;
   const durationNum = toNumber(duration);
   if (durationNum < 1000 * 15) {
-    GlobalAccountState.tokenIdleAge += 50;
+    GlobalAccountState.tokenIdleAge = Math.round(GlobalAccountState.tokenIdleAge * 1.1);
   }
   if (durationNum > 1000 * 20) {
-    const tokenIdleAge = GlobalAccountState.tokenIdleAge - 50;
+    const tokenIdleAge = Math.round(GlobalAccountState.tokenIdleAge * 0.9);
     GlobalAccountState.tokenIdleAge = Math.max(MIN_TOKEN_IDLE_AGE, tokenIdleAge);
   }
-  console.log('tokenIdleAge', GlobalAccountState.tokenIdleAge, 'lastDurationNum', durationNum);
+  console.log('tokenIdleAge', GlobalAccountState.tokenIdleAge / 1000 + ' s', 'lastDurationNum', durationNum / 1000 + ' s');
 };
 
 /**获取存活的登录地址 */

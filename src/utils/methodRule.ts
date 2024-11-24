@@ -4,7 +4,7 @@ import { toNumber, uniqBy } from './index';
 import path from 'path';
 
 let GlobalMethodRuleList: MethodRule[] = [];
-const FILE_PATH = path.resolve(__dirname, '../../cache/methodRule.csv');
+const FILE_PATH = path.resolve(__dirname, '../../rule/methodRule.csv');
 const CSV_HEAD = [
   'method',
   'jcGoalLine1',

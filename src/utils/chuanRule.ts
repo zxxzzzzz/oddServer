@@ -5,7 +5,7 @@ import path from 'path';
 import { getCoefficient } from './sinRule';
 
 let GlobalChuanRuleList: ChuanRule[] = [];
-const FILE_PATH = path.resolve(__dirname, '../../cache/chuanRule.csv');
+const FILE_PATH = path.resolve(__dirname, '../../rule/chuanRule.csv');
 const CSV_HEAD = ['jcGoalLine', 'jcResult', 'hgGoalLine1', 'hgResult1', 'hgGoalLine2', 'hgResult2'] as const;
 
 export const updateChuanRuleList = (chuanInfoList: ChuanInfo[]) => {

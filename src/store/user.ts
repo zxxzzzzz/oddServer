@@ -6,7 +6,7 @@ import stringify from 'json-stringify-pretty-compact';
 import { delay } from '../api/utils';
 
 let GlobalUserInfo: { userList: User[] } = { userList: [] };
-const FILE_PATH = resolve(__dirname, '../../cache/user.json');
+const FILE_PATH = resolve(__dirname, '../../state/user.json');
 
 async function getAccountList() {
   if (GlobalUserInfo.userList.length) return GlobalUserInfo.userList;

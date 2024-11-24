@@ -6,7 +6,7 @@ import { getGaussElimination, toFixNumber, toNumber } from './lodash';
 import { getMethod } from './methodRule';
 
 let GlobalGoalLineRuleList: SinRule[] = [];
-const FILE_PATH = path.resolve(__dirname, '../../cache/sinRule.csv');
+const FILE_PATH = path.resolve(__dirname, '../../rule/sinRule.csv');
 const CSV_HEAD = ['jcGoalLine1', 'jcResult1', 'jcGoalLine2', 'jcResult2', 'hgGoalLine1', 'hgResult1', 'hgGoalLine2', 'hgResult2'] as const;
 
 export const updateSinRuleList = (sinDataList: SinInfo[]) => {

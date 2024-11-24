@@ -23,10 +23,13 @@ server.post('/api/water/getFootballData', async (req, res) => {
     HGPoint: parseFloat(body.HGPoint || '0.023'),
     JCBet: parseFloat(body.JCTzAmt || '10000'),
     // "scope": "周三",
-    // "outMatch": [],
-    // "inMatch": []
+    // "outMatch": ["1028115"],
+    // "inMatch": ["1028115"]
   };
   const scope = body?.scope || '';
+
+  const outMatch: string[] = body.outMatch || [];
+  const inMatch: string[] = body.inMatch || [];
   const JCInfos = GlobalFootballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
   const jcMatchIdList = JCInfos.map((v) => v.matchId);
   const HGInfos = GlobalFootballState.HGInfoList.filter((v) => jcMatchIdList.includes(v.matchId));
@@ -63,7 +66,12 @@ server.post('/api/water/getFootballData', async (req, res) => {
       const info = maxBy(value, (item) => item.JcProfit);
       return info;
     })
-    .filter((v) => !!v);
+    .filter((v) => !!v)
+    .filter((info) => {
+      const isOut = !outMatch.length ? false : outMatch.some((matchId) => info.matchId1 === matchId || info.matchId2 === matchId);
+      const isIn = !inMatch.length ? true : inMatch.some((matchId) => info.matchId1 === matchId || info.matchId2 === matchId);
+      return isIn && !isOut;
+    });
 
   res.send({
     success: true,

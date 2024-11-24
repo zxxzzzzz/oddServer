@@ -22,18 +22,20 @@ import dayjs from 'dayjs';
 import { updateTokenIdleAge } from './store/hgAccount';
 
 const updateAllRule = () => {
-  const filePath = resolve(__dirname, '../cache/footballDataExample.json');
-  console.log(filePath);
-  if (!existsSync(filePath)) return;
-  const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' }));
-  updateSinRuleList(data?.sinData || []);
-  updateMethodRuleList(data?.sinData || []);
-  updateChuanRuleList(data?.chuanData || []);
-  console.log('update');
+  for (let index = 0; index < 99999; index++) {
+    const filePath = resolve(__dirname, `../history/${index}.json`);
+    if (!existsSync(filePath)) continue;
+    console.log(filePath);
+    const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' }));
+    updateSinRuleList(data?.sinData || []);
+    updateMethodRuleList(data?.sinData || []);
+    updateChuanRuleList(data?.chuanData || []);
+    console.log('update');
+  }
 };
 
 const getAllAccount = () => {
-  const filePath = resolve(__dirname, '../cache/user.json');
+  const filePath = resolve(__dirname, '../state/user.json');
   console.log(filePath);
   if (!existsSync(filePath)) return;
   const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' })) as { userList: any[] };
