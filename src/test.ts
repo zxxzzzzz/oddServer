@@ -46,8 +46,8 @@ const getAllAccount = () => {
 };
 
 (async () => {
-  // updateAllRule();
-  updateTokenIdleAge()
+  updateAllRule();
+  // updateTokenIdleAge()
   // console.log(getAllAccount());
   // 示例用法
   console.log(getLeagueSameWeight('瑞典超级甲组联赛-附加赛', '瑞典超级联赛'));

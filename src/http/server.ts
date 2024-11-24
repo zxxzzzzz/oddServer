@@ -14,6 +14,7 @@ server.listen(80, function () {
 
 server.use(restify.plugins.bodyParser());
 server.use(restify.plugins.queryParser());
+server.use(restify.plugins.gzipResponse());
 
 server.on('after', async (req: restify.Request, res, route, error) => {
   const filePath = getLogFilePath('http')
