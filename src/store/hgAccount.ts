@@ -1,19 +1,45 @@
-import { maxBy, minBy, toAsyncTimeFunction, toFifoFunction } from '../utils/index';
+import { getLogFilePath, maxBy, minBy, toAsyncTimeFunction, toFifoFunction, toNumber } from '../utils/index';
 import { loginByAccount } from '../api/login';
 import { delay, uniqBy } from '../api/utils';
-import ping from 'ping';
 import { Token } from '../type';
+import { existsSync, readFileSync } from 'fs';
 
-const GlobalAccountList = [
-  { account: 'CXGCXG717', password: 'ASd12345' },
-  { account: 'CXGCXG719', password: 'ASd12345' },
-  { account: 'CXGCXG720', password: 'ASd12345' },
-  { account: 'CXGCXG721', password: 'ASd12345' },
-  { account: 'CXGCXG723', password: 'ASd12345' },
-];
-let GlobalTokenList: Token[] = [];
-// 是否正在登录
-let isLogging = false;
+const MIN_TOKEN_IDLE_AGE = 1000 * 1;
+const GlobalAccountState: {
+  accountList: { account: string; password: string }[];
+  tokenList: Token[];
+  isLogging: boolean;
+  tokenIdleAge: number;
+} = {
+  accountList: [
+    { account: 'CXGCXG717', password: 'ASd12345' },
+    { account: 'CXGCXG719', password: 'ASd12345' },
+    { account: 'CXGCXG720', password: 'ASd12345' },
+    { account: 'CXGCXG721', password: 'ASd12345' },
+    { account: 'CXGCXG723', password: 'ASd12345' },
+  ],
+  tokenList: [],
+  isLogging: false,
+  tokenIdleAge: MIN_TOKEN_IDLE_AGE,
+};
+
+export const updateTokenIdleAge = () => {
+  const filePath = getLogFilePath('footballConsume');
+  if (!existsSync(filePath)) return;
+  const lineList = readFileSync(filePath, { encoding: 'utf-8' }).split('\n');
+  if (lineList.length < 2) return;
+  const [date, tag, duration] = (lineList.at(-2) || '').split(',').map((s) => s.trim());
+  if (new Date().valueOf() - new Date(date).valueOf() > 1000 * 60 * 10) return;
+  const durationNum = toNumber(duration);
+  if (durationNum < 1000 * 15) {
+    GlobalAccountState.tokenIdleAge += 50;
+  }
+  if (durationNum > 1000 * 20) {
+    const tokenIdleAge = GlobalAccountState.tokenIdleAge - 50;
+    GlobalAccountState.tokenIdleAge = Math.max(MIN_TOKEN_IDLE_AGE, tokenIdleAge);
+  }
+  console.log('tokenIdleAge', GlobalAccountState.tokenIdleAge, 'lastDurationNum', durationNum);
+};
 
 /**获取存活的登录地址 */
 export const getAliveUrl = async () => {
@@ -67,65 +93,52 @@ export const getAliveUrl = async () => {
  * @returns
  */
 export const getToken = toFifoFunction(
-  toAsyncTimeFunction(async (op: { limitIdleAge: number } = { limitIdleAge: 1000 * 1 }): Promise<Token> => {
-    while (isLogging) {
-      await delay(10);
-    }
-    if (!GlobalTokenList?.length) {
-      isLogging = true;
-      const aliveUrl = await getAliveUrl();
-      if (!aliveUrl) throw Error('hg服务器连接不上');
-      try {
-        const noLoginAccountList = GlobalAccountList.filter((account) =>
-          GlobalTokenList.every((token) => token.account !== account.account)
-        );
-        for (const noLoginAccount of noLoginAccountList) {
-          const token = await loginByAccount(noLoginAccount.account, noLoginAccount.password, aliveUrl);
-          GlobalTokenList = [...GlobalTokenList, { ...token, account: noLoginAccount.account, lastUseTimestamp: 0 }];
-        }
-        isLogging = false;
-        // console.log(GlobalTokenList);
-      } catch (error) {
-        isLogging = false;
-        // console.log(error);
+  toAsyncTimeFunction(
+    async (): Promise<Token> => {
+      while (GlobalAccountState.isLogging) {
+        await delay(10);
       }
-    }
-    GlobalTokenList = uniqBy(
-      GlobalTokenList.sort((a, b) => {
-        return a.lastUseTimestamp - b.lastUseTimestamp;
-      }),
-      (el) => el.account
-    );
-    if (!GlobalTokenList?.length) throw Error('hg账号 无法登录');
-    const lastUseToken = GlobalTokenList[0];
-    // 加个时间偏移
-    const offset = Math.floor(Math.random() * op.limitIdleAge * 0.5);
-    while (new Date().valueOf() - lastUseToken.lastUseTimestamp <= op.limitIdleAge + offset) {
-      await delay(100);
-    }
-    lastUseToken.lastUseTimestamp = new Date().valueOf();
-    // console.log('token', lastUseToken.uid, new Date(lastUseToken.lastUseTimestamp).toISOString());
-    return lastUseToken;
-  }, 'getToken')
+      if (GlobalAccountState.tokenList?.length !== GlobalAccountState.accountList?.length) {
+        GlobalAccountState.isLogging = true;
+        const aliveUrl = await getAliveUrl();
+        if (!aliveUrl) throw Error('hg服务器连接不上');
+        try {
+          const noLoginAccountList = GlobalAccountState.accountList.filter((account) =>
+            GlobalAccountState.tokenList.every((token) => token.account !== account.account)
+          );
+          for (const noLoginAccount of noLoginAccountList) {
+            const token = await loginByAccount(noLoginAccount.account, noLoginAccount.password, aliveUrl);
+            GlobalAccountState.tokenList = [
+              ...GlobalAccountState.tokenList,
+              { ...token, account: noLoginAccount.account, lastUseTimestamp: 0 },
+            ];
+          }
+          GlobalAccountState.isLogging = false;
+        } catch (error) {
+          GlobalAccountState.isLogging = false;
+        }
+      }
+      GlobalAccountState.tokenList = uniqBy(
+        GlobalAccountState.tokenList.sort((a, b) => {
+          return a.lastUseTimestamp - b.lastUseTimestamp;
+        }),
+        (el) => el.account
+      );
+      if (!GlobalAccountState.tokenList?.length) throw Error('hg账号 无法登录');
+      const lastUseToken = GlobalAccountState.tokenList[0];
+      const limitIdleAge = GlobalAccountState.tokenIdleAge;
+      // 加个时间偏移
+      const offset = Math.floor(Math.random() * limitIdleAge * 0.5);
+      while (new Date().valueOf() - lastUseToken.lastUseTimestamp <= limitIdleAge + offset) {
+        await delay(100);
+      }
+      lastUseToken.lastUseTimestamp = new Date().valueOf();
+      return lastUseToken;
+    },
+    { tag: 'getToken', desc: '' }
+  )
 );
 /**获取有多少个有效账号token */
 export const getTokenCount = () => {
-  return GlobalTokenList.length || 0;
-};
-
-export const reLogin = async (uid: string) => {
-  const matchItem = GlobalTokenList.find((ac) => ac.uid === uid);
-  if (!matchItem) return;
-  const account = GlobalAccountList.find((ac) => ac.account === matchItem.account);
-  if (!account) return;
-  const aliveUrl = await getAliveUrl();
-  if (!aliveUrl) throw new Error('hg 服务器连接不上');
-  let i = 0;
-  while (i < 3) {
-    try {
-      const token = await loginByAccount(account.account, account.password, aliveUrl);
-      GlobalTokenList = [...GlobalTokenList, { ...token, account: account.account, lastUseTimestamp: 0 }].filter((v) => v.uid !== uid);
-      return;
-    } catch (error) {}
-  }
+  return GlobalAccountState.tokenList.length || 0;
 };

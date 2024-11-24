@@ -1,7 +1,7 @@
 import { server } from './server';
 import { GlobalOptions, GoalLine, Result } from '../type/index';
 import { GlobalFootballState, getChuanInfoList, getSinInfoList, loadFootballState } from '../store/football';
-import { getSinData, maxBy, toNumber, zipBy } from '../utils/index';
+import { getChuanInfo, getSinData, maxBy, toNumber, zipBy } from '../utils/index';
 import { getAccountBySessionId } from '../store/user';
 import * as cookie from 'cookie';
 
@@ -57,11 +57,13 @@ server.post('/api/water/getFootballData', async (req, res) => {
   const chuanData = zipBy(
     getChuanInfoList(sinData, op),
     (item) => `${item.matchId1},${item.JCgoalLine1},${item.JCTouz1},${item.matchId2},${item.JCgoalLine2},${item.JCTouz2}`
-  ).map((item) => {
-    const { key, value } = item;
-    const info = maxBy(value, (item) => item.JcProfit);
-    return info;
-  }).filter(v =>!!v);
+  )
+    .map((item) => {
+      const { key, value } = item;
+      const info = maxBy(value, (item) => item.JcProfit);
+      return info;
+    })
+    .filter((v) => !!v);
 
   res.send({
     success: true,
@@ -158,8 +160,114 @@ server.post('/api/water/caculateSin', (req, res, next) => {
 });
 
 server.post('/api/water/caculateChuan', (req, res, next) => {
+  type Body = {
+    matchId1: string;
+    matchId2: string;
+    method1: string;
+    method2: string;
+    JCPoint: number;
+    HGPoint: number;
+    JCTzAmt: string;
+    HGTzAmt1_1: string;
+    HGTzAmt1_2: string;
+    HGTzAmt2_1: string;
+    HGTzAmt2_2: string;
+    JcProfitRate: string;
+    JcProfit: string;
+    HgProfit1: string;
+    HgProfit2: string;
+    JCAmount: string;
+    HGAmount1_1: string;
+    HGAmount1_2: string;
+    HGAmount2_1: string;
+    HGAmount2_2: string;
+    JCgoalLine1: GoalLine;
+    JCgoalLine2: GoalLine;
+    HGgoalLine1_1: GoalLine;
+    HGgoalLine1_2: GoalLine;
+    HGgoalLine2_1: GoalLine;
+    HGgoalLine2_2: GoalLine;
+    JCTzOdd1: string;
+    JCTzOdd2: string;
+    HGTzOdd1_1: string;
+    HGTzOdd1_2: string;
+    HGTzOdd2_1: string;
+    HGTzOdd2_2: string;
+    yield: 'Sin';
+    planId: string;
+    JCTouz1: Result;
+    JCTouz2: Result;
+    HGTouz1_1: Result;
+    HGTouz1_2: Result;
+    HGTouz2_1: Result;
+    HGTouz2_2: Result;
+    matchNumStr1: string;
+    matchNumStr2: string;
+    beis: string;
+    JCTouzName1: string;
+    JCTouzName2: string;
+    ifAverg: boolean;
+    planName1: string;
+    planName2: string;
+  };
+  const body = req.body as Body;
+  const matchId1 = body.matchId1;
+  const matchId2 = body.matchId2;
+  const method1 = body.method1;
+  const method2 = body.method2;
+  const jcOdds1 = toNumber(body.JCTzOdd1);
+  const jcOdds2 = toNumber(body.JCTzOdd2);
+  const jcResult1 = body.JCTouz1;
+  const jcResult2 = body.JCTouz2;
+  const jcGoalLine1 = body.JCgoalLine1;
+  const jcGoalLine2 = body.JCgoalLine2;
+  const hgOdds1_1 = toNumber(body.HGTzOdd1_1);
+  const hgOdds1_2 = toNumber(body.HGTzOdd1_2);
+  const hgOdds2_1 = toNumber(body.HGTzOdd2_1);
+  const hgOdds2_2 = toNumber(body.HGTzOdd2_2);
+  const hgResult1_1 = body.HGTouz1_1;
+  const hgResult1_2 = body.HGTouz1_2;
+  const hgResult2_1 = body.HGTouz2_1;
+  const hgResult2_2 = body.HGTouz2_2;
+  const hgGoalLine1_1 = body.HGgoalLine1_1;
+  const hgGoalLine1_2 = body.HGgoalLine1_2;
+  const hgGoalLine2_1 = body.HGgoalLine2_1;
+  const hgGoalLine2_2 = body.HGgoalLine2_2;
+  const data = getChuanInfo(
+    {
+      matchId1,
+      matchId2,
+      method1,
+      method2,
+      jcOdds1,
+      jcOdds2,
+      jcResult1,
+      jcResult2,
+      jcGoalLine1,
+      jcGoalLine2,
+      hgOdds1_1,
+      hgOdds1_2,
+      hgOdds2_1,
+      hgOdds2_2,
+      hgResult1_1,
+      hgResult1_2,
+      hgResult2_1,
+      hgResult2_2,
+      hgGoalLine1_1,
+      hgGoalLine1_2,
+      hgGoalLine2_1,
+      hgGoalLine2_2,
+    },
+    {
+      JCPointChuan: toNumber(body.JCPoint),
+      JCBet: toNumber(body.JCTzAmt),
+      JCPointSin: toNumber(body.JCPoint),
+      HGPoint: toNumber(body.HGPoint),
+    }
+  );
   res.send({
     success: true,
+    data,
   });
   next();
 });

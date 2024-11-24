@@ -1,19 +1,22 @@
+import { errorLog } from '../utils';
 import { delay } from './utils';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 export const cuFetch = async (...params: Parameters<typeof fetch>) => {
+  await delay(100);
   let _error = Error('');
-  for (let index = 0; index < 3; index++) {
+  for (let index = 0; index < 5; index++) {
     try {
       const res = await fetch(...params);
       return res;
     } catch (error) {
       _error = error as Error;
-      await delay(2000);
+      await delay(1000 * index * 1.5);
+      console.log('retry', params[0]);
     }
   }
-  throw _error;
+  errorLog((_error as Error).message);
 };
 // export const cuFetch = async (...params: Parameters<typeof fetch>) => {
 //   let _error = Error('');

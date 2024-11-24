@@ -10,14 +10,8 @@ const FILE_PATH = resolve(__dirname, '../../cache/user.json');
 
 async function getAccountList() {
   if (GlobalUserInfo.userList.length) return GlobalUserInfo.userList;
-  for (let index = 0; index < 10; index++) {
-    try {
-      const userInfo = await loadUser();
-      GlobalUserInfo = userInfo;
-      return GlobalUserInfo.userList;
-    } catch (error) {}
-    await delay(1000);
-  }
+  const userInfo = await loadUser();
+  GlobalUserInfo = userInfo;
   return GlobalUserInfo.userList;
 }
 

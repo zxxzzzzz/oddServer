@@ -1,10 +1,8 @@
 import restify from 'restify';
 import * as cookie from 'cookie';
 import { getAccountBySessionId } from '../store/user';
-import dayjs from 'dayjs';
-import path from 'path';
-import { existsSync, statSync, writeFileSync } from 'fs';
-import { range } from '../utils/lodash';
+import { existsSync, writeFileSync } from 'fs';
+import { getLogFilePath } from '../utils/index';
 
 // 创建一个 restify 服务器实例
 const server = restify.createServer();
@@ -18,18 +16,7 @@ server.use(restify.plugins.bodyParser());
 server.use(restify.plugins.queryParser());
 
 server.on('after', async (req: restify.Request, res, route, error) => {
-  let filePath = range(0, 100)
-    .map((i) => {
-      return path.resolve(__dirname, `../../log/http-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
-    })
-    .find((filePath) => {
-      if (!existsSync(filePath)) return true;
-      if (statSync(filePath).size / 1024 / 1024 < 10) return true;
-      return false;
-    });
-  if (!filePath) {
-    filePath = path.resolve(__dirname, `../../log/http-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
-  }
+  const filePath = getLogFilePath('http')
   const startTime = req.time();
   const cookieObj = req.header('cookie') ? cookie.parse(req.header('cookie')) : {};
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');

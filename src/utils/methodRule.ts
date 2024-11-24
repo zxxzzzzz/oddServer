@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { GoalLine, MethodRule, Result, SinInfo } from '../type/index';
-import { uniqBy } from './index';
+import { toNumber, uniqBy } from './index';
 import path from 'path';
 
 let GlobalMethodRuleList: MethodRule[] = [];
@@ -36,7 +36,9 @@ export const updateMethodRuleList = (sinDataList: SinInfo[]) => {
   const itemList = [...allMethod, ...oldMethodRuleList];
   const methodList = ['WL', 'WLD1', 'WLD2', 'LH1', 'LH2', 'LH3', 'WH1', 'WH2', 'WH3', 'D1', 'D2', 'D3'];
   const uniqItemList = uniqBy(itemList, (item) => CSV_HEAD.map((key) => item[key]).join(',')).toSorted((v1, v2) => {
-    return methodList.findIndex((m) => v1.method === m) - methodList.findIndex((m) => v2.method === m);
+    const v1Index = methodList.findIndex((m) => v1.method === m) * 1000 + toNumber(v1.jcGoalLine1) * 100 + toNumber(v1.jcGoalLine2) * 10;
+    const v2Index = methodList.findIndex((m) => v2.method === m) * 1000 + toNumber(v2.jcGoalLine1) * 100 + toNumber(v2.jcGoalLine2) * 10;
+    return v1Index - v2Index;
   });
   writeFileSync(
     FILE_PATH,

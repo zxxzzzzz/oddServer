@@ -1,14 +1,14 @@
-import { delay } from '../api/utils';
 import {
   updateJCInfoList,
   saveFootballState,
-  loadFootballState,
   GlobalFootballState,
   updateAllHGLeagueList,
   updateHGGameList,
   updateHgInfoList,
 } from '../store/football';
+import { updateTokenIdleAge } from '../store/hgAccount';
 import { executeSequentialIntervals } from '../utils';
+
 (async () => {
   const logInfo = () => {
     console.log({
@@ -58,10 +58,10 @@ import { executeSequentialIntervals } from '../utils';
 
   executeSequentialIntervals(
     async () => {
-      const v1 = new Date().valueOf();
       await updateHgInfoList();
-      console.log('hgUpdate', (new Date().valueOf() - v1) / 1000, 's');
+      logInfo()
       saveFootballState();
+      updateTokenIdleAge()
     },
     1,
     false

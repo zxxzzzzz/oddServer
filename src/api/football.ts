@@ -1,4 +1,4 @@
-import { getToken, reLogin } from '../store/hgAccount';
+import { getToken } from '../store/hgAccount';
 import { cuFetch } from './request';
 import { objToFormData } from './utils';
 import Convert from 'xml-js';
@@ -6,63 +6,62 @@ import { GameList, GameMore, GameOBT } from '../type/index';
 import { JCInfo } from '../type/index';
 import { toAsyncTimeFunction } from '../utils/lodash';
 
-export const getHGLeagueListAll = toAsyncTimeFunction(async function (
-  count?: number
-): Promise<{ name: string; leagueId: string }[]> {
-  if (count !== undefined && count < 0) throw Error('getLeagueListAllByNodeFetch 递归太多');
-  const { uid, ver, url } = await getToken();
-  const body = {
-    p: 'get_league_list_All',
-    uid: uid,
-    ver: ver,
-    langx: 'zh-cn',
-    gtype: 'FT',
-    FS: 'N',
-    showtype: 'p3',
-    date: 'all',
-    ts: new Date().valueOf(),
-    nocp: 'N',
-  };
-  const _url = new URL(url);
+export const getHGLeagueListAll = toAsyncTimeFunction(
+  async function (): Promise<{ name: string; leagueId: string }[]> {
+    const { uid, ver, url } = await getToken();
+    const body = {
+      p: 'get_league_list_All',
+      uid: uid,
+      ver: ver,
+      langx: 'zh-cn',
+      gtype: 'FT',
+      FS: 'N',
+      showtype: 'p3',
+      date: 'all',
+      ts: new Date().valueOf(),
+      nocp: 'N',
+    };
+    const _url = new URL(url);
 
-  const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
-    headers: {
-      accept: '*/*',
-      'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-      'sec-ch-ua': '"Chromium";v="112", "Microsoft Edge";v="112", "Not:A-Brand";v="99"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-origin',
-    },
-    body: objToFormData(body),
-    method: 'post',
-  });
-  const text = await res.text();
-  if (!text) {
-    throw Error('getLeagueListAllByNodeFetch 获取extra 联赛数据失败 数据空');
-  }
-  const mixObj = Convert.xml2js(text, { compact: true }) as any;
-  if (mixObj?.serverresponse?.code?._text === 'error') {
-    await reLogin(uid);
-    return getHGLeagueListAll((count || 5) - 1);
-  }
-  return (mixObj?.serverresponse?.classifier?.region || [])
-    .map((r: any) => {
-      const league = r.league?.length ? r.league : [r.league];
-      return league.map((l: any) => {
-        const name = l._attributes.name;
-        const id = l._attributes.id;
-        return { name, leagueId: id };
-      });
-    })
-    .flat();
-}, 'getHGLeagueListAll');
+    const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
+      headers: {
+        accept: '*/*',
+        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        'sec-ch-ua': '"Chromium";v="112", "Microsoft Edge";v="112", "Not:A-Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+      },
+      body: objToFormData(body),
+      method: 'post',
+    });
+    if (!res) return getHGLeagueListAll();
+    const text = await res.text();
+    if (!text) {
+      throw Error('getLeagueListAllByNodeFetch 获取extra 联赛数据失败 数据空');
+    }
+    const mixObj = Convert.xml2js(text, { compact: true }) as any;
+    if (mixObj?.serverresponse?.code?._text === 'error') {
+      return getHGLeagueListAll();
+    }
+    return (mixObj?.serverresponse?.classifier?.region || [])
+      .map((r: any) => {
+        const league = r.league?.length ? r.league : [r.league];
+        return league.map((l: any) => {
+          const name = l._attributes.name;
+          const id = l._attributes.id;
+          return { name, leagueId: id };
+        });
+      })
+      .flat();
+  },
+  { tag: 'getHGLeagueListAll', desc: '' }
+);
 
 export const getHGGameList = toAsyncTimeFunction(
-  async function (op: { lid: string }, count?: number): Promise<GameList> {
-    if (count !== undefined && count < 0) throw Error('getGameListByTokenAndLeagueId 递归太多');
+  async function (op: { lid: string }): Promise<GameList> {
     const { uid, ver, url } = await getToken();
     const body = {
       uid: uid,
@@ -97,21 +96,22 @@ export const getHGGameList = toAsyncTimeFunction(
       },
       body: objToFormData(body),
     });
+    if (!res) return getHGGameList(op);
     const text = await res.text();
     const mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await reLogin(uid);
-      return getHGGameList(op, (count || 1) - 1);
+      return getHGGameList(op);
     }
     return mixObj;
   },
-  'getHGGameList',
-  (args) => 'lid:' + args[0].lid
+  {
+    tag: 'getHGGameList',
+    desc: (args) => 'lid:' + args[0].lid,
+  }
 );
 
 export const getHGGameOBT = toAsyncTimeFunction(
-  async function (op:{ecid: string}, count?: number): Promise<GameOBT> {
-    if (count !== undefined && count < 0) throw Error('getHGGameOBTByTokenAndEcid 递归太多');
+  async function (op: { ecid: string }): Promise<GameOBT> {
     const { uid, ver, url } = await getToken();
     const body = {
       uid: uid,
@@ -162,11 +162,11 @@ export const getHGGameOBT = toAsyncTimeFunction(
       method: 'POST',
       body: objToFormData(body2),
     });
+    if (!res) return getHGGameOBT(op);
     const text = await res.text();
     let mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await reLogin(uid);
-      return getHGGameOBT(op, (count || 5) - 1);
+      return getHGGameOBT(op);
     }
     if (!mixObj?.serverresponse?.ec?.game) {
       const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
@@ -185,13 +185,16 @@ export const getHGGameOBT = toAsyncTimeFunction(
         method: 'POST',
         body: objToFormData(body),
       });
+      if (!res) return getHGGameOBT(op);
       const text = await res.text();
       mixObj = Convert.xml2js(text, { compact: true }) as any;
     }
     return mixObj;
   },
-  'getHGGameOBT',
-  (args) => 'ecid:' + args[0].ecid
+  {
+    tag: 'getHGGameOBT',
+    desc: (args) => 'ecid:' + args[0].ecid,
+  }
 );
 
 export const getHGGameMore = toAsyncTimeFunction(
@@ -230,84 +233,89 @@ export const getHGGameMore = toAsyncTimeFunction(
       body: objToFormData(body),
       method: 'POST',
     });
+    if (!res) return getHGGameMore(op);
     const text = await res.text();
     let mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await reLogin(uid);
-      return getHGGameMore(op, count - 1);
+      return getHGGameMore(op);
     }
     return mixObj as GameMore;
   },
-  'getHGGameMore',
-  (args) => `leagueId:${args[0].lid} ecid:${args[0].ecid}`
+  {
+    tag: 'getHGGameMore',
+    desc: (args) => `leagueId:${args[0].lid} ecid:${args[0].ecid}`,
+  }
 );
 
-export const getJCInfoList = toAsyncTimeFunction(async function (count = 5): Promise<JCInfo[]> {
-  if (count <= 0) throw Error('getJCInfoList 请求次数超过');
-  const res = await cuFetch(
-    'https://webapi.sporttery.cn/gateway/jc/football/getMatchCalculatorV1.qry?poolCode=hhad,had,ttg,hafu&channel=c',
-    {
-      headers: {
-        accept: 'application/json, text/javascript, */*; q=0.01',
-        'accept-language': 'zh-CN,zh;q=0.9',
-        'cache-control': 'no-cache',
-        pragma: 'no-cache',
-        'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        Referer: 'https://www.sporttery.cn/',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-      },
+export const getJCInfoList = toAsyncTimeFunction(
+  async function (): Promise<JCInfo[]> {
+    const res = await cuFetch(
+      'https://webapi.sporttery.cn/gateway/jc/football/getMatchCalculatorV1.qry?poolCode=hhad,had,ttg,hafu&channel=c',
+      {
+        headers: {
+          accept: 'application/json, text/javascript, */*; q=0.01',
+          'accept-language': 'zh-CN,zh;q=0.9',
+          'cache-control': 'no-cache',
+          pragma: 'no-cache',
+          'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"Windows"',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-site',
+          Referer: 'https://www.sporttery.cn/',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+        },
+      }
+    );
+    if (!res) return getJCInfoList();
+    const text = await res.text();
+    if (text.includes('html')) {
+      return getJCInfoList();
     }
-  );
-  const text = await res.text();
-  if (text.includes('html')) {
-    return getJCInfoList(count - 1);
-  }
-  const data = JSON.parse(text);
-  const matchInfoList = data?.value?.matchInfoList as any[];
-  const JCInfoList = (matchInfoList ?? [])
-    .map((info: any) => info.subMatchList)
-    .flat()
-    .map((match: any) => {
-      return {
-        matchId: `${match?.matchId}`,
-        leagueAbbName: match?.leagueAbbName ?? '',
-        leagueAllName: match?.leagueAllName ?? '',
-        leagueCode: match?.leagueCode ?? '',
-        matchNumStr: match?.matchNumStr ?? '',
-        matchDate: match?.matchDate ?? '',
-        matchTime: match?.matchTime ?? '',
-        matchTimeFormat: `${match?.matchDate} ${match?.matchTime}`,
-        homeTeamAbbName: match?.homeTeamAbbName ?? '',
-        homeTeamAllName: match?.homeTeamAllName ?? '',
-        awayTeamAbbName: match?.awayTeamAbbName ?? '',
-        awayTeamAllName: match?.awayTeamAllName ?? '',
-        isSingle_had: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HAD')?.single?.toString?.() ?? '',
-        isSingle_hhad: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HHAD')?.single?.toString?.() ?? '',
-        had_a: match?.had?.a ?? '',
-        had_h: match?.had?.h ?? '',
-        had_d: match?.had?.d ?? '',
-        hhad_a: match?.hhad?.a ?? '',
-        hhad_h: match?.hhad?.h ?? '',
-        hhad_d: match?.hhad?.d ?? '',
-        hhad_goalLine: match?.hhad?.goalLine ?? '',
-        hafu_aa: match?.hafu?.aa ?? '',
-        hafu_ad: match?.hafu?.ad ?? '',
-        hafu_ah: match?.hafu?.ah ?? '',
-        hafu_da: match?.hafu?.da ?? '',
-        hafu_dd: match?.hafu?.dd ?? '',
-        hafu_dh: match?.hafu?.dh ?? '',
-        hafu_ha: match?.hafu?.ha ?? '',
-        hafu_hd: match?.hafu?.hd ?? '',
-        hafu_hh: match?.hafu?.hh ?? '',
-        updateTime: new Date().toISOString(),
-        createdAt: match?.createdAt ?? '',
-        updatedAt: new Date().toISOString(),
-      };
-    });
-  return JCInfoList as JCInfo[];
-}, 'getJCInfoList');
+    const data = JSON.parse(text);
+    const matchInfoList = data?.value?.matchInfoList as any[];
+    const JCInfoList = (matchInfoList ?? [])
+      .map((info: any) => info.subMatchList)
+      .flat()
+      .map((match: any) => {
+        return {
+          matchId: `${match?.matchId}`,
+          leagueAbbName: match?.leagueAbbName ?? '',
+          leagueAllName: match?.leagueAllName ?? '',
+          leagueCode: match?.leagueCode ?? '',
+          matchNumStr: match?.matchNumStr ?? '',
+          matchDate: match?.matchDate ?? '',
+          matchTime: match?.matchTime ?? '',
+          matchTimeFormat: `${match?.matchDate} ${match?.matchTime}`,
+          homeTeamAbbName: match?.homeTeamAbbName ?? '',
+          homeTeamAllName: match?.homeTeamAllName ?? '',
+          awayTeamAbbName: match?.awayTeamAbbName ?? '',
+          awayTeamAllName: match?.awayTeamAllName ?? '',
+          isSingle_had: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HAD')?.single?.toString?.() ?? '',
+          isSingle_hhad: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HHAD')?.single?.toString?.() ?? '',
+          had_a: match?.had?.a ?? '',
+          had_h: match?.had?.h ?? '',
+          had_d: match?.had?.d ?? '',
+          hhad_a: match?.hhad?.a ?? '',
+          hhad_h: match?.hhad?.h ?? '',
+          hhad_d: match?.hhad?.d ?? '',
+          hhad_goalLine: match?.hhad?.goalLine ?? '',
+          hafu_aa: match?.hafu?.aa ?? '',
+          hafu_ad: match?.hafu?.ad ?? '',
+          hafu_ah: match?.hafu?.ah ?? '',
+          hafu_da: match?.hafu?.da ?? '',
+          hafu_dd: match?.hafu?.dd ?? '',
+          hafu_dh: match?.hafu?.dh ?? '',
+          hafu_ha: match?.hafu?.ha ?? '',
+          hafu_hd: match?.hafu?.hd ?? '',
+          hafu_hh: match?.hafu?.hh ?? '',
+          updateTime: new Date().toISOString(),
+          createdAt: match?.createdAt ?? '',
+          updatedAt: new Date().toISOString(),
+        };
+      });
+    return JCInfoList as JCInfo[];
+  },
+  { tag: 'getJCInfoList', desc: '' }
+);

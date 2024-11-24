@@ -103,35 +103,43 @@ export function minBy<T>(array: T[], iteratee: (value: T) => number | string): T
 
   return minElement;
 }
+/**获取log的文件地址 */
+export function getLogFilePath(fileName: string) {
+  let filePath = range(0, 100)
+    .map((i) => {
+      return path.resolve(__dirname, `../../log/${fileName}-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
+    })
+    .find((filePath) => {
+      if (!existsSync(filePath)) return true;
+      if (statSync(filePath).size / 1024 / 1024 < 10) return true;
+      return false;
+    });
+  if (!filePath) {
+    filePath = path.resolve(__dirname, `../../log/${fileName}-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
+  }
+  return filePath;
+}
 
 /**记录promise函数执行时间的包装函数 */
 export function toAsyncTimeFunction<T extends (...args: any[]) => any>(
   fn: T,
-  tag: string,
-  desc: string | ((args: Parameters<T>, result: Awaited<ReturnType<T>>) => string) = ''
+  op: {
+    tag: string;
+    desc: string | ((args: Parameters<T>, result: Awaited<ReturnType<T>>) => string);
+    fileName?: string;
+  }
 ): T {
   return async function (...args: Parameters<T>): Promise<ReturnType<T>> {
-    let filePath = range(0, 100)
-      .map((i) => {
-        return path.resolve(__dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
-      })
-      .find((filePath) => {
-        if (!existsSync(filePath)) return true;
-        if (statSync(filePath).size / 1024 / 1024 < 10) return true;
-        return false;
-      });
-    if (!filePath) {
-      filePath = path.resolve(__dirname, `../../log/performance-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
-    }
+    const filePath = getLogFilePath(op.fileName || 'performance');
     const start = performance.now(); // 记录开始时间
     const result = await fn(...args); // 调用原函数
     const end = performance.now(); // 记录结束时间
     const duration = end - start; // 计算执行时间
-    const description = typeof desc === 'string' ? desc : desc(args, result);
+    const description = typeof op.desc === 'string' ? op.desc : op.desc(args, result);
     if (!existsSync(filePath)) {
       writeFileSync(filePath, `date, tag, duration, description\n`, { encoding: 'utf-8' });
     }
-    writeFileSync(filePath, `${new Date().toISOString()}, ${tag}, ${duration}, ${description}\n`, {
+    writeFileSync(filePath, `${new Date().toISOString()}, ${op.tag}, ${duration}, ${description}\n`, {
       flag: 'a',
       encoding: 'utf-8',
     });
@@ -200,45 +208,6 @@ function omitBy<T>(object: Record<string, T>, predicate: (value: T, key: string,
   return result;
 }
 
-/**
- * 求解二元一次方程组
- *
- * @param a1 - 第一个方程的 x 系数
- * @param b1 - 第一个方程的 y 系数
- * @param c1 - 第一个方程的常数项
- * @param a2 - 第二个方程的 x 系数
- * @param b2 - 第二个方程的 y 系数
- * @param c2 - 第二个方程的常数项
- * @returns 一个包含解 [x, y] 的数组，如果方程组无解或有无穷多解，则返回 null
- */
-export function solveTwoVariableLinearEquations(op: {
-  a1: number;
-  b1: number;
-  c1: number;
-  a2: number;
-  b2: number;
-  c2: number;
-}): [number, number] | null {
-  const { a1, b1, c1, a2, b2, c2 } = op;
-  // 计算系数矩阵的行列式
-  const detA = a1 * b2 - a2 * b1;
-
-  // 检查行列式是否为零
-  if (detA === 0) {
-    return null; // 方程组无解或有无穷多解
-  }
-
-  // 计算 x 和 y 的行列式
-  const detAx = c1 * b2 - c2 * b1;
-  const detAy = a1 * c2 - a2 * c1;
-
-  // 计算 x 和 y
-  const x = detAx / detA;
-  const y = detAy / detA;
-
-  return [x, y];
-}
-
 export function pickBy<T>(
   object: Record<string, T>,
   predicate: (value: T, key: string, object: Record<string, T>) => boolean
@@ -304,259 +273,6 @@ export function strFixed(value: string, count: number = 2): string {
   // 使用 toFixed 方法将数字格式化为保留两位小数的字符串
   // toFixed 方法会四舍五入
   return numberValue.toFixed(count);
-}
-
-/**
- * 求解三元一次方程组
- *
- * @param a1 - 第一个方程的 x 系数
- * @param b1 - 第一个方程的 y 系数
- * @param c1 - 第一个方程的 z 系数
- * @param d1 - 第一个方程的常数项
- * @param a2 - 第二个方程的 x 系数
- * @param b2 - 第二个方程的 y 系数
- * @param c2 - 第二个方程的 z 系数
- * @param d2 - 第二个方程的常数项
- * @param a3 - 第三个方程的 x 系数
- * @param b3 - 第三个方程的 y 系数
- * @param c3 - 第三个方程的 z 系数
- * @param d3 - 第三个方程的常数项
- * @returns 一个包含解 [x, y, z] 的数组，如果方程组无解或有无穷多解，则返回 null
- */
-export function solveThreeVariableLinearEquations(op: {
-  a1: number;
-  b1: number;
-  c1: number;
-  d1: number;
-  a2: number;
-  b2: number;
-  c2: number;
-  d2: number;
-  a3: number;
-  b3: number;
-  c3: number;
-  d3: number;
-}): [number, number, number] | null {
-  const { a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3 } = op;
-  // 将输入转换为矩阵形式
-  const A = [
-    [a1, b1, c1],
-    [a2, b2, c2],
-    [a3, b3, c3],
-  ];
-  const D = [d1, d2, d3];
-
-  // 检查输入是否合法
-  if (A.length !== 3 || A[0].length !== 3 || D.length !== 3) {
-    throw new Error('Input must be a 3x3 matrix and a 3-element vector.');
-  }
-
-  // 高斯消元法
-  for (let i = 0; i < 3; i++) {
-    // 找到当前列的最大值，进行部分选主元
-    let maxRow = i;
-    for (let j = i + 1; j < 3; j++) {
-      if (Math.abs(A[j][i]) > Math.abs(A[maxRow][i])) {
-        maxRow = j;
-      }
-    }
-
-    // 交换行
-    [A[i], A[maxRow]] = [A[maxRow], A[i]];
-    [D[i], D[maxRow]] = [D[maxRow], D[i]];
-
-    // 检查主元是否为零
-    if (A[i][i] === 0) {
-      return null; // 方程组无解或有无穷多解
-    }
-
-    // 消元
-    for (let j = i + 1; j < 3; j++) {
-      const factor = A[j][i] / A[i][i];
-      for (let k = i; k < 3; k++) {
-        A[j][k] -= factor * A[i][k];
-      }
-      D[j] -= factor * D[i];
-    }
-  }
-
-  // 回代求解
-  const x: [number, number, number] = [0, 0, 0];
-  for (let i = 2; i >= 0; i--) {
-    let sum = 0;
-    for (let j = i + 1; j < 3; j++) {
-      sum += A[i][j] * x[j];
-    }
-    x[i] = (D[i] - sum) / A[i][i];
-  }
-
-  return x;
-}
-
-/**
- * 求解四元一次方程组
- *
- * @param a1 - 第一个方程的 x 系数
- * @param b1 - 第一个方程的 y 系数
- * @param c1 - 第一个方程的 z 系数
- * @param d1 - 第一个方程的 w 系数
- * @param e1 - 第一个方程的常数项
- * @param a2 - 第二个方程的 x 系数
- * @param b2 - 第二个方程的 y 系数
- * @param c2 - 第二个方程的 z 系数
- * @param d2 - 第二个方程的 w 系数
- * @param e2 - 第二个方程的常数项
- * @param a3 - 第三个方程的 x 系数
- * @param b3 - 第三个方程的 y 系数
- * @param c3 - 第三个方程的 z 系数
- * @param d3 - 第三个方程的 w 系数
- * @param e3 - 第三个方程的常数项
- * @param a4 - 第四个方程的 x 系数
- * @param b4 - 第四个方程的 y 系数
- * @param c4 - 第四个方程的 z 系数
- * @param d4 - 第四个方程的 w 系数
- * @param e4 - 第四个方程的常数项
- * @returns 一个包含解 [x, y, z, w] 的数组，如果方程组无解或有无穷多解，则返回 null
- */
-function solveFourVariableLinearEquations(op: {
-  a1: number;
-  b1: number;
-  c1: number;
-  d1: number;
-  e1: number;
-  a2: number;
-  b2: number;
-  c2: number;
-  d2: number;
-  e2: number;
-  a3: number;
-  b3: number;
-  c3: number;
-  d3: number;
-  e3: number;
-  a4: number;
-  b4: number;
-  c4: number;
-  d4: number;
-  e4: number;
-}): [number, number, number, number] | null {
-  const { a1, b1, c1, d1, e1, a2, b2, c2, d2, e2, a3, b3, c3, d3, e3, a4, b4, c4, d4, e4 } = op;
-
-  const isANone = a1 === 0 && a2 === 0 && a3 === 0 && a4 === 0;
-  const isBNone = b1 === 0 && b2 === 0 && b3 === 0 && b4 === 0;
-  const isCNone = c1 === 0 && c2 === 0 && c3 === 0 && c4 === 0;
-  const isDNone = d1 === 0 && d2 === 0 && d3 === 0 && d4 === 0;
-  const omitList = [isANone ? 'a' : '', isBNone ? 'b' : '', isCNone ? 'c' : '', isDNone ? 'd' : ''].filter((d) => d);
-  // 未知数数量
-  const validVariableList = [
-    { a: a1, b: b1, c: c1, d: d1, e: e1 },
-    { a: a2, b: b2, c: c2, d: d2, e: e2 },
-    { a: a3, b: b3, c: c3, d: d3, e: e3 },
-    { a: a4, b: b4, c: c4, d: d4, e: e4 },
-  ]
-    .map(({ a, b, c, d, e }) => {
-      if (a === 0 && b === 0 && c === 0 && d === 0) return void 0;
-      const ob = omitBy({ a, b, c, d, e }, (v, k) => omitList.includes(k));
-      return ['a', 'b', 'c', 'd', 'e'].map((k) => ob[k]).filter((v) => v !== void 0);
-    })
-    .filter((v): v is number[] => v !== void 0);
-  // console.log('validVariableList', validVariableList);
-
-  if (validVariableList.length === 2) {
-    const reList = solveTwoVariableLinearEquations({
-      a1: validVariableList[0][0],
-      b1: validVariableList[0][1],
-      c1: validVariableList[0][2],
-
-      a2: validVariableList[1][0],
-      b2: validVariableList[1][1],
-      c2: validVariableList[1][2],
-    }) || [0, 0];
-    return [
-      isANone ? 0 : reList.shift() || 0,
-      isBNone ? 0 : reList.shift() || 0,
-      isCNone ? 0 : reList.shift() || 0,
-      isDNone ? 0 : reList.shift() || 0,
-    ];
-  }
-  if (validVariableList.length === 3) {
-    const reList = solveThreeVariableLinearEquations({
-      a1: validVariableList[0][0],
-      b1: validVariableList[0][1],
-      c1: validVariableList[0][2],
-      d1: validVariableList[0][3],
-
-      a2: validVariableList[1][0],
-      b2: validVariableList[1][1],
-      c2: validVariableList[1][2],
-      d2: validVariableList[1][3],
-
-      a3: validVariableList[2][0],
-      b3: validVariableList[2][1],
-      c3: validVariableList[2][2],
-      d3: validVariableList[2][3],
-    }) || [0, 0, 0];
-    return [
-      isANone ? 0 : reList.shift() || 0,
-      isBNone ? 0 : reList.shift() || 0,
-      isCNone ? 0 : reList.shift() || 0,
-      isDNone ? 0 : reList.shift() || 0,
-    ];
-  }
-  // 将输入转换为矩阵形式
-  const A = [
-    [a1, b1, c1, d1],
-    [a2, b2, c2, d2],
-    [a3, b3, c3, d3],
-    [a4, b4, c4, d4],
-  ];
-  const E = [e1, e2, e3, e4];
-
-  // 检查输入是否合法
-  if (A.length !== 4 || A[0].length !== 4 || E.length !== 4) {
-    throw new Error('Input must be a 4x4 matrix and a 4-element vector.');
-  }
-
-  // 高斯消元法
-  for (let i = 0; i < 4; i++) {
-    // 找到当前列的最大值，进行部分选主元
-    let maxRow = i;
-    for (let j = i + 1; j < 4; j++) {
-      if (Math.abs(A[j][i]) > Math.abs(A[maxRow][i])) {
-        maxRow = j;
-      }
-    }
-
-    // 交换行
-    [A[i], A[maxRow]] = [A[maxRow], A[i]];
-    [E[i], E[maxRow]] = [E[maxRow], E[i]];
-
-    // 检查主元是否为零
-    if (A[i][i] === 0) {
-      return null; // 方程组无解或有无穷多解
-    }
-
-    // 消元
-    for (let j = i + 1; j < 4; j++) {
-      const factor = A[j][i] / A[i][i];
-      for (let k = i; k < 4; k++) {
-        A[j][k] -= factor * A[i][k];
-      }
-      E[j] -= factor * E[i];
-    }
-  }
-
-  // 回代求解
-  const x: [number, number, number, number] = [0, 0, 0, 0];
-  for (let i = 3; i >= 0; i--) {
-    let sum = 0;
-    for (let j = i + 1; j < 4; j++) {
-      sum += A[i][j] * x[j];
-    }
-    x[i] = (E[i] - sum) / A[i][i];
-  }
-
-  return x;
 }
 
 /**
@@ -779,53 +495,52 @@ export const getRatioAvg = (str: string, isNegative: boolean) => {
  * @param immediate - 是否要立即执行
  */
 export async function executeSequentialIntervals(callback: () => Promise<void>, interval: number, immediate = true): Promise<void> {
-  try {
-    if (immediate) {
+  if (immediate) {
+    try {
       // 等待回调函数中的异步操作完成
       await callback();
+    } catch (error) {
+      console.log('interval error', error);
+      errorLog((error as Error).message);
     }
-    // 在指定的时间间隔后再次调用自身以启动下一次定时
-    setTimeout(() => executeSequentialIntervals(callback, interval), interval);
-  } catch (error) {
-    // 捕获并打印回调函数中的错误信息
-    console.error('Error in scheduled task:', error);
   }
+  // 在指定的时间间隔后再次调用自身以启动下一次定时
+  setTimeout(() => executeSequentialIntervals(callback, interval), interval);
 }
-
 
 /**
  * 根据提供的分组函数对数组进行分组，并返回一个包含分组键和分组值的对象数组。
- * 
+ *
  * @param array - 要分组的数组。
  * @param iteratee - 分组函数，接受数组中的每个元素并返回一个分组键。
  * @returns 一个数组，其中每个元素是一个对象，包含分组键和对应的分组值。
  */
-export function zipBy<T>(array: T[], iteratee: (item: T) => string): Array<{ key: string, value: T[] }> {
+export function zipBy<T>(array: T[], iteratee: (item: T) => string): Array<{ key: string; value: T[] }> {
   // 初始化一个记录类型的对象，用于存储分组结果
   const result: Record<string, T[]> = {} as Record<string, T[]>;
 
   // 初始化一个数组，用于存储最终的分组结果
-  const output: Array<{ key: string, value: T[] }> = [];
+  const output: Array<{ key: string; value: T[] }> = [];
 
   // 遍历数组中的每个元素
-  array.forEach(item => {
-      // 调用分组函数获取当前元素的分组键
-      const key = iteratee(item);
+  array.forEach((item) => {
+    // 调用分组函数获取当前元素的分组键
+    const key = iteratee(item);
 
-      // 如果 result 对象中还没有该分组键对应的数组，则初始化一个空数组
-      if (!result[key]) {
-          result[key] = [];
-      }
+    // 如果 result 对象中还没有该分组键对应的数组，则初始化一个空数组
+    if (!result[key]) {
+      result[key] = [];
+    }
 
-      // 将当前元素推入对应分组键的数组中
-      result[key].push(item);
+    // 将当前元素推入对应分组键的数组中
+    result[key].push(item);
   });
 
   // 遍历 result 对象，将每个分组键和对应的分组值构建成一个对象，并将其推入 output 数组中
   for (const key in result) {
-      if (result.hasOwnProperty(key)) {
-          output.push({ key: key as string, value: result[key] });
-      }
+    if (result.hasOwnProperty(key)) {
+      output.push({ key: key as string, value: result[key] });
+    }
   }
 
   // 返回分组后的结果数组

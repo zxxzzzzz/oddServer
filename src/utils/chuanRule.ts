@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { ChuanInfo, ChuanRule, GlobalOptions, SinInfo } from '../type/index';
+import { ChuanInfo, ChuanRule, GlobalOptions, GoalLine, Result, SinInfo } from '../type/index';
 import { getGaussElimination, toFixNumber, toNumber, uniqBy } from './lodash';
 import path from 'path';
 import { getCoefficient } from './sinRule';
@@ -86,8 +86,7 @@ export const getChuanRuleList = () => {
   return GlobalChuanRuleList;
 };
 
-
-export const getChuanInfo = (info1: SinInfo, info2: SinInfo, op: GlobalOptions) => {
+export const getChuanInfoBySinInfo = (info1: SinInfo, info2: SinInfo, op: GlobalOptions) => {
   // a=hg1 b=hg2 c=hg3 d=hg4 e=profit
   const jcOdds1 = toNumber(info1.data.jcOdds1);
   const jcOdds2 = toNumber(info2.data.jcOdds1);
@@ -107,7 +106,87 @@ export const getChuanInfo = (info1: SinInfo, info2: SinInfo, op: GlobalOptions) 
   const hgGoalLine1_2 = info1.data.HGgoalLine2;
   const hgGoalLine2_1 = info2.data.HGgoalLine1;
   const hgGoalLine2_2 = info2.data.HGgoalLine2;
+  return getChuanInfo(
+    {
+      matchId1: info1.matchId,
+      matchId2: info2.matchId,
+      method1: info1.data.method,
+      method2: info2.data.method,
+      jcOdds1,
+      jcOdds2,
+      jcResult1,
+      jcResult2,
+      jcGoalLine1,
+      jcGoalLine2,
+      hgOdds1_1,
+      hgOdds1_2,
+      hgOdds2_1,
+      hgOdds2_2,
+      hgResult1_1,
+      hgResult1_2,
+      hgResult2_1,
+      hgResult2_2,
+      hgGoalLine1_1,
+      hgGoalLine1_2,
+      hgGoalLine2_1,
+      hgGoalLine2_2,
+    },
+    op
+  );
+};
 
+export function getChuanInfo(
+  item: {
+    matchId1: string;
+    matchId2: string;
+    method1: string;
+    method2: string;
+    jcOdds1: number;
+    jcOdds2: number;
+    jcResult1: Result;
+    jcResult2: Result;
+    jcGoalLine1: GoalLine;
+    jcGoalLine2: GoalLine;
+    hgOdds1_1: number;
+    hgOdds1_2: number;
+    hgOdds2_1: number;
+    hgOdds2_2: number;
+    hgResult1_1: Result;
+    hgResult1_2: Result;
+    hgResult2_1: Result;
+    hgResult2_2: Result;
+    hgGoalLine1_1: GoalLine;
+    hgGoalLine1_2: GoalLine;
+    hgGoalLine2_1: GoalLine;
+    hgGoalLine2_2: GoalLine;
+  },
+  op: GlobalOptions
+) {
+  const {
+    matchId1,
+    matchId2,
+    method1,
+    method2,
+    jcOdds1,
+    jcOdds2,
+    jcResult1,
+    jcResult2,
+    jcGoalLine1,
+    jcGoalLine2,
+    hgOdds1_1,
+    hgOdds1_2,
+    hgOdds2_1,
+    hgOdds2_2,
+    hgResult1_1,
+    hgResult1_2,
+    hgResult2_1,
+    hgResult2_2,
+    hgGoalLine1_1,
+    hgGoalLine1_2,
+    hgGoalLine2_1,
+    hgGoalLine2_2,
+  } = item;
+  // a=hg1 b=hg2 c=hg3 d=hg4 e=profit
   // jc 等式
   const a1 = !hgOdds1_1
     ? 0
@@ -134,7 +213,7 @@ export const getChuanInfo = (info1: SinInfo, info2: SinInfo, op: GlobalOptions) 
     ? 0
     : getCoefficient(
         { result: jcResult2, isJC: true, goalLine: jcGoalLine2 },
-        { result: hgResult2_1, isJC: false, goalLine: hgGoalLine2_1, odds: hgOdds2_1 },
+        { result: hgResult2_2, isJC: false, goalLine: hgGoalLine2_2, odds: hgOdds2_2 },
         op
       );
   const e1 = !hgOdds1_1 ? 0 : -1;
@@ -279,10 +358,10 @@ export const getChuanInfo = (info1: SinInfo, info2: SinInfo, op: GlobalOptions) 
     [f1, f2, f3, f4, f5]
   );
   return {
-    matchId1: info1.matchId,
-    matchId2: info2.matchId,
-    method1: info1.data.method,
-    method2: info2.data.method,
+    matchId1: matchId1,
+    matchId2: matchId2,
+    method1: method1,
+    method2: method2,
     JCPoint: op.JCPointChuan,
     HGPoint: op.HGPoint,
     JCTzAmt: op.JCBet,
@@ -312,7 +391,7 @@ export const getChuanInfo = (info1: SinInfo, info2: SinInfo, op: GlobalOptions) 
     HGTzOdd2_1: hgOdds2_1,
     HGTzOdd2_2: hgOdds2_2,
     yield: 'Sin',
-    planId: `${info1.matchId}_${info1.data.jcOdds1}_${info2.matchId}_${info2.data.jcOdds1}`,
+    planId: `${matchId1}_${jcOdds1}_${matchId2}_${jcOdds2}`,
     JCTouz1: jcResult1,
     JCTouz2: jcResult2,
     HGTouz1_1: hgResult1_1,
@@ -320,4 +399,4 @@ export const getChuanInfo = (info1: SinInfo, info2: SinInfo, op: GlobalOptions) 
     HGTouz2_1: hgResult2_1,
     HGTouz2_2: hgResult2_2,
   } as ChuanInfo;
-};
+}
