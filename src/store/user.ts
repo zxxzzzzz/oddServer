@@ -3,10 +3,9 @@ import { randomUUID } from 'crypto';
 import { User } from '../type/index';
 import { resolve } from 'path';
 import stringify from 'json-stringify-pretty-compact';
-import { delay } from '../api/utils';
 
 let GlobalUserInfo: { userList: User[] } = { userList: [] };
-const FILE_PATH = resolve(__dirname, '../../state/user.json');
+const STATE_FILE_PATH = resolve(__dirname, '../../state/user.json');
 
 async function getAccountList() {
   if (GlobalUserInfo.userList.length) return GlobalUserInfo.userList;
@@ -55,12 +54,12 @@ export async function logout(sessionId: string) {
 
 /**更新足球数据到web */
 export const saveUser = function () {
-  writeFileSync(FILE_PATH, stringify(GlobalUserInfo));
+  writeFileSync(STATE_FILE_PATH, stringify(GlobalUserInfo));
 };
 
 export const loadUser = function (): typeof GlobalUserInfo {
-  if (!existsSync(FILE_PATH)) return { userList: [] };
-  const content = readFileSync(FILE_PATH, { encoding: 'utf-8' });
+  if (!existsSync(STATE_FILE_PATH)) return { userList: [] };
+  const content = readFileSync(STATE_FILE_PATH, { encoding: 'utf-8' });
   const ossUserInfo = JSON.parse(content);
   return ossUserInfo;
 };

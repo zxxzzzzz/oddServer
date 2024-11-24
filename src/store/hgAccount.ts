@@ -5,6 +5,7 @@ import { Token } from '../type';
 import { existsSync, readFileSync } from 'fs';
 
 const MIN_TOKEN_IDLE_AGE = 1000 * 1;
+
 const GlobalAccountState: {
   accountList: { account: string; password: string }[];
   tokenList: Token[];

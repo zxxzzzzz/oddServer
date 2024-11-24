@@ -20,6 +20,7 @@ import { resolve } from 'path';
 import dayjs from 'dayjs';
 
 const ZERO_TIME = '2000-11-08T05:55:26.881Z';
+const STATE_FILE_PATH = resolve(__dirname, '../../state/footballState.json')
 
 // 联赛数据
 export const GlobalFootballState: {
@@ -302,11 +303,11 @@ export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
 
 /**更新足球数据到web */
 export const saveFootballState = function () {
-  const filePath = resolve(__dirname, '../../state/footballState.json');
+  const filePath = STATE_FILE_PATH;
   writeFileSync(filePath, stringify(GlobalFootballState), { encoding: 'utf-8' });
 };
 export const loadFootballState = function () {
-  const filePath = resolve(__dirname, '../../state/footballState.json');
+  const filePath = STATE_FILE_PATH;
   if (!existsSync(filePath)) return;
   const content = readFileSync(filePath, { encoding: 'utf-8' });
   Object.entries(JSON.parse(content)).forEach(([key, value]) => {
