@@ -20,7 +20,7 @@ import { resolve } from 'path';
 import dayjs from 'dayjs';
 
 const ZERO_TIME = '2000-11-08T05:55:26.881Z';
-const STATE_FILE_PATH = resolve(__dirname, '../../state/footballState.json')
+const STATE_FILE_PATH = resolve(__dirname, '../../persistentState/footballState.json')
 
 // 联赛数据
 export const GlobalFootballState: {

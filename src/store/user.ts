@@ -5,7 +5,7 @@ import { resolve } from 'path';
 import stringify from 'json-stringify-pretty-compact';
 
 let GlobalUserInfo: { userList: User[] } = { userList: [] };
-const STATE_FILE_PATH = resolve(__dirname, '../../state/user.json');
+const STATE_FILE_PATH = resolve(__dirname, '../../persistentState/user.json');
 
 async function getAccountList() {
   if (GlobalUserInfo.userList.length) return GlobalUserInfo.userList;
