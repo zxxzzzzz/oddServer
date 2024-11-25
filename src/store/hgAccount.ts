@@ -31,12 +31,13 @@ export const updateTokenIdleAge = () => {
   if (lineList.length < 2) return;
   const [date, tag, duration] = (lineList.at(-2) || '').split(',').map((s) => s.trim());
   if (new Date().valueOf() - new Date(date).valueOf() > 1000 * 60 * 10) return;
-  const durationNum = toNumber(duration);
+  const durationNum = toNumber(duration) || MIN_TOKEN_IDLE_AGE;
+  const offset = Math.abs(durationNum - 15000) / (durationNum + 15000);
   if (durationNum < 1000 * 15) {
-    GlobalAccountState.tokenIdleAge = Math.round(GlobalAccountState.tokenIdleAge * 1.1);
+    GlobalAccountState.tokenIdleAge = Math.round(GlobalAccountState.tokenIdleAge * (1 + offset));
   }
   if (durationNum > 1000 * 20) {
-    const tokenIdleAge = Math.round(GlobalAccountState.tokenIdleAge * 0.9);
+    const tokenIdleAge = Math.round(GlobalAccountState.tokenIdleAge * (1 - offset));
     GlobalAccountState.tokenIdleAge = Math.max(MIN_TOKEN_IDLE_AGE, tokenIdleAge);
   }
   console.log('tokenIdleAge', GlobalAccountState.tokenIdleAge / 1000 + ' s', 'lastDurationNum', durationNum / 1000 + ' s');

@@ -4,7 +4,6 @@ import { delay } from './utils';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 export const cuFetch = async (...params: Parameters<typeof fetch>) => {
-  const fb = [1, 2, 3, 5, 8, 13, 21, 34, 55];
   await delay(100);
   let _error = Error('');
   for (let index = 0; index < 9; index++) {
@@ -13,7 +12,7 @@ export const cuFetch = async (...params: Parameters<typeof fetch>) => {
       return res;
     } catch (error) {
       _error = error as Error;
-      await delay(1000 * fb[index] || 60);
+      await delay(1000 * 2);
       console.log('retry', params[0]);
     }
   }
