@@ -20,7 +20,7 @@ import { resolve } from 'path';
 import dayjs from 'dayjs';
 
 const ZERO_TIME = '2000-11-08T05:55:26.881Z';
-const STATE_FILE_PATH = resolve(__dirname, '../../persistentState/footballState.json')
+const STATE_FILE_PATH = resolve(__dirname, '../../persistentState/footballState.json');
 
 // 联赛数据
 export const GlobalFootballState: {
@@ -70,9 +70,10 @@ export const GlobalFootballState: {
 
 /** 更新jcInfo数据 */
 export const updateJCInfoList = async () => {
-  const JCInfoList = await getJCInfoList();
+  const jcInfoList = await getJCInfoList();
+  if (!jcInfoList) return;
   GlobalFootballState.JCInfoListUpdateTime = new Date().toISOString();
-  GlobalFootballState.JCInfoList = JCInfoList.map((JCInfo) => {
+  GlobalFootballState.JCInfoList = jcInfoList.map((JCInfo) => {
     return {
       ...JCInfo,
       createdAt: GlobalFootballState.JCInfoList.find((item) => item.matchId === JCInfo.matchId)?.createdAt || new Date().toISOString(),
@@ -87,9 +88,10 @@ export const updateJCInfoList = async () => {
  * */
 export const updateAllHGLeagueList = async (op: { maxAge: number } = { maxAge: 1000 * 60 * 10 }) => {
   if (!GlobalFootballState.JCInfoList?.length) return [];
-  const HGleagueItemList = await getHGLeagueListAll();
+  const hgLeagueItemList = await getHGLeagueListAll();
+  if (!hgLeagueItemList) return;
   GlobalFootballState.HGLeagueListUpdateTime = new Date().toISOString();
-  GlobalFootballState.HGLeagueList = HGleagueItemList;
+  GlobalFootballState.HGLeagueList = hgLeagueItemList;
 };
 
 const getAllLeagueList = () => {
@@ -119,11 +121,15 @@ export const updateHGGameList = async () => {
   const leagueList = getAllLeagueList();
   if (!leagueList?.length) return;
   const promiseList = leagueList.map(async (item) => {
-    const HGGameList = await getHGGameList({ lid: item.HGLeagueId });
+    const hgGameList = await getHGGameList({ lid: item.HGLeagueId });
+    if (!hgGameList) {
+      console.log('loss', { lid: item.HGLeagueId });
+      return void 0;
+    }
     console.log({ lid: item.HGLeagueId });
-    const ecList = Array.isArray(HGGameList?.serverresponse?.ec || [])
-      ? HGGameList?.serverresponse?.ec || []
-      : ([HGGameList?.serverresponse?.ec] as unknown as typeof HGGameList.serverresponse.ec);
+    const ecList = Array.isArray(hgGameList?.serverresponse?.ec || [])
+      ? hgGameList?.serverresponse?.ec || []
+      : ([hgGameList?.serverresponse?.ec] as unknown as typeof hgGameList.serverresponse.ec);
     return ecList
       .map((ecItem) => {
         return {
@@ -139,7 +145,7 @@ export const updateHGGameList = async () => {
       })
       .filter((d) => d.ecid);
   });
-  GlobalFootballState.HGGameList = (await Promise.all(promiseList)).flat();
+  GlobalFootballState.HGGameList = (await Promise.all(promiseList)).filter(v =>!!v).flat();
   const toUpdateHgMatchList = GlobalFootballState.JCInfoList.map((jcInfo) => {
     const hgMatchList = GlobalFootballState.HGGameList.filter(
       (item) => item.JCLeagueName === jcInfo.leagueAllName && item.more && item.more !== '0'

@@ -6,13 +6,13 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 export const cuFetch = async (...params: Parameters<typeof fetch>) => {
   await delay(100);
   let _error = Error('');
-  for (let index = 0; index < 9; index++) {
+  for (let index = 0; index < 6; index++) {
     try {
       const res = await fetch(...params);
       return res;
     } catch (error) {
       _error = error as Error;
-      await delay(1000 * 2);
+      await delay(1000 * 3);
       console.log('retry', params[0]);
     }
   }

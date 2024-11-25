@@ -4964,4 +4964,4 @@ type Plan = {
   matchId2: string;
 };
 
-export type Token = { uid: string; ver: string; url: string; lastUseTimestamp: number; account: string };
+export type Token = { uid: string; ver: string; url: string; lastUseTimestamp: number; account: string; loginTimestamp: number };

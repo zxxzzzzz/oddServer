@@ -5,6 +5,8 @@ import { Token } from '../type';
 import { existsSync, readFileSync } from 'fs';
 
 const MIN_TOKEN_IDLE_AGE = 1000 * 1;
+const MAX_TOKEN_IDLE_AGE = 1000 * 10;
+const ZERO_TIME = '2000-11-08T05:55:26.881Z';
 
 const GlobalAccountState: {
   accountList: { account: string; password: string }[];
@@ -34,7 +36,7 @@ export const updateTokenIdleAge = () => {
   const durationNum = toNumber(duration) || MIN_TOKEN_IDLE_AGE;
   const offset = Math.abs(durationNum - 15000) / (durationNum + 15000);
   if (durationNum < 1000 * 15) {
-    GlobalAccountState.tokenIdleAge = Math.round(GlobalAccountState.tokenIdleAge * (1 + offset));
+    GlobalAccountState.tokenIdleAge = Math.min(Math.round(GlobalAccountState.tokenIdleAge * (1 + offset)), MAX_TOKEN_IDLE_AGE);
   }
   if (durationNum > 1000 * 20) {
     const tokenIdleAge = Math.round(GlobalAccountState.tokenIdleAge * (1 - offset));
@@ -100,19 +102,24 @@ export const getToken = toFifoFunction(
       while (GlobalAccountState.isLogging) {
         await delay(10);
       }
-      if (GlobalAccountState.tokenList?.length !== GlobalAccountState.accountList?.length) {
+      const noLoginAccountList = GlobalAccountState.accountList.filter((accountItem) => {
+        const finedToken = GlobalAccountState.tokenList.find(t => t.account === accountItem.account)
+        if(!finedToken) return true
+        // 登录超过5小时，重新登录
+        if(new Date().valueOf() - finedToken.loginTimestamp > 1000*60*60*5) return true
+        return false
+      })
+      if (noLoginAccountList.length) {
         GlobalAccountState.isLogging = true;
         const aliveUrl = await getAliveUrl();
         if (!aliveUrl) throw Error('hg服务器连接不上');
         try {
-          const noLoginAccountList = GlobalAccountState.accountList.filter((account) =>
-            GlobalAccountState.tokenList.every((token) => token.account !== account.account)
-          );
           for (const noLoginAccount of noLoginAccountList) {
             const token = await loginByAccount(noLoginAccount.account, noLoginAccount.password, aliveUrl);
+            console.log('login account', noLoginAccount.account);
             GlobalAccountState.tokenList = [
               ...GlobalAccountState.tokenList,
-              { ...token, account: noLoginAccount.account, lastUseTimestamp: 0 },
+              { ...token, account: noLoginAccount.account, lastUseTimestamp: 0, loginTimestamp: new Date().valueOf() },
             ];
           }
           GlobalAccountState.isLogging = false;
@@ -129,9 +136,7 @@ export const getToken = toFifoFunction(
       if (!GlobalAccountState.tokenList?.length) throw Error('hg账号 无法登录');
       const lastUseToken = GlobalAccountState.tokenList[0];
       const limitIdleAge = GlobalAccountState.tokenIdleAge;
-      // 加个时间偏移
-      const offset = Math.floor(Math.random() * limitIdleAge * 0.5);
-      while (new Date().valueOf() - lastUseToken.lastUseTimestamp <= limitIdleAge + offset) {
+      while (new Date().valueOf() - lastUseToken.lastUseTimestamp <= limitIdleAge) {
         await delay(100);
       }
       lastUseToken.lastUseTimestamp = new Date().valueOf();

@@ -7,7 +7,7 @@ import { JCInfo } from '../type/index';
 import { toAsyncTimeFunction } from '../utils/lodash';
 
 export const getHGLeagueListAll = toAsyncTimeFunction(
-  async function (): Promise<{ name: string; leagueId: string }[]> {
+  async function (): Promise<{ name: string; leagueId: string }[] | undefined> {
     const { uid, ver, url } = await getToken();
     const body = {
       p: 'get_league_list_All',
@@ -37,14 +37,14 @@ export const getHGLeagueListAll = toAsyncTimeFunction(
       body: objToFormData(body),
       method: 'post',
     });
-    if (!res) return getHGLeagueListAll();
+    if (!res) return void 0;
     const text = await res.text();
     if (!text) {
       throw Error('getLeagueListAllByNodeFetch 获取extra 联赛数据失败 数据空');
     }
     const mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      return getHGLeagueListAll();
+      return void 0;
     }
     return (mixObj?.serverresponse?.classifier?.region || [])
       .map((r: any) => {
@@ -61,7 +61,7 @@ export const getHGLeagueListAll = toAsyncTimeFunction(
 );
 
 export const getHGGameList = toAsyncTimeFunction(
-  async function (op: { lid: string }): Promise<GameList> {
+  async function (op: { lid: string }): Promise<GameList | undefined> {
     const { uid, ver, url } = await getToken();
     const body = {
       uid: uid,
@@ -96,11 +96,11 @@ export const getHGGameList = toAsyncTimeFunction(
       },
       body: objToFormData(body),
     });
-    if (!res) return getHGGameList(op);
+    if (!res) return void 0;
     const text = await res.text();
     const mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      return getHGGameList(op);
+      return void 0;
     }
     return mixObj;
   },
@@ -111,7 +111,7 @@ export const getHGGameList = toAsyncTimeFunction(
 );
 
 export const getHGGameOBT = toAsyncTimeFunction(
-  async function (op: { ecid: string }): Promise<GameOBT> {
+  async function (op: { ecid: string }): Promise<GameOBT | undefined> {
     const { uid, ver, url } = await getToken();
     const body = {
       uid: uid,
@@ -162,11 +162,11 @@ export const getHGGameOBT = toAsyncTimeFunction(
       method: 'POST',
       body: objToFormData(body2),
     });
-    if (!res) return getHGGameOBT(op);
+    if (!res) return void 0;
     const text = await res.text();
     let mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      return getHGGameOBT(op);
+      return void 0;
     }
     if (!mixObj?.serverresponse?.ec?.game) {
       const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
@@ -185,9 +185,12 @@ export const getHGGameOBT = toAsyncTimeFunction(
         method: 'POST',
         body: objToFormData(body),
       });
-      if (!res) return getHGGameOBT(op);
+      if (!res) return void 0;
       const text = await res.text();
       mixObj = Convert.xml2js(text, { compact: true }) as any;
+      if (mixObj?.serverresponse?.code?._text === 'error') {
+        return void 0;
+      }
     }
     return mixObj;
   },
@@ -198,7 +201,7 @@ export const getHGGameOBT = toAsyncTimeFunction(
 );
 
 export const getHGGameMore = toAsyncTimeFunction(
-  async function (op: { lid: string; ecid: string }, count = 5): Promise<GameMore> {
+  async function (op: { lid: string; ecid: string }, count = 5): Promise<GameMore | undefined> {
     if (count !== undefined && count < 0) throw Error('getHGGameMore 递归太多');
     const { uid, ver, url } = await getToken();
     const body = {
@@ -233,11 +236,11 @@ export const getHGGameMore = toAsyncTimeFunction(
       body: objToFormData(body),
       method: 'POST',
     });
-    if (!res) return getHGGameMore(op);
+    if (!res) return void 0;
     const text = await res.text();
     let mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      return getHGGameMore(op);
+      return void 0;
     }
     return mixObj as GameMore;
   },
@@ -248,7 +251,7 @@ export const getHGGameMore = toAsyncTimeFunction(
 );
 
 export const getJCInfoList = toAsyncTimeFunction(
-  async function (): Promise<JCInfo[]> {
+  async function (): Promise<JCInfo[] | undefined> {
     const res = await cuFetch(
       'https://webapi.sporttery.cn/gateway/jc/football/getMatchCalculatorV1.qry?poolCode=hhad,had,ttg,hafu&channel=c',
       {
@@ -268,7 +271,7 @@ export const getJCInfoList = toAsyncTimeFunction(
         },
       }
     );
-    if (!res) return getJCInfoList();
+    if (!res) return void 0;
     const text = await res.text();
     if (text.includes('html')) {
       return getJCInfoList();
