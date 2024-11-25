@@ -35,7 +35,7 @@ const updateAllRule = () => {
 };
 
 const getAllAccount = () => {
-  const filePath = resolve(__dirname, '../state/user.json');
+  const filePath = resolve(__dirname, '../persistentState/user.json');
   console.log(filePath);
   if (!existsSync(filePath)) return;
   const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' })) as { userList: any[] };
@@ -46,12 +46,28 @@ const getAllAccount = () => {
     };
   });
 };
+const getCompareLeagueList = () => {
+  const filePath = resolve(__dirname, '../persistentState/footballState.json');
+  console.log(filePath);
+  if (!existsSync(filePath)) return;
+  const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' })) as { HGGameList: any[] };
+  console.log(
+    uniqBy(data.HGGameList, (item) => item.JCLeagueName + item.HGLeagueName).map((item) => {
+      return {
+        JCLeagueName: item.JCLeagueName,
+        HGLeagueName: item.HGLeagueName,
+      };
+    })
+  );
+};
 
 (async () => {
   updateAllRule();
   // updateTokenIdleAge()
   // console.log(getAllAccount());
   // 示例用法
-  console.log(getLeagueSameWeight('瑞典超级甲组联赛-附加赛', '瑞典超级联赛'));
-  console.log(getLeagueSameWeight('瑞典超级甲组联赛-附加赛', '瑞典甲组联赛-附加赛'));
+  // '亚足联冠军精英联赛', '亚洲冠军联赛', '亚足联冠军联赛二'
+  getCompareLeagueList();
+  console.log(getLeagueSameWeight('亚足联冠军精英联赛', '亚洲冠军联赛'));
+  console.log(getLeagueSameWeight('亚足联冠军联赛二', '亚洲冠军联赛'));
 })();
