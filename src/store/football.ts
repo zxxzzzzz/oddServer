@@ -145,7 +145,7 @@ export const updateHGGameList = async () => {
       })
       .filter((d) => d.ecid);
   });
-  GlobalFootballState.HGGameList = (await Promise.all(promiseList)).filter(v =>!!v).flat();
+  GlobalFootballState.HGGameList = (await Promise.all(promiseList)).filter((v) => !!v).flat();
   const toUpdateHgMatchList = GlobalFootballState.JCInfoList.map((jcInfo) => {
     const hgMatchList = GlobalFootballState.HGGameList.filter(
       (item) => item.JCLeagueName === jcInfo.leagueAllName && item.more && item.more !== '0'
@@ -271,7 +271,9 @@ export function getSinInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: G
 export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
   const chuanRuleList = getChuanRuleList();
   const filteredSinInfoList = sinInfoList
-    .filter((v) => v.data.profit >= 450 && v.data.JCTouz2 === '-' && v.data.matchTimeFormat)
+    .filter((v) => {
+      return v.data.JCTouz2 === '-' && v.data.matchTimeFormat;
+    })
     .filter((v) => {
       return chuanRuleList.some((rule) => {
         return (
@@ -291,15 +293,14 @@ export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
     });
   return filteredSinInfoList
     .map((info1, index) => {
-      const exInfoList = filteredSinInfoList
-        .slice(index)
-        .filter(
-          (info2) =>
-            info2.matchId !== info1.matchId &&
-            dayjs(info2.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() -
-              dayjs(info1.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() >=
-              1000 * 60 * 60 * 2
+      const exInfoList = filteredSinInfoList.slice(index).filter((info2) => {
+        return (
+          info2.matchId !== info1.matchId &&
+          dayjs(info2.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() -
+            dayjs(info1.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() >=
+            1000 * 60 * 60 * 2
         );
+      });
       return exInfoList.map((exInfo) => {
         return getChuanInfoBySinInfo(info1, exInfo, { ...op, JCPointSin: op.JCPointChuan });
       });
