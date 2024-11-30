@@ -103,12 +103,12 @@ export const getToken = toFifoFunction(
         await delay(10);
       }
       const noLoginAccountList = GlobalAccountState.accountList.filter((accountItem) => {
-        const finedToken = GlobalAccountState.tokenList.find(t => t.account === accountItem.account)
-        if(!finedToken) return true
+        const finedToken = GlobalAccountState.tokenList.find((t) => t.account === accountItem.account);
+        if (!finedToken) return true;
         // 登录超过5小时，重新登录
-        if(new Date().valueOf() - finedToken.loginTimestamp > 1000*60*60*5) return true
-        return false
-      })
+        if (new Date().valueOf() - finedToken.loginTimestamp > 1000 * 60 * 60 * 2) return true;
+        return false;
+      });
       if (noLoginAccountList.length) {
         GlobalAccountState.isLogging = true;
         const aliveUrl = await getAliveUrl();
@@ -118,7 +118,7 @@ export const getToken = toFifoFunction(
             const token = await loginByAccount(noLoginAccount.account, noLoginAccount.password, aliveUrl);
             console.log('login account', noLoginAccount.account);
             GlobalAccountState.tokenList = [
-              ...GlobalAccountState.tokenList,
+              ...GlobalAccountState.tokenList.filter((token) => token.account !== noLoginAccount.account),
               { ...token, account: noLoginAccount.account, lastUseTimestamp: 0, loginTimestamp: new Date().valueOf() },
             ];
           }
@@ -127,12 +127,9 @@ export const getToken = toFifoFunction(
           GlobalAccountState.isLogging = false;
         }
       }
-      GlobalAccountState.tokenList = uniqBy(
-        GlobalAccountState.tokenList.sort((a, b) => {
-          return a.lastUseTimestamp - b.lastUseTimestamp;
-        }),
-        (el) => el.account
-      );
+      GlobalAccountState.tokenList = GlobalAccountState.tokenList.toSorted((v1, v2) => {
+        return v1.lastUseTimestamp - v2.lastUseTimestamp;
+      });
       if (!GlobalAccountState.tokenList?.length) throw Error('hg账号 无法登录');
       const lastUseToken = GlobalAccountState.tokenList[0];
       const limitIdleAge = GlobalAccountState.tokenIdleAge;

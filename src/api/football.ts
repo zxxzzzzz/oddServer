@@ -201,8 +201,7 @@ export const getHGGameOBT = toAsyncTimeFunction(
 );
 
 export const getHGGameMore = toAsyncTimeFunction(
-  async function (op: { lid: string; ecid: string }, count = 5): Promise<GameMore | undefined> {
-    if (count !== undefined && count < 0) throw Error('getHGGameMore 递归太多');
+  async function (op: { lid: string; ecid: string }): Promise<GameMore | undefined> {
     const { uid, ver, url } = await getToken();
     const body = {
       uid: uid,
