@@ -297,7 +297,7 @@ export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
           (info2) =>
             info2.matchId !== info1.matchId &&
             dayjs(info2.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() -
-              dayjs(info1.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() >
+              dayjs(info1.data.matchTimeFormat, 'YYYY-MM-DD HH:mm:ss').valueOf() >=
               1000 * 60 * 60 * 2
         );
       return exInfoList.map((exInfo) => {
