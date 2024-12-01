@@ -1,4 +1,4 @@
-import { getAccountBySessionId, login, logout, updateAccountBySessionId } from '../store/user';
+import { getAccountBySessionId, isAccountVipExpired, login, logout, updateAccountBySessionId } from '../store/user';
 import { server } from './server';
 import { pickBy } from '../utils/lodash';
 import * as cookie from 'cookie';
@@ -7,6 +7,14 @@ server.post('/api/users/login', async (req, res) => {
   const body = req.body;
   const account = body?.account;
   const password = body?.password;
+  const isVipExpired = await isAccountVipExpired(account);
+  if (isVipExpired) {
+    res.send(400, {
+      success: false,
+      error: '该账号vip过期了',
+    });
+    return true;
+  }
   const userInfo = await login(account, password);
   if (!userInfo) {
     res.send(400, {

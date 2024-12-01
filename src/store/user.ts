@@ -35,21 +35,19 @@ export async function getAccountBySessionId(sessionId: string) {
 export async function login(username: string, password: string) {
   const userList = await getAccountList();
   const user = userList.find((u) => u.account === username && u.password === password);
-  if (user) {
-    const token = randomUUID();
-    user.pcsessionid = token;
-    user.lastlogintime = new Date().toISOString();
-    await saveUser();
-    return user;
-  }
+  if (!user) return void 0;
+  const token = randomUUID();
+  user.pcsessionid = token;
+  user.lastlogintime = new Date().toISOString();
+  await saveUser();
+  return user;
 }
 export async function logout(sessionId: string) {
   const user = await getAccountBySessionId(sessionId);
-  if (user) {
-    user.pcsessionid = '';
-    await saveUser();
-    return user;
-  }
+  if (!user) return;
+  user.pcsessionid = '';
+  await saveUser();
+  return user;
 }
 
 /**更新足球数据到web */
@@ -62,4 +60,13 @@ export const loadUser = function (): typeof GlobalUserInfo {
   const content = readFileSync(STATE_FILE_PATH, { encoding: 'utf-8' });
   const ossUserInfo = JSON.parse(content);
   return ossUserInfo;
+};
+
+export const isAccountVipExpired = async (accountNameOrSessionId: string) => {
+  const userList = await getAccountList();
+  const finedUser = userList.find((user) => user.account === accountNameOrSessionId || user.pcsessionid === accountNameOrSessionId);
+  if (!finedUser) return true;
+  const vipEndTimestamp = new Date(finedUser.viptime).valueOf();
+  const nowTimestamp = new Date().valueOf();
+  return vipEndTimestamp - nowTimestamp < 0;
 };

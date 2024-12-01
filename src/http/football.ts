@@ -2,17 +2,17 @@ import { server } from './server';
 import { GlobalOptions, GoalLine, Result } from '../type/index';
 import { GlobalFootballState, getChuanInfoList, getSinInfoList, loadFootballState } from '../store/football';
 import { getChuanInfo, getSinData, maxBy, toNumber, zipBy } from '../utils/index';
-import { getAccountBySessionId } from '../store/user';
+import { isAccountVipExpired } from '../store/user';
 import * as cookie from 'cookie';
 
 server.post('/api/water/getFootballData', async (req, res) => {
   loadFootballState();
   const cookieObj = cookie.parse(req.header('cookie'));
-  const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
-  if (!userInfo) {
+  const isVipExpired = await isAccountVipExpired(cookieObj?.session_id || '');
+  if (isVipExpired) {
     res.send(405, {
       success: false,
-      error: '请重新登录',
+      error: 'vip过期，请重新登录',
     });
     return;
   }
