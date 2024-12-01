@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, statSync, writeFileSync } from 'fs';
+import { existsSync, mkdir, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import Convert from 'xml-js';
 import {
   updateSinRuleList,
@@ -118,6 +118,37 @@ function getRandomCharacter(characters: string): string {
   return characters[randomIndex];
 }
 
+const saveAllStaticFile = async (pathList: string[]) => {
+  fetch('http://129.211.223.119/static/js/jquery-1.11.3.min.js', {});
+
+  for (const mpath of pathList) {
+    const url = `http://129.211.223.119${mpath}`;
+    console.log(url);
+    const res = await fetch(url, {
+      headers: {
+        accept: '*/*',
+        'accept-language': 'zh-CN,zh;q=0.9',
+        'cache-control': 'no-cache',
+        pragma: 'no-cache',
+        'proxy-connection': 'keep-alive',
+        cookie: 'session_id=s%3A2IXnd_oxTTL2GJ-NC2LfbMM7GgUEwzGy.2G0rUfICGMJ9SI2okV15lcGrxcH0qLMZQohCpZgmG7I',
+        Referer: 'http://129.211.223.119/',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+      },
+      body: null,
+      method: 'GET',
+    });
+    const text = await res.text();
+    const fileName = mpath.split('/').at(-1);
+    const dirName = mpath.split('/').at(-2);
+    if (!existsSync(`./web2/static/${dirName}`)) {
+      mkdirSync(`./web2/static/${dirName}`, { recursive: true });
+    }
+    writeFileSync(`./web2/static/${dirName}/${fileName}`, text, { encoding: 'utf-8' });
+    await delay(500)
+  }
+};
+
 const createAccount = () => {
   const list = range(810, 820).map((index) => {
     return {
@@ -180,7 +211,7 @@ const createAccount = () => {
 };
 
 (async () => {
-  updateAllRule();
+  // updateAllRule();
   // updateTokenIdleAge()
   // console.log(getAllAccount());
   // 示例用法
@@ -201,4 +232,64 @@ const createAccount = () => {
   // const isNeedReverseTeam = homeReverseWeight > homeWeight && awayReverseWeight > awayWeight;
   // console.log({ homeWeight, homeReverseWeight, awayReverseWeight, awayWeight, isNeedReverseTeam });
   console.log(getLeagueSameWeight('韩国K乙级联赛', '韩国职业联赛'));
+
+  saveAllStaticFile([
+    ...Object.entries({
+      'chunk-07711831': '638799a4',
+      'chunk-0aeae326': '549c5252',
+      'chunk-21abca40': '64c8a0fa',
+      'chunk-2815857a': 'a7b0e0df',
+      'chunk-3e21a792': 'a5922c1f',
+      'chunk-3f0588fc': '86eb0393',
+      'chunk-41dfe85b': 'cd7c9dfb',
+      'chunk-49990cc4': 'b31cd62f',
+      'chunk-5b318488': '7b09cf9b',
+      'chunk-66da1a61': 'ce0f2a60',
+      'chunk-6db8ccd0': '36fb6b03',
+      'chunk-7895deac': '65d658b5',
+      'chunk-79fe1278': 'ce015e45',
+      'chunk-ce5c3a5c': '29dde34e',
+      'chunk-d4c1d6f4': '3e959b17',
+      'chunk-edb7bca2': '46d92db6',
+      'chunk-f82aeb04': '5b6d8809',
+    }).map(([k, v]) => {
+      return `/static/js/${k}.${v}.js`;
+    }),
+    ...Object.entries({
+      'chunk-07711831': 'f6043cf5',
+      'chunk-0aeae326': 'bb2153c9',
+      'chunk-21abca40': 'c68f5e69',
+      'chunk-2815857a': '476ce286',
+      'chunk-3e21a792': '99e4d5d1',
+      'chunk-3f0588fc': '8cfef481',
+      'chunk-41dfe85b': 'e0c8cbb0',
+      'chunk-49990cc4': '61eb9880',
+      'chunk-5b318488': '75b0e3d4',
+      'chunk-66da1a61': '46987287',
+      'chunk-6db8ccd0': '72b36f83',
+      'chunk-7895deac': '1dc70cca',
+      'chunk-79fe1278': 'bfc85881',
+      'chunk-ce5c3a5c': '5ed5589d',
+      'chunk-d4c1d6f4': '157601f7',
+      'chunk-edb7bca2': '213b70c2',
+      'chunk-f82aeb04': '742d7e78',
+    }).map(([k, v]) => {
+      return `/static/css/${k}.${v}.css`;
+    }),
+
+    '/static/js/jquery-1.11.3.min.js',
+    '/static/css/app.aadc14ed.css',
+    '/static/css/chunk-elementUI.68c70ad5.css',
+    '/static/css/chunk-libs.3dfb7769.css',
+    '/static/js/app.7493e24a.js',
+    '/static/js/chunk-elementUI.59a20057.js',
+    '/static/js/chunk-libs.c1b47697.js',
+    '/static/css/chunk-elementUI.68c70ad5.css',
+    '/static/css/chunk-libs.3dfb7769.css',
+    '/static/css/app.aadc14ed.css',
+
+    '/static/js/chunk-elementUI.59a20057.js',
+    '/static/js/chunk-libs.c1b47697.js',
+    '/static/js/app.7493e24a.js',
+  ]);
 })();

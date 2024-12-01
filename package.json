@@ -7,8 +7,8 @@
     "dev": "vite",
     "data": "tsx ./src/main/updateState.ts",
     "http": "tsx ./src/main/httpServer.ts",
-    "build": "tsc --project tsconfig.json",
-    "preview": "vite preview"
+    "http2": "tsx ./src/main/httpServer2.ts",
+    "build": "tsc --project tsconfig.json"
   },
   "dependencies": {
     "cookie": "^1.0.1",

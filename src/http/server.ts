@@ -17,7 +17,7 @@ server.use(restify.plugins.queryParser());
 server.use(restify.plugins.gzipResponse());
 
 server.on('after', async (req: restify.Request, res, route, error) => {
-  const filePath = getLogFilePath('http')
+  const filePath = getLogFilePath('http');
   const startTime = req.time();
   const cookieObj = req.header('cookie') ? cookie.parse(req.header('cookie')) : {};
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
@@ -33,10 +33,11 @@ server.on('after', async (req: restify.Request, res, route, error) => {
   });
 });
 
+
 server.get(
   '/*', // don't forget the `/*`
   (req, res, next) => {
-    restify.plugins.serveStaticFiles('./web')(req, res, () => {});
+    restify.plugins.serveStaticFiles('./web/web_2024_12')(req, res, () => {});
   }
 );
 
