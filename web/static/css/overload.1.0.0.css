@@ -1,0 +1,48 @@
+#app .sidebar-container {
+  --side-container-bg: #619ac3;
+  --item-bg: #11659a;
+  --item-bg-hover: #1491a8;
+  --title-color: #f7f4ed;
+  --title-color-active: #fba414;
+  background-color: var(--side-container-bg);
+}
+
+#app .sidebar-container .el-submenu__title {
+  background-color: var(--side-container-bg) !important;
+  color: var(--title-color) !important;
+}
+#app .sidebar-container .el-submenu__title i {
+  color: var(--title-color) !important;
+}
+
+#app .sidebar-container .is-active > .el-submenu__title {
+  color: var(--title-color) !important;
+}
+
+.sidebar-logo-container[data-v-6f274a1c] {
+  background: var(--side-container-bg);
+}
+
+#app .sidebar-container .el-submenu .el-menu-item,
+#app .sidebar-container .nest-menu .el-submenu > .el-submenu__title {
+  background-color: var(--item-bg) !important;
+  color: var(--title-color) !important;
+}
+
+
+/* hover */
+#app .sidebar-container .el-submenu__title:hover,
+#app .sidebar-container .submenu-title-noDropdown:hover {
+  background-color: var(--item-bg-hover) !important;
+}
+
+#app .sidebar-container .el-submenu .el-menu-item:hover,
+#app .sidebar-container .nest-menu .el-submenu > .el-submenu__title:hover {
+  background-color: var(--item-bg-hover) !important;
+}
+
+/* active */
+#app .sidebar-container .nest-menu .el-menu-item.is-active {
+  color: var(--title-color-active) !important;
+
+}
