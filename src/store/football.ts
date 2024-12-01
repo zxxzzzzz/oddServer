@@ -272,7 +272,7 @@ export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
   const chuanRuleList = getChuanRuleList();
   const filteredSinInfoList = sinInfoList
     .filter((v) => {
-      return v.data.JCTouz2 === '-' && v.data.matchTimeFormat;
+      return v.data.profit >= 300 && v.data.JCTouz2 === '-' && v.data.matchTimeFormat;
     })
     .filter((v) => {
       return chuanRuleList.some((rule) => {
