@@ -12,6 +12,7 @@ import {
   getLeagueSameWeight,
   zipBy,
   getChuanInfoBySinInfo,
+  getTeamSameWeight,
 } from './utils/index';
 import { delay, uniqBy } from './api/utils';
 import { randomUUID } from 'crypto';
@@ -72,8 +73,14 @@ const getTest = (matchIdList: string[]) => {
   const { JCInfoList: jcInfoList, HGInfoList: hgInfoList } = data;
   const filterJcList = jcInfoList.filter((info) => matchIdList.includes(info.matchId));
   const sinList = getSinInfoList(filterJcList, hgInfoList, { HGPoint: 0.023, JCBet: 10000, JCPointChuan: 0.14, JCPointSin: 0.12 });
-  console.log(55555, sinList.filter(info => info.matchId === '1028307' && info.data.profit >= 450));
-  console.log(4444, sinList.filter(v => v.data.profit >= 450));
+  console.log(
+    55555,
+    sinList.filter((info) => info.matchId === '1028307' && info.data.profit >= 450)
+  );
+  console.log(
+    4444,
+    sinList.filter((v) => v.data.profit >= 450)
+  );
   const chuanList = getChuanInfoList(sinList, { HGPoint: 0.023, JCBet: 10000, JCPointChuan: 0.14, JCPointSin: 0.12 });
   console.log(chuanList);
 };
@@ -84,11 +91,7 @@ function generateRandomPassword(length: number = 8): string {
   const numbers = '0123456789';
 
   // 确保密码中至少包含一个大写字母、一个小写字母、一个数字和一个特殊字符
-  const requiredCharacters = [
-    getRandomCharacter(uppercaseLetters),
-    getRandomCharacter(lowercaseLetters),
-    getRandomCharacter(numbers),
-  ];
+  const requiredCharacters = [getRandomCharacter(uppercaseLetters), getRandomCharacter(lowercaseLetters), getRandomCharacter(numbers)];
 
   // 如果长度小于 4，则无法满足要求
   if (length < 4) {
@@ -177,15 +180,25 @@ const createAccount = () => {
 };
 
 (async () => {
-  // updateAllRule();
+  updateAllRule();
   // updateTokenIdleAge()
   // console.log(getAllAccount());
   // 示例用法
   // '亚足联冠军精英联赛', '亚洲冠军联赛', '亚足联冠军联赛二'
   // createAccount();
-  // console.log(getAllAccount()); 
-  getTest(['1028307', '1028303']);
+  // console.log(getAllAccount());
+  // getTest(['1028307', '1028303']);
   // getCompareLeagueList();
-  console.log(getLeagueSameWeight('亚足联冠军精英联赛', '亚洲冠军联赛'));
-  console.log(getLeagueSameWeight('亚足联冠军联赛二', '亚洲冠军联赛'));
+  // '韩国K乙级联赛', '韩国职业联赛'
+  // const jcHomeTeam = '墨尔本胜利';
+  // const jcAwayTeam = '西部联';
+  // const hgHomeTeam = '西方联';
+  // const hgAwayTeam = '墨尔本胜利';
+  // const homeWeight = getTeamSameWeight(jcHomeTeam, hgHomeTeam);
+  // const homeReverseWeight = getTeamSameWeight(jcHomeTeam, hgAwayTeam);
+  // const awayWeight = getTeamSameWeight(jcAwayTeam, hgAwayTeam);
+  // const awayReverseWeight = getTeamSameWeight(jcAwayTeam, hgHomeTeam);
+  // const isNeedReverseTeam = homeReverseWeight > homeWeight && awayReverseWeight > awayWeight;
+  // console.log({ homeWeight, homeReverseWeight, awayReverseWeight, awayWeight, isNeedReverseTeam });
+  console.log(getLeagueSameWeight('韩国K乙级联赛', '韩国职业联赛'));
 })();
