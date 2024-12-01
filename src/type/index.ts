@@ -4256,6 +4256,7 @@ export type HGHhafu = {
 
 export type HGInfo = {
   matchId: string;
+  isTeamReversed: boolean;
   leagueAbbName: string;
   leagueAllName: string;
   leagueCode: string;

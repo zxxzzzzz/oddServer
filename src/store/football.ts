@@ -185,66 +185,144 @@ export const updateHgInfoList = toAsyncTimeFunction(
         ? (gameMore?.serverresponse?.game ?? [])
         : ([gameMore?.serverresponse?.game] as unknown as typeof gameMore.serverresponse.game);
       const normalPtypeGameMore = gameList.filter((item) => !item?.ptype?._text);
-      const hgInfo = {
-        matchId: match.jcMatchId,
-        leagueAbbName: normalPtypeGameMore?.[0]?.league?._text || '',
-        leagueAllName: normalPtypeGameMore?.[0]?.league?._text || '',
-        leagueCode: '',
-        matchNumStr: '',
-        matchDate: '',
-        matchTime: '',
-        matchTimeFormat: normalPtypeGameMore?.[0]?.datetime?._text || '',
-        homeTeamAbbName: normalPtypeGameMore?.[0]?.team_h?._text || '',
-        homeTeamAllName: normalPtypeGameMore?.[0]?.team_h?._text || '',
-        awayTeamAbbName: normalPtypeGameMore?.[0]?.team_c?._text || '',
-        awayTeamAllName: normalPtypeGameMore?.[0]?.team_c?._text || '',
-        // 负
-        had_a: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MC?._text || ''),
-        // 胜
-        had_h: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MH?._text || ''),
-        // 平
-        had_d: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MN?._text || ''),
-        ...[0, 1, 2, 3, 4, 5].reduce((re, curIndex) => {
-          const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
-          const hhad_a = strFixed(normalPtypeGameMore[curIndex]?.ior_PRC?._text || '');
-          const hhad_h = strFixed(normalPtypeGameMore[curIndex]?.ior_PRH?._text || '');
-          return {
-            ...re,
-            [`hhad_a${curIndex + 1}`]: hhad_a,
-            [`hhad_h${curIndex + 1}`]: hhad_h,
-            [`hhad_d${curIndex + 1}`]: '-',
-            [`hhad_goalLine${curIndex + 1}`]: !hhad_a
-              ? '-'
-              : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio?._text || '', isHStrong ? true : false),
-          };
-        }, {} as HGHhad),
-        wm_h1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH1?._text ?? ''),
-        wm_h2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH2?._text ?? ''),
-        wm_h3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH3?._text ?? ''),
-        wm_hov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMHOV?._text ?? ''),
-        wm_a1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC1?._text ?? ''),
-        wm_a2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC2?._text ?? ''),
-        wm_a3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC3?._text ?? ''),
-        wm_aov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMCOV?._text ?? ''),
-        wm_0: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WM0?._text ?? ''),
-        wm_n: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMN?._text ?? ''),
-        ...[0, 1, 2, 3].reduce((re, curIndex) => {
-          const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
-          const hhafu_h = normalPtypeGameMore[curIndex]?.ior_HPRH?._text || '';
-          const hhafu_a = normalPtypeGameMore[curIndex]?.ior_HPRC?._text || '';
-          return {
-            ...re,
-            [`hhafu_goalLine${curIndex + 1}`]: !hhafu_h
-              ? '-'
-              : getRatioAvg(normalPtypeGameMore[curIndex]?.hratio?._text || '', isHStrong ? true : false),
-            [`hhafu_h${curIndex + 1}`]: strFixed(hhafu_h),
-            [`hhafu_a${curIndex + 1}`]: strFixed(hhafu_a),
-          };
-        }, {} as HGHhafu),
-        updateTime: new Date().toISOString(),
-        createdAt: GlobalFootballState.HGInfoList.find((info) => info.matchId === match.jcMatchId)?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+
+      const jcHomeTeam = match.homeTeam;
+      const jcAwayTeam = match.awayTeam;
+      const hgHomeTeam = normalPtypeGameMore?.[0]?.team_h?._text || '';
+      const hgAwayTeam = normalPtypeGameMore?.[0]?.team_c?._text || '';
+      const homeWeight = getTeamSameWeight(jcHomeTeam, hgHomeTeam);
+      const homeReverseWeight = getTeamSameWeight(jcHomeTeam, hgAwayTeam);
+      const awayWeight = getTeamSameWeight(jcAwayTeam, hgAwayTeam);
+      const awayReverseWeight = getTeamSameWeight(jcAwayTeam, hgHomeTeam);
+      // 是否需要逆转 主队 客队
+      const needReverseTeam = homeReverseWeight > homeWeight && awayReverseWeight > awayWeight;
+      let hgInfo: HGInfo | undefined = void 0;
+      if (needReverseTeam) {
+        hgInfo = {
+          matchId: match.jcMatchId,
+          isTeamReversed: needReverseTeam,
+          leagueAbbName: normalPtypeGameMore?.[0]?.league?._text || '',
+          leagueAllName: normalPtypeGameMore?.[0]?.league?._text || '',
+          leagueCode: '',
+          matchNumStr: '',
+          matchDate: '',
+          matchTime: '',
+          matchTimeFormat: normalPtypeGameMore?.[0]?.datetime?._text || '',
+          homeTeamAbbName: normalPtypeGameMore?.[0]?.team_c?._text || '',
+          homeTeamAllName: normalPtypeGameMore?.[0]?.team_c?._text || '',
+          awayTeamAbbName: normalPtypeGameMore?.[0]?.team_h?._text || '',
+          awayTeamAllName: normalPtypeGameMore?.[0]?.team_h?._text || '',
+          // 负
+          had_a: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MH?._text || ''),
+          // 胜
+          had_h: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MC?._text || ''),
+          // 平
+          had_d: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MN?._text || ''),
+          ...[0, 1, 2, 3, 4, 5].reduce((re, curIndex) => {
+            const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'C';
+            const hhad_a = strFixed(normalPtypeGameMore[curIndex]?.ior_PRH?._text || '');
+            const hhad_h = strFixed(normalPtypeGameMore[curIndex]?.ior_PRC?._text || '');
+            return {
+              ...re,
+              [`hhad_a${curIndex + 1}`]: hhad_a,
+              [`hhad_h${curIndex + 1}`]: hhad_h,
+              [`hhad_d${curIndex + 1}`]: '-',
+              [`hhad_goalLine${curIndex + 1}`]: !hhad_a
+                ? '-'
+                : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio?._text || '', isHStrong ? true : false),
+            };
+          }, {} as HGHhad),
+          wm_h1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC1?._text ?? ''),
+          wm_h2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC2?._text ?? ''),
+          wm_h3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC3?._text ?? ''),
+          wm_hov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMCOV?._text ?? ''),
+          wm_a1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH1?._text ?? ''),
+          wm_a2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH2?._text ?? ''),
+          wm_a3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH3?._text ?? ''),
+          wm_aov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMHOV?._text ?? ''),
+          wm_0: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WM0?._text ?? ''),
+          wm_n: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMN?._text ?? ''),
+          ...[0, 1, 2, 3].reduce((re, curIndex) => {
+            const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'C';
+            const hhafu_h = normalPtypeGameMore[curIndex]?.ior_HPRC?._text || '';
+            const hhafu_a = normalPtypeGameMore[curIndex]?.ior_HPRH?._text || '';
+            return {
+              ...re,
+              [`hhafu_goalLine${curIndex + 1}`]: !hhafu_h
+                ? '-'
+                : getRatioAvg(normalPtypeGameMore[curIndex]?.hratio?._text || '', isHStrong ? true : false),
+              [`hhafu_h${curIndex + 1}`]: strFixed(hhafu_h),
+              [`hhafu_a${curIndex + 1}`]: strFixed(hhafu_a),
+            };
+          }, {} as HGHhafu),
+          updateTime: new Date().toISOString(),
+          createdAt: GlobalFootballState.HGInfoList.find((info) => info.matchId === match.jcMatchId)?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      if (!needReverseTeam) {
+        hgInfo = {
+          matchId: match.jcMatchId,
+          isTeamReversed: needReverseTeam,
+          leagueAbbName: normalPtypeGameMore?.[0]?.league?._text || '',
+          leagueAllName: normalPtypeGameMore?.[0]?.league?._text || '',
+          leagueCode: '',
+          matchNumStr: '',
+          matchDate: '',
+          matchTime: '',
+          matchTimeFormat: normalPtypeGameMore?.[0]?.datetime?._text || '',
+          homeTeamAbbName: normalPtypeGameMore?.[0]?.team_h?._text || '',
+          homeTeamAllName: normalPtypeGameMore?.[0]?.team_h?._text || '',
+          awayTeamAbbName: normalPtypeGameMore?.[0]?.team_c?._text || '',
+          awayTeamAllName: normalPtypeGameMore?.[0]?.team_c?._text || '',
+          // 负
+          had_a: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MC?._text || ''),
+          // 胜
+          had_h: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MH?._text || ''),
+          // 平
+          had_d: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MN?._text || ''),
+          ...[0, 1, 2, 3, 4, 5].reduce((re, curIndex) => {
+            const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
+            const hhad_a = strFixed(normalPtypeGameMore[curIndex]?.ior_PRC?._text || '');
+            const hhad_h = strFixed(normalPtypeGameMore[curIndex]?.ior_PRH?._text || '');
+            return {
+              ...re,
+              [`hhad_a${curIndex + 1}`]: hhad_a,
+              [`hhad_h${curIndex + 1}`]: hhad_h,
+              [`hhad_d${curIndex + 1}`]: '-',
+              [`hhad_goalLine${curIndex + 1}`]: !hhad_a
+                ? '-'
+                : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio?._text || '', isHStrong ? true : false),
+            };
+          }, {} as HGHhad),
+          wm_h1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH1?._text ?? ''),
+          wm_h2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH2?._text ?? ''),
+          wm_h3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH3?._text ?? ''),
+          wm_hov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMHOV?._text ?? ''),
+          wm_a1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC1?._text ?? ''),
+          wm_a2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC2?._text ?? ''),
+          wm_a3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC3?._text ?? ''),
+          wm_aov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMCOV?._text ?? ''),
+          wm_0: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WM0?._text ?? ''),
+          wm_n: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMN?._text ?? ''),
+          ...[0, 1, 2, 3].reduce((re, curIndex) => {
+            const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
+            const hhafu_h = normalPtypeGameMore[curIndex]?.ior_HPRH?._text || '';
+            const hhafu_a = normalPtypeGameMore[curIndex]?.ior_HPRC?._text || '';
+            return {
+              ...re,
+              [`hhafu_goalLine${curIndex + 1}`]: !hhafu_h
+                ? '-'
+                : getRatioAvg(normalPtypeGameMore[curIndex]?.hratio?._text || '', isHStrong ? true : false),
+              [`hhafu_h${curIndex + 1}`]: strFixed(hhafu_h),
+              [`hhafu_a${curIndex + 1}`]: strFixed(hhafu_a),
+            };
+          }, {} as HGHhafu),
+          updateTime: new Date().toISOString(),
+          createdAt: GlobalFootballState.HGInfoList.find((info) => info.matchId === match.jcMatchId)?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+      }
       return hgInfo;
     });
     const hgInfoList = await Promise.all(hgInfoPromiseList);
