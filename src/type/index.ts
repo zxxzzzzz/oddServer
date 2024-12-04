@@ -4629,4 +4629,11 @@ export type ChuanPlan = {
   updatedAt: string;
 };
 
-export type Token = { uid: string; ver: string; url: string; lastUseTimestamp: number; account: string; loginTimestamp: number };
+export type Token = {
+  uid: string;
+  ver: string;
+  url: string;
+  lastUseTimestamp: number;
+  account: string;
+  loginTimestamp: number;
+};

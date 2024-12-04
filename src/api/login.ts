@@ -1,4 +1,4 @@
-import { toAsyncTimeFunction } from '../utils/lodash';
+import { delay, isXml, toAsyncTimeFunction } from '../utils/lodash';
 import { cuFetch } from './request';
 import { objToFormData } from './utils';
 import Convert from 'xml-js';
@@ -28,7 +28,8 @@ export const loginByAccount = toAsyncTimeFunction(
     const text = await res.text();
     const m = text.match(/top\.ver = '([^']+?)'/);
     if (!m?.[1]) {
-      throw Error('login-获取ver失败');
+      await delay(1000 * 10);
+      return loginByAccount(username, password, url);
     }
     const ver = m[1];
 
@@ -75,13 +76,21 @@ export const loginByAccount = toAsyncTimeFunction(
       body: objToFormData(body2),
       method: 'POST',
     });
-    if (!res2) return loginByAccount(username, password, url);
+    if (!res2) {
+      await delay(1000 * 10);
+      return loginByAccount(username, password, url);
+    }
     const text2 = await res2.text();
+    if (!isXml(text2)) {
+      await delay(1000 * 10);
+      return loginByAccount(username, password, url);
+    }
     const mixObj = Convert.xml2js(text2, { compact: true }) as any;
     const uid = mixObj?.serverresponse?.uid?._text as string;
     const _username = mixObj?.serverresponse?.username?._text;
     if (!_username) {
-      throw Error('loginByAccount chk_login失败');
+      await delay(1000 * 10);
+      return loginByAccount(username, password, url);
     }
     const body3 = {
       p: 'check_login_domain',
@@ -106,8 +115,15 @@ export const loginByAccount = toAsyncTimeFunction(
       },
       body: objToFormData(body3),
     });
-    if (!res3) return loginByAccount(username, password, url);
+    if (!res3) {
+      await delay(1000 * 10);
+      return loginByAccount(username, password, url);
+    }
     const text3 = await res3.text();
+    if(!isXml(text2)) {
+      await delay(1000 * 10);
+      return loginByAccount(username, password, url);
+    }
     const mixObj3 = Convert.xml2js(text3, { compact: true }) as any;
     const domain = mixObj3?.serverresponse?.new_domain?._text || 'no';
     return {

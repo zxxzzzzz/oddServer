@@ -1,14 +1,16 @@
 import { getToken } from '../store/hgAccount';
 import { cuFetch } from './request';
-import { objToFormData } from './utils';
+import { delay, objToFormData } from './utils';
 import Convert from 'xml-js';
 import { GameList, GameMore, GameOBT } from '../type/index';
 import { JCInfo } from '../type/index';
-import { toAsyncTimeFunction } from '../utils/lodash';
+import { isXml, toAsyncTimeFunction } from '../utils/lodash';
+
+const LOGIN_DELAY = 1000 * 10;
 
 export const getHGLeagueListAll = toAsyncTimeFunction(
   async function (): Promise<{ name: string; leagueId: string }[] | undefined> {
-    const { uid, ver, url } = await getToken();
+    const { uid, ver, url, reLogin } = await getToken();
     const body = {
       p: 'get_league_list_All',
       uid: uid,
@@ -37,14 +39,27 @@ export const getHGLeagueListAll = toAsyncTimeFunction(
       body: objToFormData(body),
       method: 'post',
     });
-    if (!res) return void 0;
+    if (!res) {
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGLeagueListAll();
+    }
     const text = await res.text();
     if (!text) {
-      throw Error('getLeagueListAllByNodeFetch 获取extra 联赛数据失败 数据空');
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGLeagueListAll();
+    }
+    if (!isXml(text)) {
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGLeagueListAll();
     }
     const mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      return void 0;
+      await delay(1000 * 30);
+      await reLogin();
+      return getHGLeagueListAll();
     }
     return (mixObj?.serverresponse?.classifier?.region || [])
       .map((r: any) => {
@@ -62,7 +77,7 @@ export const getHGLeagueListAll = toAsyncTimeFunction(
 
 export const getHGGameList = toAsyncTimeFunction(
   async function (op: { lid: string }): Promise<GameList | undefined> {
-    const { uid, ver, url } = await getToken();
+    const { uid, ver, url, reLogin } = await getToken();
     const body = {
       uid: uid,
       ver: ver,
@@ -96,11 +111,22 @@ export const getHGGameList = toAsyncTimeFunction(
       },
       body: objToFormData(body),
     });
-    if (!res) return void 0;
+    if (!res) {
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGGameList(op);
+    }
     const text = await res.text();
+    if (!isXml(text)) {
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGGameList(op);
+    }
     const mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      return void 0;
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGGameList(op);
     }
     return mixObj;
   },
@@ -112,7 +138,7 @@ export const getHGGameList = toAsyncTimeFunction(
 
 export const getHGGameOBT = toAsyncTimeFunction(
   async function (op: { ecid: string }): Promise<GameOBT | undefined> {
-    const { uid, ver, url } = await getToken();
+    const { uid, ver, url, reLogin } = await getToken();
     const body = {
       uid: uid,
       ver: ver,
@@ -162,11 +188,23 @@ export const getHGGameOBT = toAsyncTimeFunction(
       method: 'POST',
       body: objToFormData(body2),
     });
-    if (!res) return void 0;
+    if (!res) {
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGGameOBT(op);
+    }
     const text = await res.text();
-    let mixObj = Convert.xml2js(text, { compact: true }) as any;
+    if (!isXml(text)) {
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGGameOBT(op);
+    }
+    let mixObj = Convert.xml2js(text, { compact: true }) as GameOBT;
+    // @ts-expect-error code存在
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      return void 0;
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGGameOBT(op);
     }
     if (!mixObj?.serverresponse?.ec?.game) {
       const res = await cuFetch(`${_url.origin}/transform.php?ver=${ver}`, {
@@ -185,11 +223,23 @@ export const getHGGameOBT = toAsyncTimeFunction(
         method: 'POST',
         body: objToFormData(body),
       });
-      if (!res) return void 0;
+      if (!res) {
+        await delay(LOGIN_DELAY);
+        await reLogin();
+        return getHGGameOBT(op);
+      }
       const text = await res.text();
-      mixObj = Convert.xml2js(text, { compact: true }) as any;
+      if (!isXml(text)) {
+        await delay(LOGIN_DELAY);
+        await reLogin();
+        return getHGGameOBT(op);
+      }
+      mixObj = Convert.xml2js(text, { compact: true }) as GameOBT;
+      // @ts-expect-error code存在
       if (mixObj?.serverresponse?.code?._text === 'error') {
-        return void 0;
+        await delay(LOGIN_DELAY);
+        await reLogin();
+        return getHGGameOBT(op);
       }
     }
     return mixObj;
@@ -202,7 +252,7 @@ export const getHGGameOBT = toAsyncTimeFunction(
 
 export const getHGGameMore = toAsyncTimeFunction(
   async function (op: { lid: string; ecid: string }): Promise<GameMore | undefined> {
-    const { uid, ver, url } = await getToken();
+    const { uid, ver, url, reLogin } = await getToken();
     const body = {
       uid: uid,
       ver: ver,
@@ -235,13 +285,24 @@ export const getHGGameMore = toAsyncTimeFunction(
       body: objToFormData(body),
       method: 'POST',
     });
-    if (!res) return void 0;
-    const text = await res.text();
-    let mixObj = Convert.xml2js(text, { compact: true }) as any;
-    if (mixObj?.serverresponse?.code?._text === 'error') {
-      return void 0;
+    if (!res) {
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGGameMore(op);
     }
-    return mixObj as GameMore;
+    const text = await res.text();
+    if (!isXml(text)) {
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGGameMore(op);
+    }
+    let mixObj = Convert.xml2js(text, { compact: true }) as GameMore;
+    if (mixObj?.serverresponse?.code?._text === 'error') {
+      await delay(LOGIN_DELAY);
+      await reLogin();
+      return getHGGameMore(op);
+    }
+    return mixObj;
   },
   {
     tag: 'getHGGameMore',
@@ -270,10 +331,12 @@ export const getJCInfoList = toAsyncTimeFunction(
         },
       }
     );
-    if (!res) return void 0;
+    if (!res) {
+      await delay(LOGIN_DELAY);
+      return getJCInfoList();
+    }
     const text = await res.text();
     if (text.includes('html')) {
-      return getJCInfoList();
     }
     const data = JSON.parse(text);
     const matchInfoList = data?.value?.matchInfoList as any[];

@@ -13,6 +13,7 @@ import {
   zipBy,
   getChuanInfoBySinInfo,
   getTeamSameWeight,
+  isXml,
 } from './utils/index';
 import { delay, uniqBy } from './api/utils';
 import { randomUUID } from 'crypto';
@@ -119,8 +120,6 @@ function getRandomCharacter(characters: string): string {
 }
 
 const saveAllStaticFile = async (pathList: string[]) => {
-  fetch('http://129.211.223.119/static/js/jquery-1.11.3.min.js', {});
-
   for (const mpath of pathList) {
     const url = `http://129.211.223.119${mpath}`;
     console.log(url);
@@ -232,64 +231,71 @@ const createAccount = () => {
   // const isNeedReverseTeam = homeReverseWeight > homeWeight && awayReverseWeight > awayWeight;
   // console.log({ homeWeight, homeReverseWeight, awayReverseWeight, awayWeight, isNeedReverseTeam });
   console.log(getLeagueSameWeight('韩国K乙级联赛', '韩国职业联赛'));
+  const a = isXml(`<?xml
+version="1.0" encoding="UTF-8"?>
+<serverresponse>
+    <code>error</code>
+    <msg>doubleLogin</msg>
+</serverresponse>
+`)
+console.log(a);
+  // saveAllStaticFile([
+  //   ...Object.entries({
+  //     'chunk-07711831': '638799a4',
+  //     'chunk-0aeae326': '549c5252',
+  //     'chunk-21abca40': '64c8a0fa',
+  //     'chunk-2815857a': 'a7b0e0df',
+  //     'chunk-3e21a792': 'a5922c1f',
+  //     'chunk-3f0588fc': '86eb0393',
+  //     'chunk-41dfe85b': 'cd7c9dfb',
+  //     'chunk-49990cc4': 'b31cd62f',
+  //     'chunk-5b318488': '7b09cf9b',
+  //     'chunk-66da1a61': 'ce0f2a60',
+  //     'chunk-6db8ccd0': '36fb6b03',
+  //     'chunk-7895deac': '65d658b5',
+  //     'chunk-79fe1278': 'ce015e45',
+  //     'chunk-ce5c3a5c': '29dde34e',
+  //     'chunk-d4c1d6f4': '3e959b17',
+  //     'chunk-edb7bca2': '46d92db6',
+  //     'chunk-f82aeb04': '5b6d8809',
+  //   }).map(([k, v]) => {
+  //     return `/static/js/${k}.${v}.js`;
+  //   }),
+  //   ...Object.entries({
+  //     'chunk-07711831': 'f6043cf5',
+  //     'chunk-0aeae326': 'bb2153c9',
+  //     'chunk-21abca40': 'c68f5e69',
+  //     'chunk-2815857a': '476ce286',
+  //     'chunk-3e21a792': '99e4d5d1',
+  //     'chunk-3f0588fc': '8cfef481',
+  //     'chunk-41dfe85b': 'e0c8cbb0',
+  //     'chunk-49990cc4': '61eb9880',
+  //     'chunk-5b318488': '75b0e3d4',
+  //     'chunk-66da1a61': '46987287',
+  //     'chunk-6db8ccd0': '72b36f83',
+  //     'chunk-7895deac': '1dc70cca',
+  //     'chunk-79fe1278': 'bfc85881',
+  //     'chunk-ce5c3a5c': '5ed5589d',
+  //     'chunk-d4c1d6f4': '157601f7',
+  //     'chunk-edb7bca2': '213b70c2',
+  //     'chunk-f82aeb04': '742d7e78',
+  //   }).map(([k, v]) => {
+  //     return `/static/css/${k}.${v}.css`;
+  //   }),
 
-  saveAllStaticFile([
-    ...Object.entries({
-      'chunk-07711831': '638799a4',
-      'chunk-0aeae326': '549c5252',
-      'chunk-21abca40': '64c8a0fa',
-      'chunk-2815857a': 'a7b0e0df',
-      'chunk-3e21a792': 'a5922c1f',
-      'chunk-3f0588fc': '86eb0393',
-      'chunk-41dfe85b': 'cd7c9dfb',
-      'chunk-49990cc4': 'b31cd62f',
-      'chunk-5b318488': '7b09cf9b',
-      'chunk-66da1a61': 'ce0f2a60',
-      'chunk-6db8ccd0': '36fb6b03',
-      'chunk-7895deac': '65d658b5',
-      'chunk-79fe1278': 'ce015e45',
-      'chunk-ce5c3a5c': '29dde34e',
-      'chunk-d4c1d6f4': '3e959b17',
-      'chunk-edb7bca2': '46d92db6',
-      'chunk-f82aeb04': '5b6d8809',
-    }).map(([k, v]) => {
-      return `/static/js/${k}.${v}.js`;
-    }),
-    ...Object.entries({
-      'chunk-07711831': 'f6043cf5',
-      'chunk-0aeae326': 'bb2153c9',
-      'chunk-21abca40': 'c68f5e69',
-      'chunk-2815857a': '476ce286',
-      'chunk-3e21a792': '99e4d5d1',
-      'chunk-3f0588fc': '8cfef481',
-      'chunk-41dfe85b': 'e0c8cbb0',
-      'chunk-49990cc4': '61eb9880',
-      'chunk-5b318488': '75b0e3d4',
-      'chunk-66da1a61': '46987287',
-      'chunk-6db8ccd0': '72b36f83',
-      'chunk-7895deac': '1dc70cca',
-      'chunk-79fe1278': 'bfc85881',
-      'chunk-ce5c3a5c': '5ed5589d',
-      'chunk-d4c1d6f4': '157601f7',
-      'chunk-edb7bca2': '213b70c2',
-      'chunk-f82aeb04': '742d7e78',
-    }).map(([k, v]) => {
-      return `/static/css/${k}.${v}.css`;
-    }),
+  //   '/static/js/jquery-1.11.3.min.js',
+  //   '/static/css/app.aadc14ed.css',
+  //   '/static/css/chunk-elementUI.68c70ad5.css',
+  //   '/static/css/chunk-libs.3dfb7769.css',
+  //   '/static/js/app.7493e24a.js',
+  //   '/static/js/chunk-elementUI.59a20057.js',
+  //   '/static/js/chunk-libs.c1b47697.js',
+  //   '/static/css/chunk-elementUI.68c70ad5.css',
+  //   '/static/css/chunk-libs.3dfb7769.css',
+  //   '/static/css/app.aadc14ed.css',
 
-    '/static/js/jquery-1.11.3.min.js',
-    '/static/css/app.aadc14ed.css',
-    '/static/css/chunk-elementUI.68c70ad5.css',
-    '/static/css/chunk-libs.3dfb7769.css',
-    '/static/js/app.7493e24a.js',
-    '/static/js/chunk-elementUI.59a20057.js',
-    '/static/js/chunk-libs.c1b47697.js',
-    '/static/css/chunk-elementUI.68c70ad5.css',
-    '/static/css/chunk-libs.3dfb7769.css',
-    '/static/css/app.aadc14ed.css',
-
-    '/static/js/chunk-elementUI.59a20057.js',
-    '/static/js/chunk-libs.c1b47697.js',
-    '/static/js/app.7493e24a.js',
-  ]);
+  //   '/static/js/chunk-elementUI.59a20057.js',
+  //   '/static/js/chunk-libs.c1b47697.js',
+  //   '/static/js/app.7493e24a.js',
+  // ]);
 })();

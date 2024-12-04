@@ -1,7 +1,14 @@
 import { existsSync, statSync, writeFileSync } from 'fs';
 import path from 'path';
-import { delay } from '../api/utils';
 import dayjs from 'dayjs';
+
+export const delay = (n: number) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, n);
+  });
+};
 
 export function range(start: number, end?: number, step: number = 1): number[] {
   if (end === undefined) {
@@ -544,4 +551,10 @@ export function zipBy<T>(array: T[], iteratee: (item: T) => string): Array<{ key
 
   // 返回分组后的结果数组
   return output;
+}
+
+
+export function isXml(text: string): boolean {
+  // 使用正则表达式匹配文本
+  return text.startsWith('<?xml');
 }

@@ -3,6 +3,7 @@ import { loginByAccount } from '../api/login';
 import { delay, uniqBy } from '../api/utils';
 import { Token } from '../type';
 import { existsSync, readFileSync } from 'fs';
+import dayjs from 'dayjs';
 
 const MIN_TOKEN_IDLE_AGE = 1000 * 1;
 const MAX_TOKEN_IDLE_AGE = 1000 * 10;
@@ -11,7 +12,6 @@ const ZERO_TIME = '2000-11-08T05:55:26.881Z';
 const GlobalAccountState: {
   accountList: { account: string; password: string }[];
   tokenList: Token[];
-  isLogging: boolean;
   tokenIdleAge: number;
 } = {
   accountList: [
@@ -20,9 +20,9 @@ const GlobalAccountState: {
     { account: 'CXGCXG720', password: 'ASd12345' },
     { account: 'CXGCXG721', password: 'ASd12345' },
     { account: 'CXGCXG723', password: 'ASd12345' },
+    { account: 'CXGCXG766', password: 'ASd12345' },
   ],
   tokenList: [],
-  isLogging: false,
   tokenIdleAge: MIN_TOKEN_IDLE_AGE,
 };
 
@@ -98,48 +98,66 @@ export const getAliveUrl = async () => {
  */
 export const getToken = toFifoFunction(
   toAsyncTimeFunction(
-    async (): Promise<Token> => {
-      while (GlobalAccountState.isLogging) {
-        await delay(10);
-      }
+    async (): Promise<Token & { reLogin: () => Promise<void> }> => {
       const noLoginAccountList = GlobalAccountState.accountList.filter((accountItem) => {
         const finedToken = GlobalAccountState.tokenList.find((t) => t.account === accountItem.account);
         if (!finedToken) return true;
-        // 登录超过5小时，重新登录
-        if (new Date().valueOf() - finedToken.loginTimestamp > 1000 * 60 * 60 * 2) return true;
+        if (!finedToken.uid) return true;
         return false;
       });
       if (noLoginAccountList.length) {
-        GlobalAccountState.isLogging = true;
         const aliveUrl = await getAliveUrl();
         if (!aliveUrl) throw Error('hg服务器连接不上');
-        try {
-          for (const noLoginAccount of noLoginAccountList) {
-            const token = await loginByAccount(noLoginAccount.account, noLoginAccount.password, aliveUrl);
-            console.log('login account', noLoginAccount.account);
-            GlobalAccountState.tokenList = [
-              ...GlobalAccountState.tokenList.filter((token) => token.account !== noLoginAccount.account),
-              { ...token, account: noLoginAccount.account, lastUseTimestamp: 0, loginTimestamp: new Date().valueOf() },
-            ];
-          }
-          GlobalAccountState.isLogging = false;
-        } catch (error) {
-          GlobalAccountState.isLogging = false;
-        }
+        noLoginAccountList.forEach(async (noLoginAccount) => {
+          GlobalAccountState.tokenList = [
+            ...GlobalAccountState.tokenList.filter((token) => token.account !== noLoginAccount.account),
+            {
+              // default是一个占位，避免多次登录这个账号
+              uid: 'default',
+              url: '',
+              ver: '',
+              account: noLoginAccount.account,
+              lastUseTimestamp: 0,
+              loginTimestamp: new Date().valueOf(),
+            },
+          ];
+          const token = await loginByAccount(noLoginAccount.account, noLoginAccount.password, aliveUrl);
+          console.log(dayjs().format('YYYY-MM-DD HH:mm:ss'), 'login account', noLoginAccount.account);
+          GlobalAccountState.tokenList = [
+            ...GlobalAccountState.tokenList.filter((token) => token.account !== noLoginAccount.account),
+            { ...token, account: noLoginAccount.account, lastUseTimestamp: 0, loginTimestamp: new Date().valueOf() },
+          ];
+        });
       }
-      GlobalAccountState.tokenList = GlobalAccountState.tokenList.toSorted((v1, v2) => {
-        return v1.lastUseTimestamp - v2.lastUseTimestamp;
-      });
-      if (!GlobalAccountState.tokenList?.length) throw Error('hg账号 无法登录');
-      const lastUseToken = GlobalAccountState.tokenList[0];
-      const limitIdleAge = GlobalAccountState.tokenIdleAge;
-      while (new Date().valueOf() - lastUseToken.lastUseTimestamp <= limitIdleAge) {
+      while (true) {
         await delay(100);
+        GlobalAccountState.tokenList = GlobalAccountState.tokenList.toSorted((v1, v2) => {
+          return v1.lastUseTimestamp - v2.lastUseTimestamp;
+        });
+        const lastUseToken = GlobalAccountState.tokenList[0];
+        if (!lastUseToken?.uid || lastUseToken?.uid === 'default') {
+          continue;
+        }
+        const limitIdleAge = GlobalAccountState.tokenIdleAge;
+        if (new Date().valueOf() - lastUseToken.lastUseTimestamp <= limitIdleAge) {
+          continue;
+        }
+        lastUseToken.lastUseTimestamp = new Date().valueOf();
+        return {
+          ...lastUseToken,
+          reLogin: (async (accountName: string) => {
+            const token = GlobalAccountState.tokenList.find((t) => t.account === accountName);
+            if (!token) return;
+            token.uid = '';
+          }).bind(null, lastUseToken.account),
+        };
       }
-      lastUseToken.lastUseTimestamp = new Date().valueOf();
-      return lastUseToken;
     },
-    { tag: 'getToken', desc: '' }
+    {
+      tag: 'getToken',
+      desc: (_, re) =>
+        `name:${re.account} login:${dayjs(re.loginTimestamp).format('YYYY-MM-DD HH:mm:ss')} use:${dayjs(re.lastUseTimestamp).format('YYYY-MM-DD HH:mm:ss')}`,
+    }
   )
 );
 /**获取有多少个有效账号token */
