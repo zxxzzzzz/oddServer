@@ -6,7 +6,7 @@ import { GameList, GameMore, GameOBT } from '../type/index';
 import { JCInfo } from '../type/index';
 import { isXml, toAsyncTimeFunction } from '../utils/lodash';
 
-const LOGIN_DELAY = 1000 * 10;
+const RETRY_DELAY = 1000 * 10;
 
 export const getHGLeagueListAll = toAsyncTimeFunction(
   async function (): Promise<{ name: string; leagueId: string }[] | undefined> {
@@ -40,18 +40,18 @@ export const getHGLeagueListAll = toAsyncTimeFunction(
       method: 'post',
     });
     if (!res) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGLeagueListAll();
     }
     const text = await res.text();
     if (!text) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGLeagueListAll();
     }
     if (!isXml(text)) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGLeagueListAll();
     }
@@ -112,19 +112,19 @@ export const getHGGameList = toAsyncTimeFunction(
       body: objToFormData(body),
     });
     if (!res) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGGameList(op);
     }
     const text = await res.text();
     if (!isXml(text)) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGGameList(op);
     }
     const mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGGameList(op);
     }
@@ -189,20 +189,20 @@ export const getHGGameOBT = toAsyncTimeFunction(
       body: objToFormData(body2),
     });
     if (!res) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGGameOBT(op);
     }
     const text = await res.text();
     if (!isXml(text)) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGGameOBT(op);
     }
     let mixObj = Convert.xml2js(text, { compact: true }) as GameOBT;
     // @ts-expect-error code存在
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGGameOBT(op);
     }
@@ -224,20 +224,20 @@ export const getHGGameOBT = toAsyncTimeFunction(
         body: objToFormData(body),
       });
       if (!res) {
-        await delay(LOGIN_DELAY);
+        await delay(RETRY_DELAY);
         await reLogin();
         return getHGGameOBT(op);
       }
       const text = await res.text();
       if (!isXml(text)) {
-        await delay(LOGIN_DELAY);
+        await delay(RETRY_DELAY);
         await reLogin();
         return getHGGameOBT(op);
       }
       mixObj = Convert.xml2js(text, { compact: true }) as GameOBT;
       // @ts-expect-error code存在
       if (mixObj?.serverresponse?.code?._text === 'error') {
-        await delay(LOGIN_DELAY);
+        await delay(RETRY_DELAY);
         await reLogin();
         return getHGGameOBT(op);
       }
@@ -286,19 +286,19 @@ export const getHGGameMore = toAsyncTimeFunction(
       method: 'POST',
     });
     if (!res) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGGameMore(op);
     }
     const text = await res.text();
     if (!isXml(text)) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGGameMore(op);
     }
     let mixObj = Convert.xml2js(text, { compact: true }) as GameMore;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       await reLogin();
       return getHGGameMore(op);
     }
@@ -332,7 +332,7 @@ export const getJCInfoList = toAsyncTimeFunction(
       }
     );
     if (!res) {
-      await delay(LOGIN_DELAY);
+      await delay(RETRY_DELAY);
       return getJCInfoList();
     }
     const text = await res.text();

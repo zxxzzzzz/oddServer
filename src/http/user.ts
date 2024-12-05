@@ -157,7 +157,7 @@ server.get('/api/chuanplan/findallback', async (req, res) => {
   const limit = query?.limit ? toNumber(query.limit) : 999;
   const planList = (userInfo?.planList || [])
     .filter((item) => {
-      return (query.delFlag === '1' && item.delFlag === false) || (query.delFlag === '0' && item.delFlag === true);
+      return toNumber(query.delFlag) === item.delFlag;
     })
     .toSorted((v1, v2) => {
       return new Date(v1.createdAt).valueOf() - new Date(v2.createdAt).valueOf();
@@ -222,13 +222,11 @@ server.del('/api/chuanplan/deleteone/:uuid', async (req, res) => {
   }
   const uuid = req.params?.uuid || '';
   const filteredItemList = (userInfo.planList || [])
-    // 删除 uuid且delFlag是true的元素
-    .filter((item) => {
-      return !(item.uuid === uuid && item.delFlag);
-    })
     .map((item) => {
-      return { ...item, delFlag: item.uuid === uuid ? true : item.delFlag };
-    });
+      const delFlag = item.uuid === uuid ? item.delFlag - 1 : item.delFlag;
+      return { ...item, delFlag };
+    })
+    .filter((item): item is ChuanPlan => [0, 1].includes(item.delFlag));
   await updateAccountBySessionId(cookieObj?.session_id || '', { planList: filteredItemList });
   res.send({ success: true });
   return true;
@@ -350,7 +348,7 @@ server.post('/api/chuanplan/create', async (req, res) => {
     Marks: body.Marks,
     firStar: !!body.firStar,
     secStar: !!body.secStar,
-    delFlag: false,
+    delFlag: 1,
     updateTime: new Date().toISOString(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

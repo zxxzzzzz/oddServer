@@ -4623,7 +4623,7 @@ export type ChuanPlan = {
   Marks: string;
   firStar: boolean;
   secStar: boolean;
-  delFlag: boolean;
+  delFlag: 1 | 0;
   updateTime: string;
   createdAt: string;
   updatedAt: string;
