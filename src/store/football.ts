@@ -126,7 +126,6 @@ export const updateHGGameList = async () => {
       console.log('loss', { lid: item.HGLeagueId });
       return void 0;
     }
-    console.log({ lid: item.HGLeagueId });
     const ecList = Array.isArray(hgGameList?.serverresponse?.ec || [])
       ? hgGameList?.serverresponse?.ec || []
       : ([hgGameList?.serverresponse?.ec] as unknown as typeof hgGameList.serverresponse.ec);

@@ -42,7 +42,14 @@ export const updateTokenIdleAge = () => {
     const tokenIdleAge = Math.round(GlobalAccountState.tokenIdleAge * (1 - offset));
     GlobalAccountState.tokenIdleAge = Math.max(MIN_TOKEN_IDLE_AGE, tokenIdleAge);
   }
-  console.log('tokenIdleAge', GlobalAccountState.tokenIdleAge / 1000 + ' s', 'lastDurationNum', durationNum / 1000 + ' s');
+  console.log(
+    dayjs().format('YYYY-MM-DD HH:mm:ss'),
+    'tokenIdleAge:',
+    (GlobalAccountState.tokenIdleAge / 1000).toFixed(2) + 's',
+    'lastDurationNum:',
+    (durationNum / 1000).toFixed(2) + 's',
+    'aliveAccount:', GlobalAccountState.tokenList.filter(t => t.uid && t.uid !== 'default').map(t => t.account).join(',')
+  );
 };
 
 /**获取存活的登录地址 */
@@ -134,10 +141,11 @@ export const getToken = toFifoFunction(
         GlobalAccountState.tokenList = GlobalAccountState.tokenList.toSorted((v1, v2) => {
           return v1.lastUseTimestamp - v2.lastUseTimestamp;
         });
-        const lastUseToken = GlobalAccountState.tokenList[0];
-        if (!lastUseToken?.uid || lastUseToken?.uid === 'default') {
-          continue;
-        }
+        const filteredTokenList = GlobalAccountState.tokenList.filter(token => {
+          return token?.uid && token?.uid !== 'default'
+        });
+        if(!filteredTokenList?.length) continue
+        const lastUseToken = filteredTokenList[0]
         const limitIdleAge = GlobalAccountState.tokenIdleAge;
         if (new Date().valueOf() - lastUseToken.lastUseTimestamp <= limitIdleAge) {
           continue;
@@ -149,6 +157,7 @@ export const getToken = toFifoFunction(
             const token = GlobalAccountState.tokenList.find((t) => t.account === accountName);
             if (!token) return;
             token.uid = '';
+
           }).bind(null, lastUseToken.account),
         };
       }

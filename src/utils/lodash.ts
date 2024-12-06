@@ -146,7 +146,7 @@ export function toAsyncTimeFunction<T extends (...args: any[]) => any>(
     if (!existsSync(filePath)) {
       writeFileSync(filePath, `date, tag, duration, description\n`, { encoding: 'utf-8' });
     }
-    writeFileSync(filePath, `${new Date().toISOString()}, ${op.tag}, ${duration}, ${description}\n`, {
+    writeFileSync(filePath, `${dayjs().format('YYYY-MM-DD HH:mm:ss')}, ${op.tag}, ${duration}, ${description}\n`, {
       flag: 'a',
       encoding: 'utf-8',
     });

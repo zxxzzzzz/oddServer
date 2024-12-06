@@ -3,6 +3,7 @@ import * as cookie from 'cookie';
 import { getAccountBySessionId } from '../store/user';
 import { existsSync, writeFileSync } from 'fs';
 import { getLogFilePath } from '../utils/index';
+import dayjs from 'dayjs';
 
 // 创建一个 restify 服务器实例
 const server = restify.createServer();
@@ -27,7 +28,7 @@ server.on('after', async (req: restify.Request, res, route, error) => {
     writeFileSync(filePath, `date, account, ip, url, duration\n`, { encoding: 'utf-8' });
   }
   const duration = new Date().valueOf() - startTime;
-  writeFileSync(filePath, `${new Date().toISOString()}, ${account}, ${ip}, ${(req.url || '').replace(/,/g, '，')}, ${duration}\n`, {
+  writeFileSync(filePath, `${dayjs().format('YYYY-MM-DD HH:mm:ss')}, ${account}, ${ip}, ${(req.url || '').replace(/,/g, '，')}, ${duration}\n`, {
     flag: 'a',
     encoding: 'utf-8',
   });
