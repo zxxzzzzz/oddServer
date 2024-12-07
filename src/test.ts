@@ -12,7 +12,6 @@ import {
   getLeagueSameWeight,
   zipBy,
   getChuanInfoBySinInfo,
-  getTeamSameWeight,
   isXml,
 } from './utils/index';
 import { delay, uniqBy } from './api/utils';

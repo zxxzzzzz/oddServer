@@ -5,7 +5,6 @@ import {
   getLeagueSameWeight,
   getRatioAvg,
   getMatchSinData,
-  getTeamSameWeight,
   maxBy,
   strFixed,
   uniqBy,
@@ -18,6 +17,7 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import stringify from 'json-stringify-pretty-compact';
 import { resolve } from 'path';
 import dayjs from 'dayjs';
+import { getTeamSameWeight, updateTeamRuleList } from '../utils/teamRule';
 
 const ZERO_TIME = '2000-11-08T05:55:26.881Z';
 const STATE_FILE_PATH = resolve(__dirname, '../../persistentState/footballState.json');
@@ -33,6 +33,7 @@ export const GlobalFootballState: {
   /**HG所有联赛下的比赛数据 */
   HGGameList: {
     JCLeagueName: string;
+    HGLeagueName: string;
     HGLeagueId: string;
     ecid: string;
     homeTeam: string;
@@ -153,6 +154,22 @@ export const updateHGGameList = async () => {
       const HGAwayTeam = hgGame.awayTeam || '';
       const awayTeamWeight = getTeamSameWeight(HGAwayTeam, jcInfo.awayTeamAllName);
       const homeTeamWeight = getTeamSameWeight(HGHomeTeam, jcInfo.homeTeamAllName);
+      updateTeamRuleList([
+        {
+          jcTeam: jcInfo.homeTeamAllName,
+          hgTeam: HGHomeTeam,
+          weight: homeTeamWeight,
+          jcLeague: jcInfo.leagueAllName,
+          hgLeague: hgGame.HGLeagueName,
+        },
+        {
+          jcTeam: jcInfo.awayTeamAllName,
+          hgTeam: HGAwayTeam,
+          weight: awayTeamWeight,
+          jcLeague: jcInfo.leagueAllName,
+          hgLeague: hgGame.HGLeagueName,
+        },
+      ]);
       return {
         ...hgGame,
         jcMatchId: jcInfo.matchId,
@@ -162,10 +179,11 @@ export const updateHGGameList = async () => {
     return maxBy(hgMatchList, (item) => item.teamWeight);
   })
     .filter((v) => !!v)
-    .filter((v) => v.teamWeight > 0.2)
+    .filter((v) => v.teamWeight > 0.4)
     .flat();
   GlobalFootballState.filteredHGGameList = toUpdateHgMatchList;
 };
+
 
 export const updateHgInfoList = toAsyncTimeFunction(
   async () => {

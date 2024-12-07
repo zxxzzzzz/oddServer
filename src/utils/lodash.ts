@@ -377,7 +377,7 @@ export const toNumber = (v: string | number) => {
     ``` // 输出：0.75```  
     ```console.log(`归一化编辑距离: ${normalizedLevenshteinDistance(s1, s2).toFixed(2)}`);```
 */
-function getStrSameWeight(s1: string, s2: string): number {
+export function getStrSameWeight(s1: string, s2: string): number {
   const len1 = s1.length;
   const len2 = s2.length;
 
@@ -464,18 +464,7 @@ export const getLeagueSameWeight = (leagueName1: string, leagueName2: string) =>
   return getStrSameWeight(l1, l2);
 };
 
-/**获取队伍相似度权重 */
-export const getTeamSameWeight = (teamName1: string, teamName2: string) => {
-  const equalTeamList = [
-    ['博德闪耀', '波杜基林特'],
-    ['腓特烈', '费德列斯达'],
-  ];
-  const isEqual = !!equalTeamList.some((d) => d.includes(teamName1) && d.includes(teamName2));
-  if (isEqual) {
-    return 1;
-  }
-  return getStrSameWeight(teamName1, teamName2);
-};
+
 
 /**把 2/5 = (2+5)/2 */
 export const getRatioAvg = (str: string, isNegative: boolean) => {

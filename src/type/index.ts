@@ -4637,3 +4637,11 @@ export type Token = {
   account: string;
   loginTimestamp: number;
 };
+
+export type TeamRule = {
+  jcLeague: string;
+  hgLeague: string;
+  jcTeam: string;
+  hgTeam: string;
+  weight: number;
+};
