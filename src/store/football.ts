@@ -162,6 +162,7 @@ export const updateHGGameList = async () => {
     return maxBy(hgMatchList, (item) => item.teamWeight);
   })
     .filter((v) => !!v)
+    .filter((v) => v.teamWeight > 0.2)
     .flat();
   GlobalFootballState.filteredHGGameList = toUpdateHgMatchList;
 };

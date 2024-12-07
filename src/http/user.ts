@@ -305,7 +305,7 @@ server.post('/api/chuanplan/create', async (req, res) => {
     userId: userInfo.uuid,
     planId: body.planId,
     matchId1: body.matchId1,
-    matchId2: body.matchId1,
+    matchId2: body.matchId2,
     flag: 'saved',
     JCPoint: body.JCPoint,
     HGPoint: body.HGPoint,

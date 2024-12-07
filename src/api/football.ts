@@ -40,25 +40,25 @@ export const getHGLeagueListAll = toAsyncTimeFunction(
       method: 'post',
     });
     if (!res) {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGLeagueListAll();
     }
     const text = await res.text();
     if (!text) {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGLeagueListAll();
     }
     if (!isXml(text)) {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGLeagueListAll();
     }
     const mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await delay(1000 * 30);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGLeagueListAll();
     }
     return (mixObj?.serverresponse?.classifier?.region || [])
@@ -112,20 +112,20 @@ export const getHGGameList = toAsyncTimeFunction(
       body: objToFormData(body),
     });
     if (!res) {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGGameList(op);
     }
     const text = await res.text();
     if (!isXml(text)) {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGGameList(op);
     }
     const mixObj = Convert.xml2js(text, { compact: true }) as any;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGGameList(op);
     }
     return mixObj;
@@ -189,21 +189,21 @@ export const getHGGameOBT = toAsyncTimeFunction(
       body: objToFormData(body2),
     });
     if (!res) {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGGameOBT(op);
     }
     const text = await res.text();
     if (!isXml(text)) {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGGameOBT(op);
     }
     let mixObj = Convert.xml2js(text, { compact: true }) as GameOBT;
     // @ts-expect-error code存在
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGGameOBT(op);
     }
     if (!mixObj?.serverresponse?.ec?.game) {
@@ -224,21 +224,21 @@ export const getHGGameOBT = toAsyncTimeFunction(
         body: objToFormData(body),
       });
       if (!res) {
-        await delay(RETRY_DELAY);
         await reLogin();
+        await delay(RETRY_DELAY);
         return getHGGameOBT(op);
       }
       const text = await res.text();
       if (!isXml(text)) {
-        await delay(RETRY_DELAY);
         await reLogin();
+        await delay(RETRY_DELAY);
         return getHGGameOBT(op);
       }
       mixObj = Convert.xml2js(text, { compact: true }) as GameOBT;
       // @ts-expect-error code存在
       if (mixObj?.serverresponse?.code?._text === 'error') {
-        await delay(RETRY_DELAY);
         await reLogin();
+        await delay(RETRY_DELAY);
         return getHGGameOBT(op);
       }
     }
@@ -286,20 +286,20 @@ export const getHGGameMore = toAsyncTimeFunction(
       method: 'POST',
     });
     if (!res) {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGGameMore(op);
     }
     const text = await res.text();
     if (!isXml(text)) {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGGameMore(op);
     }
     let mixObj = Convert.xml2js(text, { compact: true }) as GameMore;
     if (mixObj?.serverresponse?.code?._text === 'error') {
-      await delay(RETRY_DELAY);
       await reLogin();
+      await delay(RETRY_DELAY);
       return getHGGameMore(op);
     }
     return mixObj;

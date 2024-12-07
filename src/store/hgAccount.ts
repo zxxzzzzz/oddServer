@@ -52,6 +52,7 @@ export const updateTokenIdleAge = () => {
     GlobalAccountState.tokenList
       .filter((t) => t.uid && t.uid !== 'default')
       .map((t) => t.account)
+      .toSorted((v1, v2) => v1.localeCompare(v2))
       .join(',')
   );
 };
@@ -116,13 +117,12 @@ export const getToken = toFifoFunction(
         if (!finedToken.uid) return true;
         return false;
       });
+      const noLoginAccountNameList = noLoginAccountList.map((t) => t.account);
       if (noLoginAccountList.length) {
-        const aliveUrl = await getAliveUrl();
-        if (!aliveUrl) throw Error('hg服务器连接不上');
-        noLoginAccountList.forEach(async (noLoginAccount) => {
-          GlobalAccountState.tokenList = [
-            ...GlobalAccountState.tokenList.filter((token) => token.account !== noLoginAccount.account),
-            {
+        GlobalAccountState.tokenList = [
+          ...GlobalAccountState.tokenList.filter((t) => !noLoginAccountNameList.includes(t.account)),
+          ...noLoginAccountList.map((noLoginAccount) => {
+            return {
               // default是一个占位，避免多次登录这个账号
               uid: 'default',
               url: '',
@@ -130,8 +130,12 @@ export const getToken = toFifoFunction(
               account: noLoginAccount.account,
               lastUseTimestamp: 0,
               loginTimestamp: new Date().valueOf(),
-            },
-          ];
+            };
+          }),
+        ];
+        const aliveUrl = await getAliveUrl();
+        if (!aliveUrl) throw Error('hg服务器连接不上');
+        noLoginAccountList.forEach(async (noLoginAccount) => {
           const token = await loginByAccount(noLoginAccount.account, noLoginAccount.password, aliveUrl);
           console.log(dayjs().format('YYYY-MM-DD HH:mm:ss'), 'login account', noLoginAccount.account);
           GlobalAccountState.tokenList = [
@@ -159,7 +163,7 @@ export const getToken = toFifoFunction(
           ...lastUseToken,
           reLogin: (async (accountName: string) => {
             const token = GlobalAccountState.tokenList.find((t) => t.account === accountName);
-            if (!token) return;
+            if (!token || token.uid === 'default' || new Date().valueOf() - token.loginTimestamp <= 1000 * 60) return;
             token.uid = '';
           }).bind(null, lastUseToken.account),
         };
