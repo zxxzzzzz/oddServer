@@ -6,10 +6,10 @@ import path from 'path';
 const FILE_PATH = path.resolve(__dirname, '../../rule/teamRule.csv');
 const CSV_HEAD = ['jcLeague', 'jcTeam', 'hgLeague', 'hgTeam', 'weight'] as const;
 
-export const updateTeamRuleList = (ruleList: TeamRule[]) => {
+export const updateTeamRuleList = (ruleList: TeamRule[], op = { noCache: false }) => {
   const newRuleList: TeamRule[] = ruleList;
-  const oldRuleList = getTeamRuleList();
-  const itemList = zipBy([...newRuleList, ...oldRuleList], (item) => item.jcTeam)
+  const oldRuleList = getTeamRuleList(op);
+  const itemList = zipBy([...newRuleList, ...oldRuleList], (item) => item.jcLeague + ',' + item.jcTeam)
     .map(({ key, value }) => {
       return maxBy(value, (item) => item.weight);
     })
@@ -17,8 +17,7 @@ export const updateTeamRuleList = (ruleList: TeamRule[]) => {
   const uniqItemList = uniqBy(itemList, (item) => item.jcTeam).toSorted((v1, v2) => {
     const w1 = toNumber(v1.weight);
     const w2 = toNumber(v2.weight);
-    if (w1 === w2) return v1.jcTeam.localeCompare(v2.jcTeam);
-    return w1 - w2;
+    return (w1 - w2) * 1000 + v1.jcLeague.localeCompare(v2.jcLeague) * 100 + v1.jcTeam.localeCompare(v2.jcTeam);
   });
   writeFileSync(
     FILE_PATH,
@@ -44,14 +43,13 @@ export const updateTeamRuleList = (ruleList: TeamRule[]) => {
       .join('\n'),
     { flag: 'a', encoding: 'utf-8' }
   );
-  console.log('update');
 };
 
 const getTeamRuleList = (() => {
   let readFromCsvTimestamp = 0;
   let cachedTeamRule: TeamRule[] = [];
-  return () => {
-    if (cachedTeamRule?.length && new Date().valueOf() - readFromCsvTimestamp <= 1000 * 10) return cachedTeamRule;
+  return (op = { noCache: false }) => {
+    if (cachedTeamRule?.length && !op.noCache && new Date().valueOf() - readFromCsvTimestamp <= 1000 * 10) return cachedTeamRule;
     if (!existsSync(FILE_PATH)) return [];
     const ruleList = readFileSync(FILE_PATH, { encoding: 'utf-8' })
       .replace(/\r\n/g, '\n')

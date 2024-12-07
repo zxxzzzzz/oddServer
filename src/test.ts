@@ -24,6 +24,7 @@ import dayjs from 'dayjs';
 import { updateTokenIdleAge } from './store/hgAccount';
 import { HGInfo, JCInfo } from './type';
 import { getChuanInfoList, getSinInfoList } from './store/football';
+import { updateTeamRuleList } from './utils/teamRule';
 
 const updateAllRule = () => {
   for (let index = 0; index < 99999; index++) {
@@ -34,6 +35,32 @@ const updateAllRule = () => {
     updateSinRuleList(data?.sinData || []);
     updateMethodRuleList(data?.sinData || []);
     updateChuanRuleList(data?.chuanData || []);
+    updateTeamRuleList(
+      ((data?.JCInfos || []) as any[])
+        .map((jcInfo) => {
+          const matchedHgInfo = (data?.HGInfos || []).find((hg: any) => hg.matchId === jcInfo.matchId);
+          if (!matchedHgInfo) return void 0;
+          return [
+            {
+              jcTeam: jcInfo.homeTeamAllName,
+              hgTeam: matchedHgInfo.homeTeamAbbName,
+              jcLeague: jcInfo.leagueAllName,
+              hgLeague: matchedHgInfo.leagueAbbName,
+              weight: 1,
+            },
+            {
+              jcTeam: jcInfo.awayTeamAllName,
+              hgTeam: matchedHgInfo.awayTeamAbbName,
+              jcLeague: jcInfo.leagueAllName,
+              hgLeague: matchedHgInfo.leagueAbbName,
+              weight: 1,
+            },
+          ];
+        })
+        .flat()
+        .filter((v) => !!v),
+      { noCache: true }
+    );
     console.log('update');
   }
 };
@@ -143,7 +170,7 @@ const saveAllStaticFile = async (pathList: string[]) => {
       mkdirSync(`./web2/static/${dirName}`, { recursive: true });
     }
     writeFileSync(`./web2/static/${dirName}/${fileName}`, text, { encoding: 'utf-8' });
-    await delay(500)
+    await delay(500);
   }
 };
 
