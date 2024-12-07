@@ -48,7 +48,11 @@ export const updateTokenIdleAge = () => {
     (GlobalAccountState.tokenIdleAge / 1000).toFixed(2) + 's',
     'lastDurationNum:',
     (durationNum / 1000).toFixed(2) + 's',
-    'aliveAccount:', GlobalAccountState.tokenList.filter(t => t.uid && t.uid !== 'default').map(t => t.account).join(',')
+    'aliveAccount:',
+    GlobalAccountState.tokenList
+      .filter((t) => t.uid && t.uid !== 'default')
+      .map((t) => t.account)
+      .join(',')
   );
 };
 
@@ -106,7 +110,7 @@ export const getAliveUrl = async () => {
 export const getToken = toFifoFunction(
   toAsyncTimeFunction(
     async (): Promise<Token & { reLogin: () => Promise<void> }> => {
-      const noLoginAccountList = GlobalAccountState.accountList.filter((accountItem) => {
+      const noLoginAccountList = [...GlobalAccountState.accountList].filter((accountItem) => {
         const finedToken = GlobalAccountState.tokenList.find((t) => t.account === accountItem.account);
         if (!finedToken) return true;
         if (!finedToken.uid) return true;
@@ -141,11 +145,11 @@ export const getToken = toFifoFunction(
         GlobalAccountState.tokenList = GlobalAccountState.tokenList.toSorted((v1, v2) => {
           return v1.lastUseTimestamp - v2.lastUseTimestamp;
         });
-        const filteredTokenList = GlobalAccountState.tokenList.filter(token => {
-          return token?.uid && token?.uid !== 'default'
+        const filteredTokenList = GlobalAccountState.tokenList.filter((token) => {
+          return token?.uid && token?.uid !== 'default';
         });
-        if(!filteredTokenList?.length) continue
-        const lastUseToken = filteredTokenList[0]
+        if (!filteredTokenList?.length) continue;
+        const lastUseToken = filteredTokenList[0];
         const limitIdleAge = GlobalAccountState.tokenIdleAge;
         if (new Date().valueOf() - lastUseToken.lastUseTimestamp <= limitIdleAge) {
           continue;
@@ -157,7 +161,6 @@ export const getToken = toFifoFunction(
             const token = GlobalAccountState.tokenList.find((t) => t.account === accountName);
             if (!token) return;
             token.uid = '';
-
           }).bind(null, lastUseToken.account),
         };
       }

@@ -210,7 +210,7 @@ const createAccount = () => {
 };
 
 (async () => {
-  // updateAllRule();
+  updateAllRule();
   // updateTokenIdleAge()
   // console.log(getAllAccount());
   // 示例用法
@@ -230,15 +230,6 @@ const createAccount = () => {
   // const awayReverseWeight = getTeamSameWeight(jcAwayTeam, hgHomeTeam);
   // const isNeedReverseTeam = homeReverseWeight > homeWeight && awayReverseWeight > awayWeight;
   // console.log({ homeWeight, homeReverseWeight, awayReverseWeight, awayWeight, isNeedReverseTeam });
-  console.log(getLeagueSameWeight('韩国K乙级联赛', '韩国职业联赛'));
-  const a = isXml(`<?xml
-version="1.0" encoding="UTF-8"?>
-<serverresponse>
-    <code>error</code>
-    <msg>doubleLogin</msg>
-</serverresponse>
-`)
-console.log(a);
   // saveAllStaticFile([
   //   ...Object.entries({
   //     'chunk-07711831': '638799a4',
