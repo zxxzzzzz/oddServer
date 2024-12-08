@@ -59,7 +59,7 @@ const updateAllRule = () => {
         })
         .flat()
         .filter((v) => !!v),
-      { noCache: true }
+      { disableCache: true }
     );
     console.log('update');
   }

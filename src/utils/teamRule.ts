@@ -6,7 +6,7 @@ import path from 'path';
 const FILE_PATH = path.resolve(__dirname, '../../rule/teamRule.csv');
 const CSV_HEAD = ['jcLeague', 'jcTeam', 'hgLeague', 'hgTeam', 'weight'] as const;
 
-export const updateTeamRuleList = (ruleList: TeamRule[], op = { noCache: false }) => {
+export const updateTeamRuleList = (ruleList: TeamRule[], op = { disableCache: false }) => {
   const newRuleList: TeamRule[] = ruleList;
   const oldRuleList = getTeamRuleList(op);
   const itemList = zipBy([...newRuleList, ...oldRuleList], (item) => item.jcLeague + ',' + item.jcTeam)
@@ -48,8 +48,8 @@ export const updateTeamRuleList = (ruleList: TeamRule[], op = { noCache: false }
 const getTeamRuleList = (() => {
   let readFromCsvTimestamp = 0;
   let cachedTeamRule: TeamRule[] = [];
-  return (op = { noCache: false }) => {
-    if (cachedTeamRule?.length && !op.noCache && new Date().valueOf() - readFromCsvTimestamp <= 1000 * 10) return cachedTeamRule;
+  return (op = { disableCache: false }) => {
+    if (cachedTeamRule?.length && !op.disableCache && new Date().valueOf() - readFromCsvTimestamp <= 1000 * 10) return cachedTeamRule;
     if (!existsSync(FILE_PATH)) return [];
     const ruleList = readFileSync(FILE_PATH, { encoding: 'utf-8' })
       .replace(/\r\n/g, '\n')
@@ -78,9 +78,11 @@ const getTeamRuleList = (() => {
 /**获取队伍相似度权重 */
 export const getTeamSameWeight = (teamName1: string, teamName2: string) => {
   const teamRuleList = getTeamRuleList();
-  const matchedRule = teamRuleList.find((r) => {
+  const filteredRuleList = teamRuleList.filter(r => r.jcTeam === teamName1 || r.jcTeam === teamName2)
+  if(!filteredRuleList.length) return getStrSameWeight(teamName1, teamName2);
+  const matchedRule = filteredRuleList.find((r) => {
     return (r.jcTeam === teamName1 && r.hgTeam === teamName2) || (r.jcTeam === teamName2 && r.hgTeam === teamName1);
   });
   if (matchedRule) return toNumber(matchedRule.weight);
-  return getStrSameWeight(teamName1, teamName2);
+  return 0
 };
