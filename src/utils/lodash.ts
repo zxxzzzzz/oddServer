@@ -319,7 +319,11 @@ export const toFixNumber = (num: number, fixCount: number) => {
   if (!num) return 0;
   return parseFloat(num.toFixed(fixCount));
 };
-export const toNumber = (v: string | number) => {
+
+/**把字符串转换为number */
+export const toNumber = (v: string | number | boolean) => {
+  if (v === true) return 1;
+  if (v === false) return 0;
   if (typeof v === 'number') return v;
   if (v === 'J3') return 3;
   if (v === 'J2') return 2;
@@ -421,7 +425,11 @@ export const getLeagueSameWeight = (leagueName1: string, leagueName2: string) =>
   return getStrSameWeight(l1, l2);
 };
 
-/**把 2/5 = (2+5)/2 */
+/**
+ * @param isNegative - 是否负数
+ * 把 2/5 = (2+5)/2
+ *
+ */
 export const getRatioAvg = (str: string, isNegative: boolean) => {
   if (!str) return '-';
   if (str === '-') return '-';
@@ -500,4 +508,28 @@ export function zipBy<T>(array: T[], iteratee: (item: T) => string): Array<{ key
 export function isXml(text: string): boolean {
   // 使用正则表达式匹配文本
   return text.startsWith('<?xml');
+}
+
+/**
+ * 交换对象中指定字段的值。
+ *
+ * @param obj - 要操作的对象
+ * @param mappings - 包含键映射的数组
+ * @returns 修改后的对象
+ */
+export function swapFields<T extends { [key: string]: any }>(obj: T, mappings: { k1: keyof T; k2: keyof T }[]): T {
+  // 创建对象的浅拷贝以避免修改原始对象
+  const result = { ...obj };
+  // 遍历每个映射并交换相应的字段值
+  for (const { k1, k2 } of mappings) {
+    // 检查字段是否存在
+    if (!(k1 in result) || !(k2 in result)) {
+      continue;
+    }
+    // 交换字段值
+    const temp = result[k1];
+    result[k1] = result[k2];
+    result[k2] = temp;
+  }
+  return result;
 }

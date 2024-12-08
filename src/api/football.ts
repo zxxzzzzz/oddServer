@@ -4,7 +4,6 @@ import { cuFetch } from './request.ts';
 import { delay, objToFormData } from './utils.ts';
 import Convert from 'xml-js';
 import { GameList, GameMore, GameOBT } from '../type/index.ts';
-import { JCInfo } from '../type/index.ts';
 import { isXml, toAsyncTimeFunction } from '../utils/lodash.ts';
 
 const RETRY_DELAY = 1000 * 10;
@@ -311,8 +310,9 @@ export const getHGGameMore = toAsyncTimeFunction(
   }
 );
 
+/**二串一 */
 export const getJCInfoList = toAsyncTimeFunction(
-  async function (): Promise<JCInfo[] | undefined> {
+  async function (): Promise<any> {
     const res = await cuFetch(
       'https://webapi.sporttery.cn/gateway/jc/football/getMatchCalculatorV1.qry?poolCode=hhad,had,ttg,hafu&channel=c',
       {
@@ -342,48 +342,7 @@ export const getJCInfoList = toAsyncTimeFunction(
       return getJCInfoList();
     }
     const data = JSON.parse(text);
-    const matchInfoList = data?.value?.matchInfoList as any[];
-    const JCInfoList = (matchInfoList ?? [])
-      .map((info: any) => info.subMatchList)
-      .flat()
-      .map((match: any) => {
-        return {
-          matchId: `${match?.matchId}`,
-          leagueAbbName: match?.leagueAbbName ?? '',
-          leagueAllName: match?.leagueAllName ?? '',
-          leagueCode: match?.leagueCode ?? '',
-          matchNumStr: match?.matchNumStr ?? '',
-          matchDate: match?.matchDate ?? '',
-          matchTime: match?.matchTime ?? '',
-          matchTimeFormat: `${match?.matchDate} ${match?.matchTime}`,
-          homeTeamAbbName: match?.homeTeamAbbName ?? '',
-          homeTeamAllName: match?.homeTeamAllName ?? '',
-          awayTeamAbbName: match?.awayTeamAbbName ?? '',
-          awayTeamAllName: match?.awayTeamAllName ?? '',
-          isSingle_had: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HAD')?.single?.toString?.() ?? '',
-          isSingle_hhad: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HHAD')?.single?.toString?.() ?? '',
-          had_a: match?.had?.a ?? '',
-          had_h: match?.had?.h ?? '',
-          had_d: match?.had?.d ?? '',
-          hhad_a: match?.hhad?.a ?? '',
-          hhad_h: match?.hhad?.h ?? '',
-          hhad_d: match?.hhad?.d ?? '',
-          hhad_goalLine: match?.hhad?.goalLine ?? '',
-          hafu_aa: match?.hafu?.aa ?? '',
-          hafu_ad: match?.hafu?.ad ?? '',
-          hafu_ah: match?.hafu?.ah ?? '',
-          hafu_da: match?.hafu?.da ?? '',
-          hafu_dd: match?.hafu?.dd ?? '',
-          hafu_dh: match?.hafu?.dh ?? '',
-          hafu_ha: match?.hafu?.ha ?? '',
-          hafu_hd: match?.hafu?.hd ?? '',
-          hafu_hh: match?.hafu?.hh ?? '',
-          updateTime: new Date().toISOString(),
-          createdAt: match?.createdAt ?? '',
-          updatedAt: new Date().toISOString(),
-        };
-      });
-    return JCInfoList as JCInfo[];
+    return data
   },
   { tag: 'getJCInfoList', desc: '' }
 );

@@ -1,10 +1,10 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { BETTING_RESULT, GlobalOptions, GoalLine, SinRule, Result, SinInfo, DataOfSinInfo, HGInfo, JCInfo, } from '../type/index.ts';
 import { everyWithTolerance, range, uniqBy, getGaussElimination, toFixNumber, toNumber } from './index.ts';
 import path from 'path';
 import { getMethod } from './methodRule.ts';
 
-let GlobalGoalLineRuleList: SinRule[] = [];
+let GlobalSinRuleList: SinRule[] = [];
 const FILE_PATH = path.resolve(import.meta.dirname || './', '../../rule/sinRule.csv');
 const CSV_HEAD = ['jcGoalLine1', 'jcResult1', 'jcGoalLine2', 'jcResult2', 'hgGoalLine1', 'hgResult1', 'hgGoalLine2', 'hgResult2'] as const;
 
@@ -72,7 +72,8 @@ export const updateSinRuleList = (sinDataList: SinInfo[]) => {
 };
 
 export const getSinRuleList = () => {
-  if (GlobalGoalLineRuleList?.length) return GlobalGoalLineRuleList;
+  if (GlobalSinRuleList?.length) return GlobalSinRuleList;
+  if (!existsSync(FILE_PATH)) return [];
   const ruleList = readFileSync(FILE_PATH, { encoding: 'utf-8' })
     .replace(/\r\n/g, '\n')
     .split('\n')
@@ -86,8 +87,8 @@ export const getSinRuleList = () => {
         return {...re, [key]:v}
       }, {} as SinRule)
     });
-  GlobalGoalLineRuleList = ruleList;
-  return GlobalGoalLineRuleList;
+  GlobalSinRuleList = ruleList;
+  return GlobalSinRuleList;
 };
 
 /**把goal分割成一个二维数组，可以用来方便处理 x.25 x.75的情况 */

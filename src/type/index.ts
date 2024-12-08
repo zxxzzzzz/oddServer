@@ -4254,6 +4254,23 @@ export type HGHhafu = {
   hhafu_a4: string;
 };
 
+export type HGHilo = {
+  hilo_goalLine1: string;
+  hilo_a1: string;
+  hilo_h1: string;
+  hilo_goalLine2: string;
+  hilo_a2: string;
+  hilo_h2: string;
+  hilo_goalLine3: string;
+  hilo_a3: string;
+  hilo_h3: string;
+  hilo_goalLine4: string;
+  hilo_a4: string;
+  hilo_h4: string;
+  hilo_goalLine5: string;
+  hilo_a5: string;
+  hilo_h5: string;
+};
 export type HGInfo = {
   matchId: string;
   isTeamReversed: boolean;
@@ -4292,7 +4309,8 @@ export type HGInfo = {
   /** 和updateTime等价 ISO格式*/
   updatedAt: string;
 } & HGHhad &
-  HGHhafu;
+  HGHhafu &
+  HGHilo;
 
 export type JCInfo = {
   matchId: string;
@@ -4332,6 +4350,17 @@ export type JCInfo = {
   hafu_ha: string;
   hafu_hd: string;
   hafu_hh: string;
+
+  isSingle_ttg: string;
+  ttg_s0: string;
+  ttg_s1: string;
+  ttg_s2: string;
+  ttg_s3: string;
+  ttg_s4: string;
+  ttg_s5: string;
+  ttg_s6: string;
+  ttg_s7: string;
+
   updateTime: string;
   createdAt: string;
   updatedAt: string;
@@ -4413,6 +4442,20 @@ export type SinRule = {
   hgGoalLine2: GoalLine;
   hgResult2: Result;
 };
+export type TotalRule = {
+  jcTotal0: boolean;
+  jcTotal1: boolean;
+  jcTotal2: boolean;
+  jcTotal3: boolean;
+  jcTotal4: boolean;
+  jcTotal5: boolean;
+  jcTotal6: boolean;
+  jcTotal7: boolean;
+  hgGoalLine1: GoalLine;
+  hgResult1: 'X' | 'D';
+  hgGoalLine2: GoalLine;
+  hgResult2: 'X' | 'D';
+};
 export type Method = 'WL' | 'WLD1' | 'WLD2' | 'LH1' | 'LH2' | 'LH3' | 'WH1' | 'WH2' | 'WH3' | 'D1' | 'D2' | 'D3';
 export type MethodRule = {
   method: Method;
@@ -4463,6 +4506,41 @@ export type SinInfo = {
   HGgoalLine: GoalLine;
   rule: SinRule;
   data: DataOfSinInfo;
+};
+export type GoalInfo = {
+  matchId: string;
+  data: DataOfGoal;
+};
+export type DataOfGoal = {
+  JCTzAmt0: number;
+  JCTzOdds0: number;
+  JCTzAmt1: number;
+  JCTzOdds1: number;
+  JCTzAmt2: number;
+  JCTzOdds2: number;
+  JCTzAmt3: number;
+  JCTzOdds3: number;
+  JCTzAmt4: number;
+  JCTzOdds4: number;
+  JCTzAmt5: number;
+  JCTzOdds5: number;
+  JCTzAmt6: number;
+  JCTzOdds6: number;
+  JCTzAmt7: number;
+  JCTzOdds7: number;
+  HGTouz1: 'D' | 'X';
+  HGTouz2: 'D' | 'X';
+  HGgoalLine1: GoalLine;
+  HGgoalLine2: GoalLine;
+  HGTzAmt1: number;
+  HGTzAmt2: number;
+  HGTzOdds1: number;
+  HGTzOdds2: number;
+  consult: 'HG';
+  profit: number;
+  profitRate: `${number}%`;
+  ttgTzAmt: number;
+  JCTotalAmt: number;
 };
 
 export type ChuanInfo = {

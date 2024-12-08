@@ -1,8 +1,8 @@
 {
   "tasks": {
     "dev": "deno run --watch main.ts",
-    "data": "deno run -A --unsafely-ignore-certificate-errors ./src/main/updateState.ts",
-    "http": "deno run -A --unsafely-ignore-certificate-errors --env-file=.env ./src/main/httpServer.ts"
+    "data": "deno run -A --unsafely-ignore-certificate-errors --env-file=.env ./src/main/updateState.ts",
+    "http": "deno run -A ./src/main/httpServer.ts"
   },
   "imports": {
     "fs": "node:fs",

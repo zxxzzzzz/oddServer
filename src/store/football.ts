@@ -1,5 +1,5 @@
 import { getHGLeagueListAll, getHGGameList, getJCInfoList, getHGGameMore } from '../api/football.ts';
-import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type/index.ts';
+import { GlobalOptions, HGHhad, HGHhafu, HGHilo, HGInfo, JCInfo, SinInfo } from '../type/index.ts';
 import {
   getLeagueSameWeight,
   getRatioAvg,
@@ -11,6 +11,7 @@ import {
   getChuanInfoBySinInfo,
   getChuanRuleList,
   toAsyncTimeFunction,
+  swapFields,
 } from '../utils/index.ts';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import stringify from 'json-stringify-pretty-compact';
@@ -70,8 +71,60 @@ export const GlobalFootballState: {
 
 /** 更新jcInfo数据 */
 export const updateJCInfoList = async () => {
-  const jcInfoList = await getJCInfoList();
-  if (!jcInfoList) return;
+  const data = await getJCInfoList();
+  if (!data) return;
+  const matchInfoList = data?.value?.matchInfoList as any[];
+  const jcInfoList = (matchInfoList ?? [])
+    .map((info: any) => info.subMatchList)
+    .flat()
+    .map((match: any) => {
+      return {
+        matchId: `${match?.matchId}`,
+        leagueAbbName: match?.leagueAbbName ?? '',
+        leagueAllName: match?.leagueAllName ?? '',
+        leagueCode: match?.leagueCode ?? '',
+        matchNumStr: match?.matchNumStr ?? '',
+        matchDate: match?.matchDate ?? '',
+        matchTime: match?.matchTime ?? '',
+        matchTimeFormat: `${match?.matchDate} ${match?.matchTime}`,
+        homeTeamAbbName: match?.homeTeamAbbName ?? '',
+        homeTeamAllName: match?.homeTeamAllName ?? '',
+        awayTeamAbbName: match?.awayTeamAbbName ?? '',
+        awayTeamAllName: match?.awayTeamAllName ?? '',
+        isSingle_had: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HAD')?.single?.toString?.() ?? '',
+        isSingle_hhad: (match?.poolList || []).find((pool: any) => pool.poolCode === 'HHAD')?.single?.toString?.() ?? '',
+        had_a: match?.had?.a ?? '',
+        had_h: match?.had?.h ?? '',
+        had_d: match?.had?.d ?? '',
+        hhad_a: match?.hhad?.a ?? '',
+        hhad_h: match?.hhad?.h ?? '',
+        hhad_d: match?.hhad?.d ?? '',
+        hhad_goalLine: match?.hhad?.goalLine ?? '',
+        hafu_aa: match?.hafu?.aa ?? '',
+        hafu_ad: match?.hafu?.ad ?? '',
+        hafu_ah: match?.hafu?.ah ?? '',
+        hafu_da: match?.hafu?.da ?? '',
+        hafu_dd: match?.hafu?.dd ?? '',
+        hafu_dh: match?.hafu?.dh ?? '',
+        hafu_ha: match?.hafu?.ha ?? '',
+        hafu_hd: match?.hafu?.hd ?? '',
+        hafu_hh: match?.hafu?.hh ?? '',
+
+        isSingle_ttg: (match?.poolList || []).find((pool: any) => pool.poolCode === 'TTG')?.single?.toString?.() ?? '',
+        ttg_s0: match?.ttg?.s0,
+        ttg_s1: match?.ttg?.s1,
+        ttg_s2: match?.ttg?.s2,
+        ttg_s3: match?.ttg?.s3,
+        ttg_s4: match?.ttg?.s4,
+        ttg_s5: match?.ttg?.s5,
+        ttg_s6: match?.ttg?.s6,
+        ttg_s7: match?.ttg?.s0,
+
+        updateTime: new Date().toISOString(),
+        createdAt: match?.createdAt ?? '',
+        updatedAt: new Date().toISOString(),
+      };
+    });
   GlobalFootballState.JCInfoListUpdateTime = new Date().toISOString();
   GlobalFootballState.JCInfoList = jcInfoList.map((JCInfo) => {
     return {
@@ -183,7 +236,6 @@ export const updateHGGameList = async () => {
   GlobalFootballState.filteredHGGameList = toUpdateHgMatchList;
 };
 
-
 export const updateHgInfoList = toAsyncTimeFunction(
   async () => {
     if (!GlobalFootballState.JCInfoList?.length) return [];
@@ -199,7 +251,7 @@ export const updateHgInfoList = toAsyncTimeFunction(
         return void 0;
       }
       const gameList = Array.isArray(gameMore?.serverresponse?.game ?? [])
-        ? (gameMore?.serverresponse?.game ?? [])
+        ? gameMore?.serverresponse?.game ?? []
         : ([gameMore?.serverresponse?.game] as unknown as typeof gameMore.serverresponse.game);
       const normalPtypeGameMore = gameList.filter((item) => !item?.ptype?._text);
 
@@ -213,132 +265,119 @@ export const updateHgInfoList = toAsyncTimeFunction(
       const awayReverseWeight = getTeamSameWeight(jcAwayTeam, hgHomeTeam);
       // 是否需要逆转 主队 客队
       const needReverseTeam = homeReverseWeight > homeWeight && awayReverseWeight > awayWeight;
-      let hgInfo: HGInfo | undefined = void 0;
+      let hgInfo: HGInfo = {
+        matchId: match.jcMatchId,
+        isTeamReversed: needReverseTeam,
+        leagueAbbName: normalPtypeGameMore?.[0]?.league?._text || '',
+        leagueAllName: normalPtypeGameMore?.[0]?.league?._text || '',
+        leagueCode: '',
+        matchNumStr: '',
+        matchDate: '',
+        matchTime: '',
+        matchTimeFormat: normalPtypeGameMore?.[0]?.datetime?._text || '',
+        homeTeamAbbName: normalPtypeGameMore?.[0]?.team_h?._text || '',
+        homeTeamAllName: normalPtypeGameMore?.[0]?.team_h?._text || '',
+        awayTeamAbbName: normalPtypeGameMore?.[0]?.team_c?._text || '',
+        awayTeamAllName: normalPtypeGameMore?.[0]?.team_c?._text || '',
+        // 负
+        had_a: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MC?._text || ''),
+        // 胜
+        had_h: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MH?._text || ''),
+        // 平
+        had_d: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MN?._text || ''),
+        ...[0, 1, 2, 3, 4, 5].reduce((re, curIndex) => {
+          const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
+          const hhad_a = strFixed(normalPtypeGameMore[curIndex]?.ior_PRC?._text || '');
+          const hhad_h = strFixed(normalPtypeGameMore[curIndex]?.ior_PRH?._text || '');
+          return {
+            ...re,
+            [`hhad_a${curIndex + 1}`]: hhad_a,
+            [`hhad_h${curIndex + 1}`]: hhad_h,
+            [`hhad_d${curIndex + 1}`]: '-',
+            [`hhad_goalLine${curIndex + 1}`]: !hhad_a
+              ? '-'
+              : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio?._text || '', isHStrong ? true : false),
+          };
+        }, {} as HGHhad),
+        wm_h1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH1?._text ?? ''),
+        wm_h2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH2?._text ?? ''),
+        wm_h3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH3?._text ?? ''),
+        wm_hov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMHOV?._text ?? ''),
+        wm_a1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC1?._text ?? ''),
+        wm_a2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC2?._text ?? ''),
+        wm_a3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC3?._text ?? ''),
+        wm_aov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMCOV?._text ?? ''),
+        wm_0: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WM0?._text ?? ''),
+        wm_n: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMN?._text ?? ''),
+        ...[0, 1, 2, 3].reduce((re, curIndex) => {
+          const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
+          const hhafu_h = normalPtypeGameMore[curIndex]?.ior_HPRH?._text || '';
+          const hhafu_a = normalPtypeGameMore[curIndex]?.ior_HPRC?._text || '';
+          return {
+            ...re,
+            [`hhafu_goalLine${curIndex + 1}`]: !hhafu_h
+              ? '-'
+              : getRatioAvg(normalPtypeGameMore[curIndex]?.hratio?._text || '', isHStrong ? true : false),
+            [`hhafu_h${curIndex + 1}`]: strFixed(hhafu_h),
+            [`hhafu_a${curIndex + 1}`]: strFixed(hhafu_a),
+          };
+        }, {} as HGHhafu),
+        ...[0, 1, 2, 3, 4].reduce((re, curIndex) => {
+          const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
+          const hilo_h = normalPtypeGameMore[curIndex]?.ior_POUC?._text || '';
+          const hilo_a = normalPtypeGameMore[curIndex]?.ior_POUH?._text || '';
+          return {
+            ...re,
+            [`hilo_goalLine${curIndex + 1}`]: !hilo_h
+              ? '-'
+              : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio_o?._text || '', isHStrong ? false : true),
+            [`hilo_h${curIndex + 1}`]: strFixed(hilo_h),
+            [`hilo_a${curIndex + 1}`]: strFixed(hilo_a),
+          };
+        }, {} as HGHilo),
+        updateTime: new Date().toISOString(),
+        createdAt: GlobalFootballState.HGInfoList.find((info) => info.matchId === match.jcMatchId)?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
       if (needReverseTeam) {
-        hgInfo = {
-          matchId: match.jcMatchId,
-          isTeamReversed: needReverseTeam,
-          leagueAbbName: normalPtypeGameMore?.[0]?.league?._text || '',
-          leagueAllName: normalPtypeGameMore?.[0]?.league?._text || '',
-          leagueCode: '',
-          matchNumStr: '',
-          matchDate: '',
-          matchTime: '',
-          matchTimeFormat: normalPtypeGameMore?.[0]?.datetime?._text || '',
-          homeTeamAbbName: normalPtypeGameMore?.[0]?.team_c?._text || '',
-          homeTeamAllName: normalPtypeGameMore?.[0]?.team_c?._text || '',
-          awayTeamAbbName: normalPtypeGameMore?.[0]?.team_h?._text || '',
-          awayTeamAllName: normalPtypeGameMore?.[0]?.team_h?._text || '',
-          // 负
-          had_a: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MH?._text || ''),
-          // 胜
-          had_h: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MC?._text || ''),
-          // 平
-          had_d: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MN?._text || ''),
-          ...[0, 1, 2, 3, 4, 5].reduce((re, curIndex) => {
-            const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'C';
-            const hhad_a = strFixed(normalPtypeGameMore[curIndex]?.ior_PRH?._text || '');
-            const hhad_h = strFixed(normalPtypeGameMore[curIndex]?.ior_PRC?._text || '');
-            return {
-              ...re,
-              [`hhad_a${curIndex + 1}`]: hhad_a,
-              [`hhad_h${curIndex + 1}`]: hhad_h,
-              [`hhad_d${curIndex + 1}`]: '-',
-              [`hhad_goalLine${curIndex + 1}`]: !hhad_a
-                ? '-'
-                : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio?._text || '', isHStrong ? true : false),
-            };
-          }, {} as HGHhad),
-          wm_h1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC1?._text ?? ''),
-          wm_h2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC2?._text ?? ''),
-          wm_h3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC3?._text ?? ''),
-          wm_hov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMCOV?._text ?? ''),
-          wm_a1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH1?._text ?? ''),
-          wm_a2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH2?._text ?? ''),
-          wm_a3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH3?._text ?? ''),
-          wm_aov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMHOV?._text ?? ''),
-          wm_0: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WM0?._text ?? ''),
-          wm_n: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMN?._text ?? ''),
-          ...[0, 1, 2, 3].reduce((re, curIndex) => {
-            const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'C';
-            const hhafu_h = normalPtypeGameMore[curIndex]?.ior_HPRC?._text || '';
-            const hhafu_a = normalPtypeGameMore[curIndex]?.ior_HPRH?._text || '';
-            return {
-              ...re,
-              [`hhafu_goalLine${curIndex + 1}`]: !hhafu_h
-                ? '-'
-                : getRatioAvg(normalPtypeGameMore[curIndex]?.hratio?._text || '', isHStrong ? true : false),
-              [`hhafu_h${curIndex + 1}`]: strFixed(hhafu_h),
-              [`hhafu_a${curIndex + 1}`]: strFixed(hhafu_a),
-            };
-          }, {} as HGHhafu),
-          updateTime: new Date().toISOString(),
-          createdAt: GlobalFootballState.HGInfoList.find((info) => info.matchId === match.jcMatchId)?.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-      }
-      if (!needReverseTeam) {
-        hgInfo = {
-          matchId: match.jcMatchId,
-          isTeamReversed: needReverseTeam,
-          leagueAbbName: normalPtypeGameMore?.[0]?.league?._text || '',
-          leagueAllName: normalPtypeGameMore?.[0]?.league?._text || '',
-          leagueCode: '',
-          matchNumStr: '',
-          matchDate: '',
-          matchTime: '',
-          matchTimeFormat: normalPtypeGameMore?.[0]?.datetime?._text || '',
-          homeTeamAbbName: normalPtypeGameMore?.[0]?.team_h?._text || '',
-          homeTeamAllName: normalPtypeGameMore?.[0]?.team_h?._text || '',
-          awayTeamAbbName: normalPtypeGameMore?.[0]?.team_c?._text || '',
-          awayTeamAllName: normalPtypeGameMore?.[0]?.team_c?._text || '',
-          // 负
-          had_a: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MC?._text || ''),
-          // 胜
-          had_h: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MH?._text || ''),
-          // 平
-          had_d: strFixed(normalPtypeGameMore.find((item) => (item?.sw_M?._text ?? '').toUpperCase() === 'Y')?.ior_MN?._text || ''),
-          ...[0, 1, 2, 3, 4, 5].reduce((re, curIndex) => {
-            const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
-            const hhad_a = strFixed(normalPtypeGameMore[curIndex]?.ior_PRC?._text || '');
-            const hhad_h = strFixed(normalPtypeGameMore[curIndex]?.ior_PRH?._text || '');
-            return {
-              ...re,
-              [`hhad_a${curIndex + 1}`]: hhad_a,
-              [`hhad_h${curIndex + 1}`]: hhad_h,
-              [`hhad_d${curIndex + 1}`]: '-',
-              [`hhad_goalLine${curIndex + 1}`]: !hhad_a
-                ? '-'
-                : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio?._text || '', isHStrong ? true : false),
-            };
-          }, {} as HGHhad),
-          wm_h1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH1?._text ?? ''),
-          wm_h2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH2?._text ?? ''),
-          wm_h3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMH3?._text ?? ''),
-          wm_hov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMHOV?._text ?? ''),
-          wm_a1: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC1?._text ?? ''),
-          wm_a2: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC2?._text ?? ''),
-          wm_a3: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMC3?._text ?? ''),
-          wm_aov: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMCOV?._text ?? ''),
-          wm_0: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WM0?._text ?? ''),
-          wm_n: strFixed(normalPtypeGameMore.find((item) => (item?.sw_WM?._text ?? '').toUpperCase() === 'Y')?.ior_WMN?._text ?? ''),
-          ...[0, 1, 2, 3].reduce((re, curIndex) => {
-            const isHStrong = (normalPtypeGameMore?.[curIndex]?.strong?._text ?? '').toUpperCase() === 'H';
-            const hhafu_h = normalPtypeGameMore[curIndex]?.ior_HPRH?._text || '';
-            const hhafu_a = normalPtypeGameMore[curIndex]?.ior_HPRC?._text || '';
-            return {
-              ...re,
-              [`hhafu_goalLine${curIndex + 1}`]: !hhafu_h
-                ? '-'
-                : getRatioAvg(normalPtypeGameMore[curIndex]?.hratio?._text || '', isHStrong ? true : false),
-              [`hhafu_h${curIndex + 1}`]: strFixed(hhafu_h),
-              [`hhafu_a${curIndex + 1}`]: strFixed(hhafu_a),
-            };
-          }, {} as HGHhafu),
-          updateTime: new Date().toISOString(),
-          createdAt: GlobalFootballState.HGInfoList.find((info) => info.matchId === match.jcMatchId)?.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
+        hgInfo = swapFields(hgInfo, [
+          { k1: 'homeTeamAbbName', k2: 'awayTeamAbbName' },
+          { k1: 'homeTeamAllName', k2: 'awayTeamAllName' },
+          { k1: 'had_a', k2: 'had_h' },
+          { k1: 'had_a', k2: 'had_h' },
+          { k1: `hhad_a1`, k2: `hhad_h1` },
+          { k1: `hhad_a2`, k2: `hhad_h2` },
+          { k1: `hhad_a3`, k2: `hhad_h3` },
+          { k1: `hhad_a4`, k2: `hhad_h4` },
+          { k1: `hhad_a5`, k2: `hhad_h5` },
+          { k1: `hhad_a6`, k2: `hhad_h6` },
+          { k1: `hhafu_a1`, k2: `hhafu_h1` },
+          { k1: `hhafu_a2`, k2: `hhafu_h2` },
+          { k1: `hhafu_a3`, k2: `hhafu_h3` },
+          { k1: `hhafu_a4`, k2: `hhafu_h4` },
+          { k1: `hilo_a1`, k2: `hilo_h1` },
+          { k1: `hilo_a2`, k2: `hilo_h2` },
+          { k1: `hilo_a3`, k2: `hilo_h3` },
+          { k1: `hilo_a4`, k2: `hilo_h4` },
+          { k1: `hilo_a5`, k2: `hilo_h5` },
+        ]);
+        hgInfo.hhad_goalLine1 = getRatioAvg(hgInfo.hhad_goalLine1, !hgInfo.hhad_goalLine1.startsWith('-'));
+        hgInfo.hhad_goalLine2 = getRatioAvg(hgInfo.hhad_goalLine2, !hgInfo.hhad_goalLine2.startsWith('-'));
+        hgInfo.hhad_goalLine3 = getRatioAvg(hgInfo.hhad_goalLine3, !hgInfo.hhad_goalLine3.startsWith('-'));
+        hgInfo.hhad_goalLine4 = getRatioAvg(hgInfo.hhad_goalLine4, !hgInfo.hhad_goalLine4.startsWith('-'));
+        hgInfo.hhad_goalLine5 = getRatioAvg(hgInfo.hhad_goalLine5, !hgInfo.hhad_goalLine5.startsWith('-'));
+        hgInfo.hhad_goalLine6 = getRatioAvg(hgInfo.hhad_goalLine6, !hgInfo.hhad_goalLine6.startsWith('-'));
+
+        hgInfo.hhafu_goalLine1 = getRatioAvg(hgInfo.hhafu_goalLine1, !hgInfo.hhafu_goalLine1.startsWith('-'));
+        hgInfo.hhafu_goalLine2 = getRatioAvg(hgInfo.hhafu_goalLine2, !hgInfo.hhafu_goalLine2.startsWith('-'));
+        hgInfo.hhafu_goalLine3 = getRatioAvg(hgInfo.hhafu_goalLine3, !hgInfo.hhafu_goalLine3.startsWith('-'));
+        hgInfo.hhafu_goalLine4 = getRatioAvg(hgInfo.hhafu_goalLine4, !hgInfo.hhafu_goalLine4.startsWith('-'));
+
+        hgInfo.hilo_goalLine1 = getRatioAvg(hgInfo.hilo_goalLine1, !hgInfo.hilo_goalLine1.startsWith('-'));
+        hgInfo.hilo_goalLine2 = getRatioAvg(hgInfo.hilo_goalLine2, !hgInfo.hilo_goalLine2.startsWith('-'));
+        hgInfo.hilo_goalLine3 = getRatioAvg(hgInfo.hilo_goalLine3, !hgInfo.hilo_goalLine3.startsWith('-'));
+        hgInfo.hilo_goalLine4 = getRatioAvg(hgInfo.hilo_goalLine4, !hgInfo.hilo_goalLine4.startsWith('-'));
+        hgInfo.hilo_goalLine5 = getRatioAvg(hgInfo.hilo_goalLine5, !hgInfo.hilo_goalLine5.startsWith('-'));
       }
       return hgInfo;
     });
@@ -408,11 +447,9 @@ export const saveFootballState = function () {
   const filePath = STATE_FILE_PATH;
   writeFileSync(filePath, stringify(GlobalFootballState), { encoding: 'utf-8' });
 };
-export const loadFootballState = function () {
+export const getFootballState = function (): typeof GlobalFootballState {
   const filePath = STATE_FILE_PATH;
-  if (!existsSync(filePath)) return;
+  if (!existsSync(filePath)) return GlobalFootballState;
   const content = readFileSync(filePath, { encoding: 'utf-8' });
-  Object.entries(JSON.parse(content)).forEach(([key, value]) => {
-    GlobalFootballState[key as keyof typeof GlobalFootballState] = value as any;
-  });
+  return JSON.parse(content);
 };

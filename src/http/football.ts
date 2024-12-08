@@ -1,12 +1,11 @@
 import { server } from './server.ts';
 import { GlobalOptions, GoalLine, Result } from '../type/index.ts';
-import { GlobalFootballState, getChuanInfoList, getSinInfoList, loadFootballState } from '../store/football.ts';
+import { getChuanInfoList, getSinInfoList, getFootballState } from '../store/football.ts';
 import { getChuanInfo, getSinData, maxBy, toNumber, zipBy } from '../utils/index.ts';
 import { isAccountVipExpired } from '../store/user.ts';
 import * as cookie from 'cookie';
 
 server.post('/api/water/getFootballData', async (req, res) => {
-  loadFootballState();
   const cookieObj = cookie.parse(req.header('cookie'));
   const isVipExpired = await isAccountVipExpired(cookieObj?.session_id || '');
   if (isVipExpired) {
@@ -16,6 +15,7 @@ server.post('/api/water/getFootballData', async (req, res) => {
     });
     return;
   }
+  const footballState = getFootballState();
   const body = req.body;
   const op: GlobalOptions = {
     JCPointSin: parseFloat(body.JCPointSin || '0.12'),
@@ -30,9 +30,9 @@ server.post('/api/water/getFootballData', async (req, res) => {
 
   const outMatch: string[] = body.outMatch || [];
   const inMatch: string[] = body.inMatch || [];
-  const JCInfos = GlobalFootballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
+  const JCInfos = footballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
   const jcMatchIdList = JCInfos.map((v) => v.matchId);
-  const HGInfos = GlobalFootballState.HGInfoList.filter((v) => jcMatchIdList.includes(v.matchId));
+  const HGInfos = footballState.HGInfoList.filter((v) => jcMatchIdList.includes(v.matchId));
   const sinData = getSinInfoList(JCInfos as any[], HGInfos as any[], op).filter((sinInfo) => {
     const jcBet = sinInfo.data.jcBet1 + sinInfo.data.jcBet2;
     const hgBet = sinInfo.data.hgBet1 + sinInfo.data.hgBet2;
@@ -281,9 +281,10 @@ server.post('/api/water/caculateChuan', (req, res, next) => {
 });
 
 server.get('/api/matchs/getMatchById', (req, res, next) => {
+  const footballState = getFootballState();
   const matchId = req.query?.matchId;
-  const jcInfo = GlobalFootballState.JCInfoList.find((v) => v.matchId === matchId);
-  const hgInfo = GlobalFootballState.HGInfoList.find((v) => v.matchId === matchId);
+  const jcInfo = footballState.JCInfoList.find((v) => v.matchId === matchId);
+  const hgInfo = footballState.HGInfoList.find((v) => v.matchId === matchId);
   res.send({
     success: true,
     data: {
@@ -292,4 +293,30 @@ server.get('/api/matchs/getMatchById', (req, res, next) => {
     },
   });
   next();
+});
+
+server.post('/api/water/getFtTotalGoal', async (req, res) => {
+  const cookieObj = cookie.parse(req.header('cookie'));
+  const isVipExpired = await isAccountVipExpired(cookieObj?.session_id || '');
+  if (isVipExpired) {
+    res.send(405, {
+      success: false,
+      error: 'vip过期，请重新登录',
+    });
+    return;
+  }
+  const footballState = getFootballState();
+  return {
+    success: true,
+    goalData: [],
+    HGInfos: footballState.HGInfoList,
+    JCInfos: footballState.JCInfoList,
+    watData: {
+      bsktList: [],
+      ftSinList: [],
+      ftChuanList: [],
+      fttgList: [],
+      bqcList: [],
+    },
+  };
 });
