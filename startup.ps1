@@ -7,8 +7,8 @@ $projectPath = "D:\oddServer"
 
 # 启动一个新的 PowerShell 窗口并运行 npm start
 Write-Output "Starting npm start in a new terminal window..."
-Start-Process powershell.exe -ArgumentList "-NoExit", "-Command `"cd '$projectPath'; npm run data`""
+Start-Process powershell.exe -ArgumentList "-NoExit", "-Command `"cd '$projectPath'; deno task data`""
 
 # 启动一个新的 PowerShell 窗口并运行 npm install
 Write-Output "Starting npm install in a new terminal window..."
-Start-Process powershell.exe -ArgumentList "-NoExit", "-Command `"cd '$projectPath'; npm run http`""
+Start-Process powershell.exe -ArgumentList "-NoExit", "-Command `"cd '$projectPath'; deno task http`""

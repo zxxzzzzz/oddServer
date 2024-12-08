@@ -1,11 +1,11 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
-import { User } from '../type/index';
+import { User } from '../type/index.ts';
 import { resolve } from 'path';
 import stringify from 'json-stringify-pretty-compact';
 
 let GlobalUserInfo: { userList: User[] } = { userList: [] };
-const STATE_FILE_PATH = resolve(__dirname, '../../persistentState/user.json');
+const STATE_FILE_PATH = resolve(import.meta.dirname || './', '../../persistentState/user.json');
 
 async function getAccountList() {
   if (GlobalUserInfo.userList.length) return GlobalUserInfo.userList;
@@ -19,7 +19,7 @@ export async function updateAccountBySessionId(sessionId: string, data: Partial<
   if (user) {
     (Object.keys(data) as (keyof User)[]).forEach((k) => {
       const v = data[k];
-      // @ts-expect-error
+      // @ts-expect-error kkk
       user[k] = v;
     });
     await saveUser();

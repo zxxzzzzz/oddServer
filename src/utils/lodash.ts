@@ -31,30 +31,6 @@ export function range(start: number, end?: number, step: number = 1): number[] {
   return result;
 }
 
-/**
- * 将数组分割成多个指定大小的子数组。
- *
- * @param {T[]} array - 要分割的原始数组。
- * @param {number} size - 每个子数组的最大长度。
- * @returns {T[][]} 分割后的子数组组成的数组。
- *
- * @example
- * chunk([1, 2, 3, 4, 5], 2); // 返回 [[1, 2], [3, 4], [5]]
- * chunk(['a', 'b', 'c', 'd'], 3); // 返回 [['a', 'b', 'c'], ['d']]
- * chunk([], 1); // 返回 []
- */
-function chunk<T>(array: T[], size: number): T[][] {
-  if (size <= 0) {
-    throw new Error('Size must be a positive integer.');
-  }
-
-  const result: T[][] = [];
-  for (let i = 0; i < array.length; i += size) {
-    result.push(array.slice(i, i + size));
-  }
-  return result;
-}
-
 export function uniqBy<T, U>(array: T[], iteratee: (value: T) => U): T[] {
   if (!Array.isArray(array)) {
     throw new TypeError('Expected an array');
@@ -114,7 +90,7 @@ export function minBy<T>(array: T[], iteratee: (value: T) => number | string): T
 export function getLogFilePath(fileName: string) {
   let filePath = range(0, 100)
     .map((i) => {
-      return path.resolve(__dirname, `../../log/${fileName}-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
+      return path.resolve(import.meta.dirname || './', `../../log/${fileName}-${dayjs().format('YYYY-MM-DD')}-p${i}.csv`);
     })
     .find((filePath) => {
       if (!existsSync(filePath)) return true;
@@ -122,7 +98,7 @@ export function getLogFilePath(fileName: string) {
       return false;
     });
   if (!filePath) {
-    filePath = path.resolve(__dirname, `../../log/${fileName}-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
+    filePath = path.resolve(import.meta.dirname || './', `../../log/${fileName}-${dayjs().format('YYYY-MM-DD')}-p101.csv`);
   }
   return filePath;
 }
@@ -155,7 +131,7 @@ export function toAsyncTimeFunction<T extends (...args: any[]) => any>(
 }
 
 export function warnLog(text: string) {
-  const filePath = path.resolve(__dirname, '../../log/warn.csv');
+  const filePath = path.resolve(import.meta.dirname || './', '../../log/warn.csv');
   if (!existsSync(filePath)) {
     writeFileSync(filePath, `date, description\n`, { encoding: 'utf-8' });
   }
@@ -165,7 +141,7 @@ export function warnLog(text: string) {
   });
 }
 export function errorLog(text: string) {
-  const filePath = path.resolve(__dirname, '../../log/error.csv');
+  const filePath = path.resolve(import.meta.dirname || './', '../../log/error.csv');
   if (!existsSync(filePath)) {
     writeFileSync(filePath, `date, description\n`, { encoding: 'utf-8' });
   }
@@ -196,25 +172,6 @@ export function toFifoFunction<T extends (...args: any[]) => Promise<any>>(fn: T
   };
 }
 
-/**
- * 从对象中移除满足条件的属性
- *
- * @param object - 要处理的对象
- * @param predicate - 判断函数，返回 true 表示该属性应该被移除
- * @returns 新的对象，不包含满足条件的属性
- */
-function omitBy<T>(object: Record<string, T>, predicate: (value: T, key: string, object: Record<string, T>) => boolean): Record<string, T> {
-  const result: Record<string, T> = {};
-
-  for (const [key, value] of Object.entries(object)) {
-    if (!predicate(value, key, object)) {
-      result[key] = value;
-    }
-  }
-
-  return result;
-}
-
 export function pickBy<T>(
   object: Record<string, T>,
   predicate: (value: T, key: string, object: Record<string, T>) => boolean
@@ -222,7 +179,7 @@ export function pickBy<T>(
   const result: Record<string, T> = {};
 
   for (const key in object) {
-    if (object.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(object, key)) {
       const value = object[key];
       if (predicate(value, key, object)) {
         result[key] = value;
@@ -464,8 +421,6 @@ export const getLeagueSameWeight = (leagueName1: string, leagueName2: string) =>
   return getStrSameWeight(l1, l2);
 };
 
-
-
 /**把 2/5 = (2+5)/2 */
 export const getRatioAvg = (str: string, isNegative: boolean) => {
   if (!str) return '-';
@@ -533,7 +488,7 @@ export function zipBy<T>(array: T[], iteratee: (item: T) => string): Array<{ key
 
   // 遍历 result 对象，将每个分组键和对应的分组值构建成一个对象，并将其推入 output 数组中
   for (const key in result) {
-    if (result.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(result, key)) {
       output.push({ key: key as string, value: result[key] });
     }
   }
@@ -541,7 +496,6 @@ export function zipBy<T>(array: T[], iteratee: (item: T) => string): Array<{ key
   // 返回分组后的结果数组
   return output;
 }
-
 
 export function isXml(text: string): boolean {
   // 使用正则表达式匹配文本

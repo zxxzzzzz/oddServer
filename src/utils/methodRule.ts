@@ -1,10 +1,10 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { GoalLine, MethodRule, Result, SinInfo } from '../type/index';
-import { toNumber, uniqBy } from './index';
+import { GoalLine, MethodRule, Result, SinInfo } from '../type/index.ts';
+import { toNumber, uniqBy } from './index.ts';
 import path from 'path';
 
 let GlobalMethodRuleList: MethodRule[] = [];
-const FILE_PATH = path.resolve(__dirname, '../../rule/methodRule.csv');
+const FILE_PATH = path.resolve(import.meta.dirname || './', '../../rule/methodRule.csv');
 const CSV_HEAD = [
   'method',
   'jcGoalLine1',

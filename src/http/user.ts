@@ -1,8 +1,8 @@
-import { getAccountBySessionId, isAccountVipExpired, login, logout, updateAccountBySessionId } from '../store/user';
-import { server } from './server';
-import { pickBy, toNumber } from '../utils/lodash';
+import { getAccountBySessionId, isAccountVipExpired, login, logout, updateAccountBySessionId } from '../store/user.ts';
+import { server } from './server.ts';
+import { pickBy, toNumber } from '../utils/index.ts';
 import * as cookie from 'cookie';
-import { ChuanPlan, GoalLine, Result } from '../type';
+import { ChuanPlan, GoalLine, Result } from '../type/index.ts';
 import { randomUUID } from 'crypto';
 
 server.post('/api/users/login', async (req, res) => {
@@ -28,7 +28,7 @@ server.post('/api/users/login', async (req, res) => {
   res.header('set-cookie', cookie.serialize('session_id', userInfo.pcsessionid, { maxAge: 60 * 60 * 24 * 3, httpOnly: true, path: '/' }));
   res.send({
     success: true,
-    data: pickBy(userInfo, (v, k) =>
+    data: pickBy(userInfo, (_v, k) =>
       [
         'id',
         'uuid',
@@ -68,7 +68,7 @@ server.get('/api/users/getme', async (req, res) => {
   }
   res.send({
     success: true,
-    data: pickBy(userInfo, (v, k) =>
+    data: pickBy(userInfo, (_v, k) =>
       [
         'id',
         'uuid',
@@ -107,7 +107,7 @@ server.get('/api/userConfig/getMyConfig', async (req, res) => {
   }
   res.send({
     success: true,
-    data: pickBy(userInfo, (v, k) =>
+    data: pickBy(userInfo, (_v, k) =>
       [
         'id',
         'uuid',
@@ -171,7 +171,7 @@ server.get('/api/chuanplan/findallback', async (req, res) => {
   });
 });
 
-server.get('/api/notices/findall', (req, res, next) => {
+server.get('/api/notices/findall', (_req, res, next) => {
   res.send({
     success: true,
     count: 1,
@@ -191,7 +191,7 @@ server.get('/api/notices/findall', (req, res, next) => {
   next();
 });
 
-server.get('/api/jcmatch/version', (req, res, next) => {
+server.get('/api/jcmatch/version', (_req, res, next) => {
   res.send({ success: true, value: '1.0.9057' });
   next();
 });

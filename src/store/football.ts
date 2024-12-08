@@ -1,7 +1,6 @@
-import { getHGLeagueListAll, getHGGameList, getJCInfoList, getHGGameMore } from '../api/football';
-import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type/index';
+import { getHGLeagueListAll, getHGGameList, getJCInfoList, getHGGameMore } from '../api/football.ts';
+import { GlobalOptions, HGHhad, HGHhafu, HGInfo, JCInfo, SinInfo } from '../type/index.ts';
 import {
-  errorLog,
   getLeagueSameWeight,
   getRatioAvg,
   getMatchSinData,
@@ -12,15 +11,15 @@ import {
   getChuanInfoBySinInfo,
   getChuanRuleList,
   toAsyncTimeFunction,
-} from '../utils/index';
+} from '../utils/index.ts';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import stringify from 'json-stringify-pretty-compact';
 import { resolve } from 'path';
 import dayjs from 'dayjs';
-import { getTeamSameWeight, updateTeamRuleList } from '../utils/teamRule';
+import { getTeamSameWeight, updateTeamRuleList } from '../utils/teamRule.ts';
 
 const ZERO_TIME = '2000-11-08T05:55:26.881Z';
-const STATE_FILE_PATH = resolve(__dirname, '../../persistentState/footballState.json');
+const STATE_FILE_PATH = resolve(import.meta.dirname || './', '../../persistentState/footballState.json');
 
 // 联赛数据
 export const GlobalFootballState: {
@@ -87,7 +86,7 @@ export const updateJCInfoList = async () => {
  * @param maxAge 过期时间,功能类似http协议里的maxAge
  *
  * */
-export const updateAllHGLeagueList = async (op: { maxAge: number } = { maxAge: 1000 * 60 * 10 }) => {
+export const updateAllHGLeagueList = async () => {
   if (!GlobalFootballState.JCInfoList?.length) return [];
   const hgLeagueItemList = await getHGLeagueListAll();
   if (!hgLeagueItemList) return;

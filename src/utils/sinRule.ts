@@ -1,12 +1,11 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { BETTING_RESULT, GlobalOptions, GoalLine, SinRule, Result, SinInfo, DataOfSinInfo, HGInfo, JCInfo, } from '../type/index';
-import { everyWithTolerance, range, uniqBy } from './index';
+import { BETTING_RESULT, GlobalOptions, GoalLine, SinRule, Result, SinInfo, DataOfSinInfo, HGInfo, JCInfo, } from '../type/index.ts';
+import { everyWithTolerance, range, uniqBy, getGaussElimination, toFixNumber, toNumber } from './index.ts';
 import path from 'path';
-import { getGaussElimination, toFixNumber, toNumber } from './lodash';
-import { getMethod } from './methodRule';
+import { getMethod } from './methodRule.ts';
 
 let GlobalGoalLineRuleList: SinRule[] = [];
-const FILE_PATH = path.resolve(__dirname, '../../rule/sinRule.csv');
+const FILE_PATH = path.resolve(import.meta.dirname || './', '../../rule/sinRule.csv');
 const CSV_HEAD = ['jcGoalLine1', 'jcResult1', 'jcGoalLine2', 'jcResult2', 'hgGoalLine1', 'hgResult1', 'hgGoalLine2', 'hgResult2'] as const;
 
 export const updateSinRuleList = (sinDataList: SinInfo[]) => {
@@ -393,13 +392,13 @@ export const getCoefficient = (
       if (!finedJcItem1 || !finedHgItem1) return void 0;
       if (rule.jcResult2 !== '-' && !finedJcItem2) return void 0;
       if (rule.hgResult2 !== '-' && !finedHgItem2) return void 0;
-      // @ts-expect-error
+      // @ts-expect-error jc
       const jcOdds1 = toNumber(finedJcItem1?.[jcResult1]);
-      // @ts-expect-error
+      // @ts-expect-error jc
       const jcOdds2 = toNumber(finedJcItem2?.[jcResult2]);
-      // @ts-expect-error
+      // @ts-expect-error jc
       const hgOdds1 = toNumber(finedHgItem1?.[hgResult1]);
-      // @ts-expect-error
+      // @ts-expect-error jc
       const hgOdds2 = toNumber(finedHgItem2?.[hgResult2]);
       const sinData = getSinData(
         {

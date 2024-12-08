@@ -5,9 +5,9 @@ import {
   updateAllHGLeagueList,
   updateHGGameList,
   updateHgInfoList,
-} from '../store/football';
-import { updateTokenIdleAge } from '../store/hgAccount';
-import { executeSequentialIntervals } from '../utils';
+} from '../store/football.ts';
+import { updateTokenIdleAge } from '../store/hgAccount.ts';
+import { executeSequentialIntervals } from '../utils/index.ts';
 
 (async () => {
   const logInfo = () => {

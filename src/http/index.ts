@@ -1,5 +1,4 @@
-import './user';
-import './basketball';
-import './football';
-import './om';
-import './user';
+import './user.ts';
+import './basketball.ts';
+import './football.ts';
+import './user.ts';

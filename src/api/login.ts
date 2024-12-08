@@ -1,6 +1,7 @@
-import { delay, isXml, toAsyncTimeFunction } from '../utils/lodash';
-import { cuFetch } from './request';
-import { objToFormData } from './utils';
+// deno-lint-ignore-file no-explicit-any
+import { delay, isXml, toAsyncTimeFunction } from '../utils/lodash.ts';
+import { cuFetch } from './request.ts';
+import { objToFormData } from './utils.ts';
 import Convert from 'xml-js';
 
 

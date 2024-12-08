@@ -1,6 +1,6 @@
-import { server } from './server';
+import { server } from './server.ts';
 
-server.post('/api/water/getBasketballData', (req, res, next) => {
+server.post('/api/water/getBasketballData', (_req, res, next) => {
   res.send({
     success: true,
     sinData: [

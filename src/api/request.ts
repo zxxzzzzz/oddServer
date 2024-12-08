@@ -1,7 +1,6 @@
-import { errorLog } from '../utils';
-import { delay } from './utils';
+import { delay } from './utils.ts';
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 export const cuFetch = async (...params: Parameters<typeof fetch>) => {
   await delay(100);
@@ -15,7 +14,7 @@ export const cuFetch = async (...params: Parameters<typeof fetch>) => {
       await delay(1000 * (index + 1));
     }
   }
-  errorLog((_error as Error).message);
+  console.log(_error);
 };
 // export const cuFetch = async (...params: Parameters<typeof fetch>) => {
 //   let _error = Error('');

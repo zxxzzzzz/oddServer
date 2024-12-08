@@ -1,11 +1,11 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { ChuanInfo, ChuanRule, GlobalOptions, GoalLine, Result, SinInfo } from '../type/index';
-import { getGaussElimination, toFixNumber, toNumber, uniqBy } from './lodash';
+import { ChuanInfo, ChuanRule, GlobalOptions, GoalLine, Result, SinInfo } from '../type/index.ts';
+import { getGaussElimination, toFixNumber, toNumber, uniqBy } from './index.ts';
 import path from 'path';
-import { getCoefficient } from './sinRule';
+import { getCoefficient } from './sinRule.ts';
 
 let GlobalChuanRuleList: ChuanRule[] = [];
-const FILE_PATH = path.resolve(__dirname, '../../rule/chuanRule.csv');
+const FILE_PATH = path.resolve(import.meta.dirname || './', '../../rule/chuanRule.csv');
 const CSV_HEAD = ['jcGoalLine', 'jcResult', 'hgGoalLine1', 'hgResult1', 'hgGoalLine2', 'hgResult2'] as const;
 
 export const updateChuanRuleList = (chuanInfoList: ChuanInfo[]) => {

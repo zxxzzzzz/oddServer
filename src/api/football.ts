@@ -1,10 +1,11 @@
-import { getToken } from '../store/hgAccount';
-import { cuFetch } from './request';
-import { delay, objToFormData } from './utils';
+// deno-lint-ignore-file no-explicit-any
+import { getToken } from '../store/hgAccount.ts';
+import { cuFetch } from './request.ts';
+import { delay, objToFormData } from './utils.ts';
 import Convert from 'xml-js';
-import { GameList, GameMore, GameOBT } from '../type/index';
-import { JCInfo } from '../type/index';
-import { isXml, toAsyncTimeFunction } from '../utils/lodash';
+import { GameList, GameMore, GameOBT } from '../type/index.ts';
+import { JCInfo } from '../type/index.ts';
+import { isXml, toAsyncTimeFunction } from '../utils/lodash.ts';
 
 const RETRY_DELAY = 1000 * 10;
 
@@ -296,7 +297,7 @@ export const getHGGameMore = toAsyncTimeFunction(
       await delay(RETRY_DELAY);
       return getHGGameMore(op);
     }
-    let mixObj = Convert.xml2js(text, { compact: true }) as GameMore;
+    const mixObj = Convert.xml2js(text, { compact: true }) as GameMore;
     if (mixObj?.serverresponse?.code?._text === 'error') {
       await reLogin();
       await delay(RETRY_DELAY);
@@ -337,6 +338,8 @@ export const getJCInfoList = toAsyncTimeFunction(
     }
     const text = await res.text();
     if (text.includes('html')) {
+      await delay(RETRY_DELAY);
+      return getJCInfoList();
     }
     const data = JSON.parse(text);
     const matchInfoList = data?.value?.matchInfoList as any[];

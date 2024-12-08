@@ -1,13 +1,13 @@
-import { getLogFilePath, maxBy, minBy, toAsyncTimeFunction, toFifoFunction, toNumber } from '../utils/index';
-import { loginByAccount } from '../api/login';
-import { delay, uniqBy } from '../api/utils';
-import { Token } from '../type';
+import { getLogFilePath, minBy, toAsyncTimeFunction, toFifoFunction, toNumber } from '../utils/index.ts';
+import { loginByAccount } from '../api/login.ts';
+import { delay } from '../api/utils.ts';
+import { Token } from '../type/index.ts';
 import { existsSync, readFileSync } from 'fs';
 import dayjs from 'dayjs';
 
 const MIN_TOKEN_IDLE_AGE = 1000 * 1;
 const MAX_TOKEN_IDLE_AGE = 1000 * 10;
-const ZERO_TIME = '2000-11-08T05:55:26.881Z';
+// const ZERO_TIME = '2000-11-08T05:55:26.881Z';
 
 const GlobalAccountState: {
   accountList: { account: string; password: string }[];
@@ -21,6 +21,7 @@ const GlobalAccountState: {
     { account: 'CXGCXG721', password: 'ASd12345' },
     { account: 'CXGCXG723', password: 'ASd12345' },
     { account: 'CXGCXG766', password: 'ASd12345' },
+    // { account: 'CXGCXG767', password: 'ASd12345' },
   ],
   tokenList: [],
   tokenIdleAge: MIN_TOKEN_IDLE_AGE,
@@ -31,7 +32,7 @@ export const updateTokenIdleAge = () => {
   if (!existsSync(filePath)) return;
   const lineList = readFileSync(filePath, { encoding: 'utf-8' }).split('\n');
   if (lineList.length < 2) return;
-  const [date, tag, duration] = (lineList.at(-2) || '').split(',').map((s) => s.trim());
+  const [date, _tag, duration] = (lineList.at(-2) || '').split(',').map((s) => s.trim());
   if (new Date().valueOf() - new Date(date).valueOf() > 1000 * 60 * 10) return;
   const durationNum = toNumber(duration) || MIN_TOKEN_IDLE_AGE;
   const offset = Math.abs(durationNum - 15000) / (durationNum + 15000);
@@ -85,7 +86,7 @@ export const getAliveUrl = async () => {
         body: 'detection=Y&sub_doubleLogin=',
         method: 'POST',
       });
-    } catch (error) {
+    } catch (_error) {
       return {
         url,
         networkQuality: Infinity,
@@ -165,6 +166,7 @@ export const getToken = toFifoFunction(
             const token = GlobalAccountState.tokenList.find((t) => t.account === accountName);
             if (!token || token.uid === 'default' || new Date().valueOf() - token.loginTimestamp <= 1000 * 60) return;
             token.uid = '';
+            await delay(10)
           }).bind(null, lastUseToken.account),
         };
       }

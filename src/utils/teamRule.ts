@@ -1,16 +1,16 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { TeamRule } from '../type/index';
-import { getStrSameWeight, maxBy, toNumber, uniqBy, zipBy } from './lodash';
+import { TeamRule } from '../type/index.ts';
+import { getStrSameWeight, maxBy, toNumber, uniqBy, zipBy } from './lodash.ts';
 import path from 'path';
 
-const FILE_PATH = path.resolve(__dirname, '../../rule/teamRule.csv');
+const FILE_PATH = path.resolve(import.meta.dirname || './', '../../rule/teamRule.csv');
 const CSV_HEAD = ['jcLeague', 'jcTeam', 'hgLeague', 'hgTeam', 'weight'] as const;
 
 export const updateTeamRuleList = (ruleList: TeamRule[], op = { disableCache: false }) => {
   const newRuleList: TeamRule[] = ruleList;
   const oldRuleList = getTeamRuleList(op);
   const itemList = zipBy([...newRuleList, ...oldRuleList], (item) => item.jcLeague + ',' + item.jcTeam)
-    .map(({ key, value }) => {
+    .map(({ value }) => {
       return maxBy(value, (item) => item.weight);
     })
     .filter((v) => !!v);
@@ -78,11 +78,11 @@ const getTeamRuleList = (() => {
 /**获取队伍相似度权重 */
 export const getTeamSameWeight = (teamName1: string, teamName2: string) => {
   const teamRuleList = getTeamRuleList();
-  const filteredRuleList = teamRuleList.filter(r => r.jcTeam === teamName1 || r.jcTeam === teamName2)
-  if(!filteredRuleList.length) return getStrSameWeight(teamName1, teamName2);
+  const filteredRuleList = teamRuleList.filter((r) => r.jcTeam === teamName1 || r.jcTeam === teamName2);
+  if (!filteredRuleList.length) return getStrSameWeight(teamName1, teamName2);
   const matchedRule = filteredRuleList.find((r) => {
     return (r.jcTeam === teamName1 && r.hgTeam === teamName2) || (r.jcTeam === teamName2 && r.hgTeam === teamName1);
   });
   if (matchedRule) return toNumber(matchedRule.weight);
-  return 0
+  return 0;
 };

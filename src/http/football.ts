@@ -1,8 +1,8 @@
-import { server } from './server';
-import { GlobalOptions, GoalLine, Result } from '../type/index';
-import { GlobalFootballState, getChuanInfoList, getSinInfoList, loadFootballState } from '../store/football';
-import { getChuanInfo, getSinData, maxBy, toNumber, zipBy } from '../utils/index';
-import { isAccountVipExpired } from '../store/user';
+import { server } from './server.ts';
+import { GlobalOptions, GoalLine, Result } from '../type/index.ts';
+import { GlobalFootballState, getChuanInfoList, getSinInfoList, loadFootballState } from '../store/football.ts';
+import { getChuanInfo, getSinData, maxBy, toNumber, zipBy } from '../utils/index.ts';
+import { isAccountVipExpired } from '../store/user.ts';
 import * as cookie from 'cookie';
 
 server.post('/api/water/getFootballData', async (req, res) => {
@@ -62,7 +62,7 @@ server.post('/api/water/getFootballData', async (req, res) => {
     (item) => `${item.matchId1},${item.JCgoalLine1},${item.JCTouz1},${item.matchId2},${item.JCgoalLine2},${item.JCTouz2}`
   )
     .map((item) => {
-      const { key, value } = item;
+      const { value } = item;
       const info = maxBy(value, (item) => item.JcProfit);
       return info;
     })

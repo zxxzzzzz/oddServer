@@ -1,0 +1,23 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts",
+    "data": "deno run -A --unsafely-ignore-certificate-errors ./src/main/updateState.ts",
+    "http": "deno run -A --unsafely-ignore-certificate-errors --env-file=.env ./src/main/httpServer.ts"
+  },
+  "imports": {
+    "fs": "node:fs",
+    "path": "node:path",
+    "crypto": "node:crypto",
+    "cookie": "npm:cookie",
+    "dayjs": "npm:dayjs",
+    "json-stringify-pretty-compact": "npm:json-stringify-pretty-compact",
+    "restify": "npm:restify",
+    "xml-js": "npm:xml-js",
+    "@std/cli": "jsr:@std/cli"
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-explicit-any"]
+    }
+  }
+}

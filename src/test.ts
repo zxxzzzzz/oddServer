@@ -13,22 +13,21 @@ import {
   zipBy,
   getChuanInfoBySinInfo,
   isXml,
-} from './utils/index';
-import { delay, uniqBy } from './api/utils';
+} from './utils/index.ts';
+import { delay, uniqBy } from './api/utils.ts';
 import { randomUUID } from 'crypto';
 // 运维接口
-import { spawnSync, execSync } from 'child_process';
-import { updateMethodRuleList } from './utils/methodRule';
+import { updateMethodRuleList } from './utils/methodRule.ts';
 import path, { resolve } from 'path';
 import dayjs from 'dayjs';
-import { updateTokenIdleAge } from './store/hgAccount';
-import { HGInfo, JCInfo } from './type';
-import { getChuanInfoList, getSinInfoList } from './store/football';
-import { updateTeamRuleList } from './utils/teamRule';
+import { updateTokenIdleAge } from './store/hgAccount.ts';
+import { HGInfo, JCInfo } from './type/index.ts';
+import { getChuanInfoList, getSinInfoList } from './store/football.ts';
+import { updateTeamRuleList } from './utils/teamRule.ts';
 
 const updateAllRule = () => {
   for (let index = 0; index < 99999; index++) {
-    const filePath = resolve(__dirname, `../history/${index}.json`);
+    const filePath = resolve(import.meta.dirname || './', `../history/${index}.json`);
     if (!existsSync(filePath)) continue;
     console.log(filePath);
     const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' }));
@@ -66,7 +65,7 @@ const updateAllRule = () => {
 };
 
 const getAllAccount = () => {
-  const filePath = resolve(__dirname, '../persistentState/user.json');
+  const filePath = resolve(import.meta.dirname || './', '../persistentState/user.json');
   console.log(filePath);
   if (!existsSync(filePath)) return;
   const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' })) as { userList: any[] };
@@ -78,7 +77,7 @@ const getAllAccount = () => {
   });
 };
 const getCompareLeagueList = () => {
-  const filePath = resolve(__dirname, '../persistentState/footballState.json');
+  const filePath = resolve(import.meta.dirname || './', '../persistentState/footballState.json');
   console.log(filePath);
   if (!existsSync(filePath)) return;
   const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' })) as { HGGameList: any[] };
@@ -93,7 +92,7 @@ const getCompareLeagueList = () => {
 };
 
 const getTest = (matchIdList: string[]) => {
-  const filePath = resolve(__dirname, '../persistentState/test1.json');
+  const filePath = resolve(import.meta.dirname || './', '../persistentState/test1.json');
   console.log(filePath);
   if (!existsSync(filePath)) return;
   const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' })) as { JCInfoList: JCInfo[]; HGInfoList: HGInfo[] };
