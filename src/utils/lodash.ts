@@ -1,6 +1,7 @@
 import { existsSync, statSync, writeFileSync } from 'fs';
 import path from 'path';
 import dayjs from 'dayjs';
+import { BETTING_RESULT, GoalLine } from '../type/index.ts';
 
 export const delay = (n: number) => {
   return new Promise((resolve) => {
@@ -325,6 +326,7 @@ export const toNumber = (v: string | number | boolean) => {
   if (v === true) return 1;
   if (v === false) return 0;
   if (typeof v === 'number') return v;
+  if (v === '-') return 0;
   if (v === 'J3') return 3;
   if (v === 'J2') return 2;
   if (v === 'J1') return 1;
@@ -443,7 +445,7 @@ export const getRatioAvg = (str: string, isNegative: boolean) => {
   return count
     .toString()
     .replace(/(\.\d*?[1-9])0+$/, '$1')
-    .replace(/\.$/, '');
+    .replace(/\.$/, '') as GoalLine;
 };
 
 /**
@@ -532,4 +534,168 @@ export function swapFields<T extends { [key: string]: any }>(obj: T, mappings: {
     result[k2] = temp;
   }
   return result;
+}
+
+/**把goal分割成一个二维数组，可以用来方便处理 x.25 x.75的情况 */
+export function getGoalLineNumberList(goalLine: GoalLine) {
+  let goalLineList = [0, 0];
+  if (goalLine === '-') goalLineList = [0, 0];
+  if (
+    [
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '+0',
+      '+1',
+      '+2',
+      '+3',
+      '+4',
+      '+5',
+      '+6',
+      '+7',
+      '+8',
+      '-1',
+      '-2',
+      '-3',
+      '-4',
+      '-5',
+      '-6',
+      '-7',
+      '-8',
+    ].includes(goalLine)
+  ) {
+    goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
+  }
+  if (
+    [
+      '0.25',
+      '1.25',
+      '2.25',
+      '3.25',
+      '4.25',
+      '5.25',
+      '6.25',
+      '7.25',
+      '8.25',
+      '+0.25',
+      '+1.25',
+      '+2.25',
+      '+3.25',
+      '+4.25',
+      '+5.25',
+      '+6.25',
+      '+7.25',
+      '+8.25',
+      '-0.25',
+      '-1.25',
+      '-2.25',
+      '-3.25',
+      '-4.25',
+      '-5.25',
+      '-6.25',
+      '-7.25',
+      '-8.25',
+    ].includes(goalLine)
+  ) {
+    goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
+  }
+  if (
+    [
+      '0.5',
+      '1.5',
+      '2.5',
+      '3.5',
+      '4.5',
+      '5.5',
+      '6.5',
+      '7.5',
+      '8.5',
+      '+0.5',
+      '+1.5',
+      '+2.5',
+      '+3.5',
+      '+4.5',
+      '+5.5',
+      '+6.5',
+      '+7.5',
+      '+8.5',
+      '-0.5',
+      '-1.5',
+      '-2.5',
+      '-3.5',
+      '-4.5',
+      '-5.5',
+      '-6.5',
+      '-7.5',
+      '-8.5',
+    ].includes(goalLine)
+  ) {
+    goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
+  }
+  if (
+    [
+      '0.75',
+      '1.75',
+      '2.75',
+      '3.75',
+      '4.75',
+      '5.75',
+      '6.75',
+      '7.75',
+      '8.75',
+      '+0.75',
+      '+1.75',
+      '+2.75',
+      '+3.75',
+      '+4.75',
+      '+5.75',
+      '+6.75',
+      '+7.75',
+      '+8.75',
+      '-0.75',
+      '-1.75',
+      '-2.75',
+      '-3.75',
+      '-4.75',
+      '-5.75',
+      '-6.75',
+      '-7.75',
+      '-8.75',
+    ].includes(goalLine)
+  ) {
+    goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
+  }
+  return goalLineList as [number, number];
+}
+
+
+/**合并betting list结果为一个betting结果 */
+export function getBettingResultByBettingList(betList: [BETTING_RESULT, BETTING_RESULT]) {
+  const winCount = betList.reduce((re, cur) => {
+    return re + (cur === BETTING_RESULT.win ? 1 : 0);
+  }, 0);
+  const loseCount = betList.reduce((re, cur) => {
+    return re + (cur === BETTING_RESULT.lose ? 1 : 0);
+  }, 0);
+  const refundCount = betList.reduce((re, cur) => {
+    return re + (cur === BETTING_RESULT.refund ? 1 : 0);
+  }, 0);
+  const unableDetermineCount = betList.reduce((re, cur) => {
+    return re + (cur === BETTING_RESULT.unableDetermine ? 1 : 0);
+  }, 0);
+  if (winCount === 2) return BETTING_RESULT.win;
+  if (winCount === 1 && unableDetermineCount === 1) return BETTING_RESULT.win;
+  if (winCount === 1 && loseCount === 1) return BETTING_RESULT.halfWinLose;
+  if (winCount === 1 && refundCount === 1) return BETTING_RESULT.halfWin;
+  if (loseCount === 2) return BETTING_RESULT.lose;
+  if (loseCount === 1 && refundCount === 1) return BETTING_RESULT.halfLose;
+  if (loseCount === 1 && unableDetermineCount === 1) return BETTING_RESULT.lose;
+  if (refundCount === 2) return BETTING_RESULT.refund;
+  return BETTING_RESULT.unableDetermine;
 }

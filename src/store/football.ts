@@ -1,5 +1,5 @@
 import { getHGLeagueListAll, getHGGameList, getJCInfoList, getHGGameMore } from '../api/football.ts';
-import { GlobalOptions, HGHhad, HGHhafu, HGHilo, HGInfo, JCInfo, SinInfo } from '../type/index.ts';
+import { PointOptions, HGHhad, HGHhafu, HGHilo, HGInfo, JCInfo, SinInfo, GoalInfo } from '../type/index.ts';
 import {
   getLeagueSameWeight,
   getRatioAvg,
@@ -18,6 +18,7 @@ import stringify from 'json-stringify-pretty-compact';
 import { resolve } from 'path';
 import dayjs from 'dayjs';
 import { getTeamSameWeight, updateTeamRuleList } from '../utils/teamRule.ts';
+import { getMatchGoalInfo } from "../utils/goalRule.ts";
 
 const ZERO_TIME = '2000-11-08T05:55:26.881Z';
 const STATE_FILE_PATH = resolve(import.meta.dirname || './', '../../persistentState/footballState.json');
@@ -387,7 +388,7 @@ export const updateHgInfoList = toAsyncTimeFunction(
   { tag: 'updateHgInfoList', desc: '', fileName: 'footballConsume' }
 );
 
-export function getSinInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: GlobalOptions) {
+export function getSinInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: PointOptions) {
   const sinInfoList = (JCInfoList || [])
     .filter((jcInfo) => jcInfo.matchId)
     .map((jcInfo) => {
@@ -402,7 +403,22 @@ export function getSinInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: G
   return sinInfoList;
 }
 
-export function getChuanInfoList(sinInfoList: SinInfo[], op: GlobalOptions) {
+export function getGoalInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: Omit<PointOptions, 'JCPointChuan'>) {
+  const sinInfoList = (JCInfoList || [])
+  .filter((jcInfo) => jcInfo.matchId)
+  .map((jcInfo) => {
+    const hgInfo = (HGInfoList || []).filter((info) => info.matchId).find((hg) => hg.matchId === jcInfo.matchId);
+    if (hgInfo) {
+      return getMatchGoalInfo(jcInfo, hgInfo, op);
+    }
+    return void 0;
+  })
+  .filter((v): v is GoalInfo[] => !!v)
+  .flat();
+return sinInfoList;
+}
+
+export function getChuanInfoList(sinInfoList: SinInfo[], op: PointOptions) {
   const chuanRuleList = getChuanRuleList();
   const filteredSinInfoList = sinInfoList
     .filter((v) => {

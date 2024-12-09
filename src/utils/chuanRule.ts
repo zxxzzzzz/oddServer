@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { ChuanInfo, ChuanRule, GlobalOptions, GoalLine, Result, SinInfo } from '../type/index.ts';
+import { ChuanInfo, ChuanRule, PointOptions, GoalLine, Result, SinInfo } from '../type/index.ts';
 import { getGaussElimination, toFixNumber, toNumber, uniqBy } from './index.ts';
 import path from 'path';
 import { getCoefficient } from './sinRule.ts';
@@ -86,7 +86,7 @@ export const getChuanRuleList = () => {
   return GlobalChuanRuleList;
 };
 
-export const getChuanInfoBySinInfo = (info1: SinInfo, info2: SinInfo, op: GlobalOptions) => {
+export const getChuanInfoBySinInfo = (info1: SinInfo, info2: SinInfo, op: PointOptions) => {
   // a=hg1 b=hg2 c=hg3 d=hg4 e=profit
   const jcOdds1 = toNumber(info1.data.jcOdds1);
   const jcOdds2 = toNumber(info2.data.jcOdds1);
@@ -160,7 +160,7 @@ export function getChuanInfo(
     hgGoalLine2_1: GoalLine;
     hgGoalLine2_2: GoalLine;
   },
-  op: GlobalOptions
+  op: PointOptions
 ) {
   const {
     matchId1,

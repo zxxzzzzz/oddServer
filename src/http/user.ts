@@ -1,32 +1,37 @@
 import { getAccountBySessionId, isAccountVipExpired, login, logout, updateAccountBySessionId } from '../store/user.ts';
-import { server } from './server.ts';
+import { router } from './router.ts';
 import { pickBy, toNumber } from '../utils/index.ts';
 import * as cookie from 'cookie';
 import { ChuanPlan, GoalLine, Result } from '../type/index.ts';
 import { randomUUID } from 'crypto';
 
-server.post('/api/users/login', async (req, res) => {
-  const body = req.body;
+router.post('/api/users/login', async (ctx) => {
+  const body = await ctx.request.body.json();
   const account = body?.account;
   const password = body?.password;
   const isVipExpired = await isAccountVipExpired(account);
   const userInfo = await login(account, password);
   if (!userInfo) {
-    res.send(400, {
+    ctx.response.status = 400;
+    ctx.response.body = {
       success: false,
       error: '账号不存在或者密码错误',
-    });
+    };
     return true;
   }
   if (isVipExpired) {
-    res.send(400, {
+    ctx.response.status = 400;
+    ctx.response.body = {
       success: false,
       error: '该账号vip过期了',
-    });
+    };
     return true;
   }
-  res.header('set-cookie', cookie.serialize('session_id', userInfo.pcsessionid, { maxAge: 60 * 60 * 24 * 3, httpOnly: true, path: '/' }));
-  res.send({
+  ctx.response.headers.set(
+    'set-cookie',
+    cookie.serialize('session_id', userInfo.pcsessionid, { maxAge: 60 * 60 * 24 * 3, httpOnly: true, path: '/' })
+  );
+  ctx.response.body = {
     success: true,
     data: pickBy(userInfo, (_v, k) =>
       [
@@ -54,19 +59,21 @@ server.post('/api/users/login', async (req, res) => {
         'updatedAt',
       ].includes(k)
     ),
-  });
+  };
 });
-server.get('/api/users/getme', async (req, res) => {
-  const cookieObj = cookie.parse(req.header('cookie'));
+
+router.get('/api/users/getme', async (ctx) => {
+  const cookieObj = cookie.parse(ctx.request.headers.get('cookie') || '');
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
-    res.send(400, {
+    ctx.response.status = 400;
+    ctx.response.body = {
       success: false,
       error: '请重新登录',
-    });
+    };
     return;
   }
-  res.send({
+  ctx.response.body = {
     success: true,
     data: pickBy(userInfo, (_v, k) =>
       [
@@ -93,19 +100,21 @@ server.get('/api/users/getme', async (req, res) => {
         'updatedAt',
       ].includes(k)
     ),
-  });
+  };
 });
-server.get('/api/userConfig/getMyConfig', async (req, res) => {
-  const cookieObj = cookie.parse(req.header('cookie'));
+
+router.get('/api/userConfig/getMyConfig', async (ctx) => {
+  const cookieObj = cookie.parse(ctx.request.headers.get('cookie') || '');
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
-    res.send(400, {
+    ctx.response.status = 400;
+    ctx.response.body = {
       success: false,
       error: '请重新登录',
-    });
+    };
     return;
   }
-  res.send({
+  ctx.response.body = {
     success: true,
     data: pickBy(userInfo, (_v, k) =>
       [
@@ -140,39 +149,41 @@ server.get('/api/userConfig/getMyConfig', async (req, res) => {
         'updatedAt',
       ].includes(k)
     ),
-  });
+  };
 });
 
-server.get('/api/chuanplan/findallback', async (req, res) => {
-  const query: { delFlag: string; sort: 'createdAt,ASC'; limit: string } = req.query;
-  const cookieObj = cookie.parse(req.header('cookie'));
+router.get('/api/chuanplan/findallback', async (ctx) => {
+  const delFlag = toNumber(ctx.request.url.searchParams.get('delFlag') || '');
+  const limit = toNumber(ctx.request.url.searchParams.get('limit') || '') || 999;
+  // const query: { delFlag: string; sort: 'createdAt,ASC'; limit: string } = ;
+  const cookieObj = cookie.parse(ctx.request.headers.get('cookie') || '');
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
-    res.send(405, {
+    ctx.response.status = 405;
+    ctx.response.body = {
       success: false,
       error: '请重新登录',
-    });
+    };
     return;
   }
-  const limit = query?.limit ? toNumber(query.limit) : 999;
   const planList = (userInfo?.planList || [])
     .filter((item) => {
-      return toNumber(query.delFlag) === item.delFlag;
+      return toNumber(delFlag) === item.delFlag;
     })
     .toSorted((v1, v2) => {
       return new Date(v1.createdAt).valueOf() - new Date(v2.createdAt).valueOf();
     })
     .slice(0, limit);
-  res.send({
+  ctx.response.body = {
     success: true,
     count: planList.length,
     pagination: {},
     data: planList,
-  });
+  };
 });
 
-server.get('/api/notices/findall', (_req, res, next) => {
-  res.send({
+router.get('/api/notices/findall', (ctx) => {
+  ctx.response.body = {
     success: true,
     count: 1,
     pagination: {},
@@ -187,40 +198,38 @@ server.get('/api/notices/findall', (_req, res, next) => {
         updatedAt: '2024-10-19T17:36:29.000Z',
       },
     ],
-  });
-  next();
+  };
 });
 
-server.get('/api/jcmatch/version', (_req, res, next) => {
-  res.send({ success: true, value: '1.0.9057' });
-  next();
+router.get('/api/jcmatch/version', (ctx) => {
+  ctx.response.body = { success: true, value: '1.0.9057' };
 });
 
-server.post('/api/users/logout', async (req, res) => {
-  const cookieObj = cookie.parse(req.header('cookie'));
+router.post('/api/users/logout', async (ctx) => {
+  const cookieObj = cookie.parse(ctx.request.headers.get('cookie') || '');
   await logout(cookieObj?.session_id || '');
-  res.send({ success: true, message: '登出成功' });
+  ctx.response.body = { success: true, message: '登出成功' };
 });
 
-server.put('/api/userConfig/update/:uuid', async (req, res) => {
-  const cookieObj = cookie.parse(req.header('cookie'));
-  const body = req.body;
+router.put('/api/userConfig/update/:uuid', async (ctx) => {
+  const cookieObj = cookie.parse(ctx.request.headers.get('cookie') || '');
+  const body = await ctx.request.body.json();
   await updateAccountBySessionId(cookieObj?.session_id || '', body);
-  res.send({ success: true });
-  return true;
+  ctx.response.body = { success: true };
 });
 
-server.del('/api/chuanplan/deleteone/:uuid', async (req, res) => {
-  const cookieObj = cookie.parse(req.header('cookie'));
+router.delete('/api/chuanplan/deleteone/:uuid', async (ctx) => {
+  const cookieObj = cookie.parse(ctx.request.headers.get('cookie') || '');
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
-    res.send(405, {
+    ctx.response.status = 405;
+    ctx.response.body = {
       success: false,
       error: '请重新登录',
-    });
+    };
     return;
   }
-  const uuid = req.params?.uuid || '';
+  const uuid = ctx.params?.uuid || '';
   const filteredItemList = (userInfo.planList || [])
     .map((item) => {
       const delFlag = item.uuid === uuid ? item.delFlag - 1 : item.delFlag;
@@ -228,11 +237,10 @@ server.del('/api/chuanplan/deleteone/:uuid', async (req, res) => {
     })
     .filter((item): item is ChuanPlan => [0, 1].includes(item.delFlag));
   await updateAccountBySessionId(cookieObj?.session_id || '', { planList: filteredItemList });
-  res.send({ success: true });
-  return true;
+  ctx.response.body = { success: true };
 });
 
-server.post('/api/chuanplan/create', async (req, res) => {
+router.post('/api/chuanplan/create', async (ctx) => {
   type Body = {
     matchId1: string;
     matchId2: string;
@@ -288,14 +296,15 @@ server.post('/api/chuanplan/create', async (req, res) => {
     flag: 'saved';
     uuid: null;
   };
-  const body = req.body as Body;
-  const cookieObj = cookie.parse(req.header('cookie'));
+  const body = (await ctx.request.body.json()) as Body;
+  const cookieObj = cookie.parse(ctx.request.headers.get('cookie') || '');
   const userInfo = await getAccountBySessionId(cookieObj?.session_id || '');
   if (!userInfo) {
-    res.send(405, {
+    ctx.response.status = 405;
+    ctx.response.body = {
       success: false,
       error: '请重新登录',
-    });
+    };
     return;
   }
 
@@ -354,7 +363,7 @@ server.post('/api/chuanplan/create', async (req, res) => {
     updatedAt: new Date().toISOString(),
   };
   await updateAccountBySessionId(cookieObj?.session_id || '', { planList: [...(userInfo.planList || []), planItem] });
-  res.send({
+  ctx.response.body = {
     success: true,
-  });
+  };
 });

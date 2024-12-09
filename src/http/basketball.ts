@@ -1,7 +1,8 @@
-import { server } from './server.ts';
+import { router } from './router.ts';
 
-server.post('/api/water/getBasketballData', (_req, res, next) => {
-  res.send({
+
+router.post('/api/water/getBasketballData', (ctx) => {
+  ctx.response.body = {
     success: true,
     sinData: [
       {
@@ -2766,6 +2767,5 @@ server.post('/api/water/getBasketballData', (_req, res, next) => {
         },
       ],
     },
-  });
-  next();
+  };
 });

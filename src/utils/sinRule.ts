@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { BETTING_RESULT, GlobalOptions, GoalLine, SinRule, Result, SinInfo, DataOfSinInfo, HGInfo, JCInfo, } from '../type/index.ts';
-import { everyWithTolerance, range, uniqBy, getGaussElimination, toFixNumber, toNumber } from './index.ts';
+import { BETTING_RESULT, PointOptions, GoalLine, SinRule, Result, SinInfo, DataOfSinInfo, HGInfo, JCInfo, } from '../type/index.ts';
+import { everyWithTolerance, range, uniqBy, getGaussElimination, toFixNumber, toNumber, getGoalLineNumberList, getBettingResultByBettingList } from './index.ts';
 import path from 'path';
 import { getMethod } from './methodRule.ts';
 
@@ -91,111 +91,7 @@ export const getSinRuleList = () => {
   return GlobalSinRuleList;
 };
 
-/**把goal分割成一个二维数组，可以用来方便处理 x.25 x.75的情况 */
-function getGoalLineNumberList(goalLine: GoalLine) {
-  let goalLineList = [0, 0];
-  if (goalLine === '-') goalLineList = [0, 0];
-  if (['0', '1', '2', '3', '4', '5', '+0', '+1', '+2', '+3', '+4', '+5', '-1', '-2', '-3', '-4', '-5'].includes(goalLine)) {
-    goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
-  }
-  if (
-    [
-      '0.25',
-      '1.25',
-      '2.25',
-      '3.25',
-      '4.25',
-      '5.25',
-      '+0.25',
-      '+1.25',
-      '+2.25',
-      '+3.25',
-      '+4.25',
-      '+5.25',
-      '-0.25',
-      '-1.25',
-      '-2.25',
-      '-3.25',
-      '-4.25',
-      '-5.25',
-    ].includes(goalLine)
-  ) {
-    goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
-  }
-  if (
-    [
-      '0.5',
-      '1.5',
-      '2.5',
-      '3.5',
-      '4.5',
-      '5.5',
-      '+0.5',
-      '+1.5',
-      '+2.5',
-      '+3.5',
-      '+4.5',
-      '+5.5',
-      '-0.5',
-      '-1.5',
-      '-2.5',
-      '-3.5',
-      '-4.5',
-      '-5.5',
-    ].includes(goalLine)
-  ) {
-    goalLineList = [parseFloat(goalLine), parseFloat(goalLine)];
-  }
-  if (
-    [
-      '0.75',
-      '1.75',
-      '2.75',
-      '3.75',
-      '4.75',
-      '5.75',
-      '+0.75',
-      '+1.75',
-      '+2.75',
-      '+3.75',
-      '+4.75',
-      '+5.75',
-      '-0.75',
-      '-1.75',
-      '-2.75',
-      '-3.75',
-      '-4.75',
-      '-5.75',
-    ].includes(goalLine)
-  ) {
-    goalLineList = [parseFloat(goalLine) - 0.25, parseFloat(goalLine) + 0.25];
-  }
-  return goalLineList as [number, number];
-}
 
-function getBettingResultByBettingList(betList: [BETTING_RESULT, BETTING_RESULT]) {
-  const winCount = betList.reduce((re, cur) => {
-    return re + (cur === BETTING_RESULT.win ? 1 : 0);
-  }, 0);
-  const loseCount = betList.reduce((re, cur) => {
-    return re + (cur === BETTING_RESULT.lose ? 1 : 0);
-  }, 0);
-  const refundCount = betList.reduce((re, cur) => {
-    return re + (cur === BETTING_RESULT.refund ? 1 : 0);
-  }, 0);
-  const unableDetermineCount = betList.reduce((re, cur) => {
-    return re + (cur === BETTING_RESULT.unableDetermine ? 1 : 0);
-  }, 0);
-  if (winCount === 2) return BETTING_RESULT.win;
-  if (winCount === 1 && unableDetermineCount === 1) return BETTING_RESULT.win;
-  if (winCount === 1 && loseCount === 1) return BETTING_RESULT.halfWinLose;
-  if (winCount === 1 && refundCount === 1) return BETTING_RESULT.halfWin;
-  if (loseCount === 2) return BETTING_RESULT.lose;
-  if (loseCount === 1 && refundCount === 1) return BETTING_RESULT.halfLose;
-  if (loseCount === 1 && unableDetermineCount === 1) return BETTING_RESULT.lose;
-  if (refundCount === 2) return BETTING_RESULT.refund;
-  return BETTING_RESULT.unableDetermine;
-}
 
 /**获取获胜的 主-客 的分差 */
 function getWinGoalList(item: { goalLine: GoalLine; result: 'h' | 'd' | 'a' | '-'; isJC: boolean }) {
@@ -303,7 +199,7 @@ export const getCoefficient = (
     odds: number;
     isJC: boolean;
   },
-  op: GlobalOptions
+  op: PointOptions
 ) => {
   /**当前的状态 */
   const { odds } = r2;
@@ -349,7 +245,7 @@ export const getCoefficient = (
  * @param op
  * @returns
  */
- export function getMatchSinData(JCInfo: JCInfo, HGInfo: HGInfo, op: GlobalOptions) {
+ export function getMatchSinData(JCInfo: JCInfo, HGInfo: HGInfo, op: PointOptions) {
   const goalLineRuleList = getSinRuleList();
   const jcGoalLineItem1 = { goalLine: '-', a: JCInfo.had_a, d: JCInfo.had_d, h: JCInfo.had_h };
   const jcGoalLineItem2 = { goalLine: JCInfo.hhad_goalLine, a: JCInfo.hhad_a, d: JCInfo.hhad_d, h: JCInfo.hhad_h };
@@ -447,7 +343,7 @@ export function getSinData(
     hgOdds2: number;
     matchTimeFormat: string;
   },
-  op: GlobalOptions
+  op: PointOptions
 ): DataOfSinInfo | undefined {
   const {
     jcResult1,

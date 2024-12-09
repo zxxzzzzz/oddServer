@@ -24,7 +24,7 @@ import { updateTokenIdleAge } from './store/hgAccount.ts';
 import { HGInfo, JCInfo } from './type/index.ts';
 import { getChuanInfoList, getSinInfoList } from './store/football.ts';
 import { updateTeamRuleList } from './utils/teamRule.ts';
-import { updateTotalRuleList } from "./utils/totalRule.ts";
+import { updateGoalRuleList } from "./utils/goalRule.ts";
 
 const updateAllRule = () => {
   for (let index = 0; index < 99999; index++) {
@@ -68,7 +68,7 @@ const updateAllRule = () => {
     if (!existsSync(filePath)) continue;
     console.log(filePath);
     const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' }));
-    updateTotalRuleList(data?.goalData || [])
+    updateGoalRuleList(data?.goalData || [])
   }
 };
 

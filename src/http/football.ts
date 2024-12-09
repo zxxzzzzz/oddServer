@@ -1,23 +1,25 @@
-import { server } from './server.ts';
-import { GlobalOptions, GoalLine, Result } from '../type/index.ts';
-import { getChuanInfoList, getSinInfoList, getFootballState } from '../store/football.ts';
+import { router } from './router.ts';
+import { PointOptions, GoalLine, Result } from '../type/index.ts';
+import { getChuanInfoList, getSinInfoList, getFootballState, getGoalInfoList } from '../store/football.ts';
 import { getChuanInfo, getSinData, maxBy, toNumber, zipBy } from '../utils/index.ts';
 import { isAccountVipExpired } from '../store/user.ts';
 import * as cookie from 'cookie';
 
-server.post('/api/water/getFootballData', async (req, res) => {
-  const cookieObj = cookie.parse(req.header('cookie'));
+
+router.post('/api/water/getFootballData', async (ctx) => {
+  const cookieObj = cookie.parse(ctx.request.headers.get('cookie') || '');
   const isVipExpired = await isAccountVipExpired(cookieObj?.session_id || '');
   if (isVipExpired) {
-    res.send(405, {
+    ctx.response.status = 405;
+    ctx.response.body = {
       success: false,
       error: 'vip过期，请重新登录',
-    });
+    };
     return;
   }
   const footballState = getFootballState();
-  const body = req.body;
-  const op: GlobalOptions = {
+  const body = await ctx.request.body.json();
+  const op: PointOptions = {
     JCPointSin: parseFloat(body.JCPointSin || '0.12'),
     JCPointChuan: parseFloat(body.JCPointChuan || '0.13'),
     HGPoint: parseFloat(body.HGPoint || '0.023'),
@@ -72,8 +74,7 @@ server.post('/api/water/getFootballData', async (req, res) => {
       const isIn = !inMatch.length ? true : inMatch.some((matchId) => info.matchId1 === matchId || info.matchId2 === matchId);
       return isIn && !isOut;
     });
-
-  res.send({
+  ctx.response.body = {
     success: true,
     sinData: sinData,
     chuanData: chuanData,
@@ -97,10 +98,10 @@ server.post('/api/water/getFootballData', async (req, res) => {
         },
       ],
     },
-  });
+  };
 });
 
-server.post('/api/water/caculateSin', (req, res, next) => {
+router.post('/api/water/caculateSin', async (ctx) => {
   type Body = {
     JCgoalLine1: GoalLine;
     JCgoalLine2: GoalLine;
@@ -135,8 +136,8 @@ server.post('/api/water/caculateSin', (req, res, next) => {
     HGPoint: string;
     JCTzAmt: string;
   };
-  const body: Body = req.body;
-  const op: GlobalOptions = {
+  const body: Body = await ctx.request.body.json();
+  const op: PointOptions = {
     JCBet: toNumber(body.jcBet1),
     JCPointChuan: 0,
     JCPointSin: toNumber(body.JCPoint),
@@ -160,14 +161,13 @@ server.post('/api/water/caculateSin', (req, res, next) => {
     },
     op
   );
-  res.send({
+  ctx.response.body = {
     success: true,
     data: sinData,
-  });
-  next();
+  };
 });
 
-server.post('/api/water/caculateChuan', (req, res, next) => {
+router.post('/api/water/caculateChuan', async (ctx) => {
   type Body = {
     matchId1: string;
     matchId2: string;
@@ -218,7 +218,7 @@ server.post('/api/water/caculateChuan', (req, res, next) => {
     planName1: string;
     planName2: string;
   };
-  const body = req.body as Body;
+  const body = (await ctx.request.body.json()) as Body;
   const matchId1 = body.matchId1;
   const matchId2 = body.matchId2;
   const method1 = body.method1;
@@ -273,42 +273,58 @@ server.post('/api/water/caculateChuan', (req, res, next) => {
       HGPoint: toNumber(body.HGPoint),
     }
   );
-  res.send({
+  ctx.response.body = {
     success: true,
     data,
-  });
-  next();
+  };
 });
 
-server.get('/api/matchs/getMatchById', (req, res, next) => {
-  const footballState = getFootballState();
-  const matchId = req.query?.matchId;
-  const jcInfo = footballState.JCInfoList.find((v) => v.matchId === matchId);
-  const hgInfo = footballState.HGInfoList.find((v) => v.matchId === matchId);
-  res.send({
-    success: true,
-    data: {
-      HGFootBoll: hgInfo,
-      JCFootBoll: jcInfo,
-    },
-  });
-  next();
-});
+// router.get('/api/matchs/getMatchById', (ctx) => {
+//   const footballState = getFootballState();
+//   const matchId = req.query?.matchId;
+//   const jcInfo = footballState.JCInfoList.find((v) => v.matchId === matchId);
+//   const hgInfo = footballState.HGInfoList.find((v) => v.matchId === matchId);
+//   res.send({
+//     success: true,
+//     data: {
+//       HGFootBoll: hgInfo,
+//       JCFootBoll: jcInfo,
+//     },
+//   });
+//   next();
+// });
 
-server.post('/api/water/getFtTotalGoal', async (req, res) => {
-  const cookieObj = cookie.parse(req.header('cookie'));
+router.post('/api/water/getFtTotalGoal', async (ctx) => {
+  const cookieObj = cookie.parse(ctx.request.headers.get('cookie') || '');
   const isVipExpired = await isAccountVipExpired(cookieObj?.session_id || '');
   if (isVipExpired) {
-    res.send(405, {
+    ctx.response.status = 405
+    ctx.response.body = {
       success: false,
       error: 'vip过期，请重新登录',
-    });
+    }
     return;
   }
+  const body = await ctx.request.body.json();
+  const op: PointOptions = {
+    JCPointSin: parseFloat(body.JCPointSin || '0.12'),
+    JCPointChuan: parseFloat(body.JCPointChuan || '0.13'),
+    HGPoint: parseFloat(body.HGPoint || '0.023'),
+    JCBet: parseFloat(body.JCTzAmt || '10000'),
+    // "scope": "周三",
+    // "outMatch": ["1028115"],
+    // "inMatch": ["1028115"]
+  };
+  const scope = body?.scope || '';
   const footballState = getFootballState();
+
+  const JCInfos = footballState.JCInfoList.filter((jc) => jc.matchNumStr.includes(scope));
+  const jcMatchIdList = JCInfos.map((v) => v.matchId);
+  const HGInfos = footballState.HGInfoList.filter((v) => jcMatchIdList.includes(v.matchId));
+  const goalData = getGoalInfoList(JCInfos as any[], HGInfos as any[], op);
   return {
     success: true,
-    goalData: [],
+    goalData,
     HGInfos: footballState.HGInfoList,
     JCInfos: footballState.JCInfoList,
     watData: {
@@ -320,3 +336,4 @@ server.post('/api/water/getFtTotalGoal', async (req, res) => {
     },
   };
 });
+

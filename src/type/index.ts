@@ -4255,19 +4255,19 @@ export type HGHhafu = {
 };
 
 export type HGHilo = {
-  hilo_goalLine1: string;
+  hilo_goalLine1: GoalLine;
   hilo_a1: string;
   hilo_h1: string;
-  hilo_goalLine2: string;
+  hilo_goalLine2: GoalLine;
   hilo_a2: string;
   hilo_h2: string;
-  hilo_goalLine3: string;
+  hilo_goalLine3: GoalLine;
   hilo_a3: string;
   hilo_h3: string;
-  hilo_goalLine4: string;
+  hilo_goalLine4: GoalLine;
   hilo_a4: string;
   hilo_h4: string;
-  hilo_goalLine5: string;
+  hilo_goalLine5: GoalLine;
   hilo_a5: string;
   hilo_h5: string;
 };
@@ -4366,7 +4366,7 @@ export type JCInfo = {
   updatedAt: string;
 };
 
-export type GlobalOptions = {
+export type PointOptions = {
   /** HG返点*/
   HGPoint: number;
   /** JC单返点*/
@@ -4396,6 +4396,25 @@ export type GoalLine =
   | '3.5'
   | '3.75'
   | '4'
+  | '4.25'
+  | '4.5'
+  | '4.75'
+  | '5'
+  | '5.25'
+  | '5.5'
+  | '5.75'
+  | '6'
+  | '6.25'
+  | '6.5'
+  | '6.75'
+  | '7'
+  | '7.25'
+  | '7.5'
+  | '7.75'
+  | '8'
+  | '8.25'
+  | '8.5'
+  | '8.75'
   | '+0.25'
   | '+0.5'
   | '+0.75'
@@ -4412,6 +4431,25 @@ export type GoalLine =
   | '+3.5'
   | '+3.75'
   | '+4'
+  | '+4.25'
+  | '+4.5'
+  | '+4.75'
+  | '+5'
+  | '+5.25'
+  | '+5.5'
+  | '+5.75'
+  | '+6'
+  | '+6.25'
+  | '+6.5'
+  | '+6.75'
+  | '+7'
+  | '+7.25'
+  | '+7.5'
+  | '+7.75'
+  | '+8'
+  | '+8.25'
+  | '+8.5'
+  | '+8.75'
   | '-0.25'
   | '-0.5'
   | '-0.75'
@@ -4428,10 +4466,31 @@ export type GoalLine =
   | '-3.5'
   | '-3.75'
   | '-4'
+  | '-4.25'
+  | '-4.5'
+  | '-4.75'
+  | '-5'
+  | '-5.25'
+  | '-5.5'
+  | '-5.75'
+  | '-6'
+  | '-6.25'
+  | '-6.5'
+  | '-6.75'
+  | '-7'
+  | '-7.25'
+  | '-7.5'
+  | '-7.75'
+  | '-8'
+  | '-8.25'
+  | '-8.5'
+  | '-8.75'
   | 'J1'
   | 'J2'
   | 'J3';
 export type Result = 'h' | 'a' | 'd' | '-';
+/**D=大 X=小 */
+export type TotalResult = 'X' | 'D' | '-';
 export type SinRule = {
   jcGoalLine1: GoalLine;
   jcResult1: Result;
@@ -4442,7 +4501,7 @@ export type SinRule = {
   hgGoalLine2: GoalLine;
   hgResult2: Result;
 };
-export type TotalRule = {
+export type GoalRule = {
   jcTotal0: boolean;
   jcTotal1: boolean;
   jcTotal2: boolean;
