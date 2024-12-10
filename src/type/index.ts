@@ -4502,14 +4502,14 @@ export type SinRule = {
   hgResult2: Result;
 };
 export type GoalRule = {
-  jcTotal0: boolean;
-  jcTotal1: boolean;
-  jcTotal2: boolean;
-  jcTotal3: boolean;
-  jcTotal4: boolean;
-  jcTotal5: boolean;
-  jcTotal6: boolean;
-  jcTotal7: boolean;
+  jcGoal0: boolean;
+  jcGoal1: boolean;
+  jcGoal2: boolean;
+  jcGoal3: boolean;
+  jcGoal4: boolean;
+  jcGoal5: boolean;
+  jcGoal6: boolean;
+  jcGoal7: boolean;
   hgGoalLine1: GoalLine;
   hgResult1: 'X' | 'D';
   hgGoalLine2: GoalLine;

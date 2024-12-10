@@ -322,7 +322,7 @@ router.post('/api/water/getFtTotalGoal', async (ctx) => {
   const jcMatchIdList = JCInfos.map((v) => v.matchId);
   const HGInfos = footballState.HGInfoList.filter((v) => jcMatchIdList.includes(v.matchId));
   const goalData = getGoalInfoList(JCInfos as any[], HGInfos as any[], op);
-  return {
+  ctx.response.body = {
     success: true,
     goalData,
     HGInfos: footballState.HGInfoList,

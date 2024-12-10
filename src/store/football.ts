@@ -119,7 +119,7 @@ export const updateJCInfoList = async () => {
         ttg_s4: match?.ttg?.s4,
         ttg_s5: match?.ttg?.s5,
         ttg_s6: match?.ttg?.s6,
-        ttg_s7: match?.ttg?.s0,
+        ttg_s7: match?.ttg?.s7,
 
         updateTime: new Date().toISOString(),
         createdAt: match?.createdAt ?? '',
@@ -331,9 +331,9 @@ export const updateHgInfoList = toAsyncTimeFunction(
             ...re,
             [`hilo_goalLine${curIndex + 1}`]: !hilo_h
               ? '-'
-              : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio_o?._text || '', isHStrong ? false : true),
-            [`hilo_h${curIndex + 1}`]: strFixed(hilo_h),
-            [`hilo_a${curIndex + 1}`]: strFixed(hilo_a),
+              : getRatioAvg(normalPtypeGameMore[curIndex]?.ratio_o?._text || '', false),
+            [`hilo_h${curIndex + 1}`]: strFixed(hilo_a),
+            [`hilo_a${curIndex + 1}`]: strFixed(hilo_h),
           };
         }, {} as HGHilo),
         updateTime: new Date().toISOString(),
@@ -404,7 +404,7 @@ export function getSinInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: P
 }
 
 export function getGoalInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: Omit<PointOptions, 'JCPointChuan'>) {
-  const sinInfoList = (JCInfoList || [])
+  const goalInfoList = (JCInfoList || [])
   .filter((jcInfo) => jcInfo.matchId)
   .map((jcInfo) => {
     const hgInfo = (HGInfoList || []).filter((info) => info.matchId).find((hg) => hg.matchId === jcInfo.matchId);
@@ -415,7 +415,7 @@ export function getGoalInfoList(JCInfoList: JCInfo[], HGInfoList: HGInfo[], op: 
   })
   .filter((v): v is GoalInfo[] => !!v)
   .flat();
-return sinInfoList;
+return goalInfoList;
 }
 
 export function getChuanInfoList(sinInfoList: SinInfo[], op: PointOptions) {

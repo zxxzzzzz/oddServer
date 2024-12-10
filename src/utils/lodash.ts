@@ -266,6 +266,9 @@ export function getGaussElimination(pA: number[][], pB: number[]): number[] {
   const n = A.length; // 获取矩阵的大小
   const x = new Array(n).fill(0); // 初始化解向量 x，初始值为 0
   const b = pB.filter((_, line) => !isLineNone(line));
+  if(pA.length > 5) {
+    console.log(A, b);
+  }
 
   // 创建增广矩阵 [A|b]
   for (let i = 0; i < n; i++) {
@@ -287,7 +290,7 @@ export function getGaussElimination(pA: number[][], pB: number[]): number[] {
 
     // 检查主元是否为零，如果是，则矩阵是奇异的
     if (A[i][i] === 0) {
-      throw new Error('Matrix is singular');
+      return range(0, pA.length).map((_v) => 0);
     }
 
     // 将当前列下方的所有元素消为零
@@ -673,7 +676,6 @@ export function getGoalLineNumberList(goalLine: GoalLine) {
   }
   return goalLineList as [number, number];
 }
-
 
 /**合并betting list结果为一个betting结果 */
 export function getBettingResultByBettingList(betList: [BETTING_RESULT, BETTING_RESULT]) {
