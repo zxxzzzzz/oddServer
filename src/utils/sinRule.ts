@@ -235,9 +235,6 @@ export const getCoefficient = (
   return 0;
 };
 
-// console.log(123, getBettingResult({ goalLine: 'J1', result: 'a', isJC: false }, { goalLine: '1', result: 'h', isJC: true }));
-// console.log(123, getBettingResult({ goalLine: 'J1', result: 'a', isJC: false }, { goalLine: '1', result: 'a', isJC: true }));
-
 /**
  *获取利润
  * @param JCInfo

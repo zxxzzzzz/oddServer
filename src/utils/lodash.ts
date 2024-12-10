@@ -266,9 +266,6 @@ export function getGaussElimination(pA: number[][], pB: number[]): number[] {
   const n = A.length; // 获取矩阵的大小
   const x = new Array(n).fill(0); // 初始化解向量 x，初始值为 0
   const b = pB.filter((_, line) => !isLineNone(line));
-  if(pA.length > 5) {
-    console.log(A, b);
-  }
 
   // 创建增广矩阵 [A|b]
   for (let i = 0; i < n; i++) {

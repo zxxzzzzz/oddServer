@@ -28,7 +28,7 @@ import { updateGoalRuleList } from "./utils/goalRule.ts";
 
 const updateAllRule = () => {
   for (let index = 0; index < 99999; index++) {
-    const filePath = resolve(import.meta.dirname || './', `../history/${index}.json`);
+    const filePath = resolve(import.meta.dirname || './', `../history/football${index}.json`);
     if (!existsSync(filePath)) continue;
     console.log(filePath);
     const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' }));
@@ -64,7 +64,7 @@ const updateAllRule = () => {
     console.log('update');
   }
   for (let index = 0; index < 999999; index++) {
-    const filePath = resolve(import.meta.dirname || './', `../history/total${index}.json`);
+    const filePath = resolve(import.meta.dirname || './', `../history/footballTotal${index}.json`);
     if (!existsSync(filePath)) continue;
     console.log(filePath);
     const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' }));

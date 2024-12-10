@@ -482,7 +482,6 @@ export function getGoalInfoData(
     ],
     [m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11]
   );
-  console.log([jcBet0, jcBet1, jcBet2, jcBet3, jcBet4, jcBet5, jcBet6, jcBet7, hgBet1, hgBet2, profit], item);
   if (
     jcBet0 < 0 ||
     jcBet1 < 0 ||
@@ -595,5 +594,3 @@ export function getMatchGoalInfo(jcInfo: JCInfo, hgInfo: HGInfo, op: Omit<PointO
     })
     .filter((v) => !!v.data);
 }
-
-console.log('kkk', getBettingResult({ isJc: false, goalLine: '3.25', result: 'D' }, { isJc: true, totalCount: 3 }));
