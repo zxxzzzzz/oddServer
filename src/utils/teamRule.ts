@@ -14,7 +14,7 @@ export const updateTeamRuleList = (ruleList: TeamRule[], op = { disableCache: fa
       return maxBy(value, (item) => item.weight);
     })
     .filter((v) => !!v);
-  const uniqItemList = uniqBy(itemList, (item) => item.jcTeam).toSorted((v1, v2) => {
+  const uniqItemList = uniqBy(itemList, (item) => item.jcLeague + ',' + item.jcTeam).toSorted((v1, v2) => {
     const w1 = toNumber(v1.weight);
     const w2 = toNumber(v2.weight);
     return (w1 - w2) * 1000 + v1.jcLeague.localeCompare(v2.jcLeague) * 100 + v1.jcTeam.localeCompare(v2.jcTeam);
